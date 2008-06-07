@@ -56,6 +56,42 @@ extern "C"
 
 typedef Matrix CloogMatrix;
 
+static inline Value
+cloog_matrix_element (CloogMatrix *m, int row, int col)
+{
+  return m->p[row][col];
+}
+
+static inline void
+cloog_matrix_element_assign (CloogMatrix *m, int row, int col, Value val)
+{
+  value_assign (m->p[row][col], val);
+}
+
+static inline void
+cloog_matrix_element_increment (CloogMatrix *m, int row, int col, Value val)
+{
+  value_increment (m->p[row][col], val);
+}
+
+static inline void
+cloog_matrix_element_decrement (CloogMatrix *m, int row, int col, Value val)
+{
+  value_decrement (m->p[row][col], val);
+}
+
+static inline void
+cloog_matrix_element_substract (CloogMatrix *m, int row, int col, Value val1, Value val2)
+{
+  value_substract (m->p[row][col], val1, val2);
+}
+
+static inline void
+cloog_matrix_element_set_si (CloogMatrix *m, int row, int col, int val)
+{
+  value_set_si (m->p[row][col], val);
+}
+
 /******************************************************************************
  *                              PolyLib interface                             *
  ******************************************************************************/

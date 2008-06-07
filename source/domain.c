@@ -283,8 +283,8 @@ static CloogDomain *cloog_domain_simplified_hull(CloogDomain * domain)
 	  Inner_Product(constraints->p[j]+1, rays[k]->p[l]+1, dim+1, &tmp);
 	  if (value_neg_p(tmp))
 	    break;
-	  if ((value_zero_p(constraints->p[j][0]) || 
-	       value_zero_p(rays[k]->p[l][0])) && value_pos_p(tmp))
+	  if ((value_zero_p(cloog_matrix_element(constraints, j, 0)) || 
+	       value_zero_p(cloog_matrix_element(rays[k], l, 0))) && value_pos_p(tmp))
 	    break;
 	}
 	if (l < rays[k]->NbRows)
@@ -855,11 +855,11 @@ CloogDomain * cloog_domain_project(CloogDomain * domain, int level, int nb_par)
      
   for (row=0;row<level;row++)
   for (column=0;column<nb_columns; column++)
-  value_set_si(matrix->p[row][column],(row == column ? 1 : 0)) ;
+    cloog_matrix_element_set_si(matrix, row, column, (row == column ? 1 : 0)) ;
 
   for (;row<nb_rows;row++)
   for (column=0;column<nb_columns;column++)
-  value_set_si(matrix->p[row][column],(row+difference == column ? 1 : 0)) ;
+    cloog_matrix_element_set_si (matrix, row, column, (row+difference == column ? 1 : 0)) ;
   
   projected_domain = cloog_domain_image(domain,matrix) ;
   cloog_matrix_free(matrix) ;
@@ -891,9 +891,9 @@ CloogDomain * cloog_domain_bounds(CloogDomain * domain, int dim, int nb_par)
   
   matrix = cloog_matrix_alloc(nb_rows, nb_columns);
      
-  value_set_si(matrix->p[0][dim], 1);
+  cloog_matrix_element_set_si(matrix, 0, dim, 1);
   for (row = 1; row < nb_rows; row++)
-    value_set_si(matrix->p[row][row+difference], 1);
+    cloog_matrix_element_set_si(matrix, row, row+difference, 1);
   
   projected_domain = cloog_domain_image(domain,matrix) ;
   extended_domain = cloog_domain_preimage(projected_domain, matrix);
@@ -934,11 +934,11 @@ CloogDomain * cloog_domain_extend(CloogDomain * domain, int dim, int nb_par)
     
   for (row=0;row<domain->polyhedron->Dimension-nb_par;row++)
   for (column=0;column<nb_columns;column++)
-  value_set_si(matrix->p[row][column],(row == column ? 1 : 0)) ;
+    cloog_matrix_element_set_si(matrix, row, column, (row == column ? 1 : 0)) ;
   
   for (;row<=domain->polyhedron->Dimension;row++)
   for (column=0;column<nb_columns;column++)
-  value_set_si(matrix->p[row][column],(row+difference == column ? 1 : 0)) ;
+    cloog_matrix_element_set_si(matrix, row, column, (row+difference == column ? 1 : 0)) ;
   
   extended_domain = cloog_domain_preimage(domain,matrix) ;
   cloog_matrix_free(matrix) ;
@@ -1054,10 +1054,10 @@ Value  * stride, * offset;
     if (First_Non_Zero(polyhedron->Constraint[i]+strided_level, n_col) == -1)
       continue;
     Vector_Copy(polyhedron->Constraint[i]+strided_level, M->p[n_row], n_col);
-    value_assign(M->p[n_row][n_col], polyhedron->Constraint[i][1+dimension]);
+    cloog_matrix_element_assign(M, n_row, n_col, polyhedron->Constraint[i][1+dimension]);
     ++n_row;
   }
-  value_set_si(M->p[n_row][n_col], 1);
+  cloog_matrix_element_set_si(M, n_row, n_col, 1);
 
   /* Then look at the general solution to the above equalities. */
   rank = SolveDiophantine(M, &U, &V);
@@ -1584,11 +1584,12 @@ CloogDomain * cloog_domain_grow(CloogDomain * domain, int level, int lower)
   scalar_dim = matrix->NbColumns - 1 ;
 
   for (i=0;i<matrix->NbRows;i++)
-  if (value_one_p(matrix->p[i][0]))
-  { if (((lower == 1) && value_pos_p(matrix->p[i][level])) ||
-        ((lower == 0) && value_neg_p(matrix->p[i][level])))
-    value_increment(matrix->p[i][scalar_dim],matrix->p[i][scalar_dim]) ;
-  }
+    if (value_one_p(cloog_matrix_element (matrix, i, 0)))
+      { if (((lower == 1) && value_pos_p(cloog_matrix_element(matrix, i, level))) ||
+	    ((lower == 0) && value_neg_p(cloog_matrix_element(matrix, i, level))))
+	  cloog_matrix_element_increment (matrix, i, scalar_dim,
+					  cloog_matrix_element(matrix, i, scalar_dim)) ;
+      }
   
   grow = cloog_domain_matrix2domain(matrix) ;
   cloog_matrix_free(matrix) ;
@@ -1736,10 +1737,10 @@ CloogDomain * cloog_domain_erase_dimension(CloogDomain * domain, int dimension)
   for (i=0;i<polyhedron->NbConstraints;i++)
   if (value_zero_p(polyhedron->Constraint[i][dimension+1]))
   { for (j=0;j<=dimension;j++)
-    value_assign(matrix->p[mi][j],polyhedron->Constraint[i][j]) ;
+      cloog_matrix_element_assign(matrix, mi, j, polyhedron->Constraint[i][j]) ;
     
     for (j=dimension+2;j<nb_dim+2;j++)
-    value_assign(matrix->p[mi][j-1],polyhedron->Constraint[i][j]) ;
+      cloog_matrix_element_assign(matrix, mi, j-1, polyhedron->Constraint[i][j]) ;
 
     mi ++ ;
   }

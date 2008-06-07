@@ -404,23 +404,22 @@ int clast_expr_equal(struct clast_expr *e1, struct clast_expr *e2)
 static int clast_equal_type(CloogMatrix *equal, int level, int line)
 { 
   int i, one=0 ;
-  Value * expr ;
-    
-  expr = equal->p[line] ;
   
   /* There is only one non null factor, and it must be +1 or -1 for
    * iterators or parameters.
    */ 
   for (i=1;i<=equal->NbColumns-2;i++)
-  if (value_notzero_p(expr[i]) && (i != level))
-  { if ((value_notone_p(expr[i]) && value_notmone_p(expr[i])) || (one != 0))
+    if (value_notzero_p(cloog_matrix_element(equal, line, i)) && (i != level))
+      { if ((value_notone_p(cloog_matrix_element(equal, line, i))
+	     && value_notmone_p(cloog_matrix_element(equal, line, i)))
+	    || (one != 0))
     return EQTYPE_EXAFFINE ;
     else
     one = 1 ;
   }
   /* if the constant factor is non null, it must be alone. */
   if (one != 0)
-  { if (value_notzero_p(expr[equal->NbColumns-1]))
+    { if (value_notzero_p(cloog_matrix_element(equal, line, equal->NbColumns-1)))
     return EQTYPE_EXAFFINE ;
   }
   else
@@ -481,8 +480,8 @@ static int clast_equal_add(CloogMatrix *equal, CloogMatrix *matrix, int level, i
    */
   if (line == ONE_TIME_LOOP)
   { for (i=0;i<matrix->NbRows;i++)
-    if ((value_notzero_p(matrix->p[i][0]))&&
-        (value_notzero_p(matrix->p[i][level])))
+      if ((value_notzero_p(cloog_matrix_element(matrix, i, 0)))&&
+	  (value_notzero_p(cloog_matrix_element(matrix, i, level))))
     { line = i ;
       
       /* Since in once-time-loops, equalities derive from inequalities, we
@@ -493,17 +492,17 @@ static int clast_equal_add(CloogMatrix *equal, CloogMatrix *matrix, int level, i
        * parameters) the once time loop would not have been detected
        * because of floord and ceild functions.
        */
-      if (value_ne_si(matrix->p[i][level],1) &&
-          value_ne_si(matrix->p[i][level],-1) &&
-	  value_notzero_p(matrix->p[i][matrix->NbColumns-1]))
+      if (value_ne_si(cloog_matrix_element(matrix, i, level),1) &&
+          value_ne_si(cloog_matrix_element(matrix, i, level),-1) &&
+	  value_notzero_p(cloog_matrix_element(matrix, i, matrix->NbColumns-1)))
       { value_init_c(numerator) ;
         value_init_c(denominator) ;
         value_init_c(division) ;
         value_init_c(modulo) ;
         
-	value_assign(denominator,matrix->p[i][level]) ;
+	value_assign(denominator,cloog_matrix_element(matrix, i, level)) ;
 	value_absolute(denominator,denominator) ; 
-        value_assign(numerator,matrix->p[i][matrix->NbColumns-1]) ;   
+        value_assign(numerator,cloog_matrix_element(matrix, i, matrix->NbColumns-1)) ;   
         value_modulus(modulo,numerator,denominator) ;
         value_division(division,numerator,denominator) ;
 	
@@ -518,18 +517,18 @@ static int clast_equal_add(CloogMatrix *equal, CloogMatrix *matrix, int level, i
 	 * level coefficient.
 	 */
 	if (value_pos_p(numerator) || value_zero_p(modulo))
-	value_assign(matrix->p[i][matrix->NbColumns-1],division) ;
+	  cloog_matrix_element_assign (matrix, i, matrix->NbColumns-1, division);
 	else
-	{ if (value_pos_p(matrix->p[i][level]))
-	  value_increment(matrix->p[i][matrix->NbColumns-1],division) ;
+	  { if (value_pos_p(cloog_matrix_element(matrix, i, level)))
+	      cloog_matrix_element_increment (matrix, i, matrix->NbColumns-1,division) ;
 	  else
-	  value_decrement(matrix->p[i][matrix->NbColumns-1],division) ;
+	    cloog_matrix_element_decrement (matrix, i, matrix->NbColumns-1,division) ;
 	}
         
-	if (value_pos_p(matrix->p[i][level]))
-	value_set_si(matrix->p[i][level],1) ;
+	if (value_pos_p(cloog_matrix_element(matrix, i, level)))
+	  cloog_matrix_element_set_si(matrix, i, level, 1) ;
 	else
-	value_set_si(matrix->p[i][level],-1) ;
+	  cloog_matrix_element_set_si(matrix, i, level, -1) ;
 	
 	value_clear_c(numerator) ;
         value_clear_c(denominator) ;
@@ -544,15 +543,15 @@ static int clast_equal_add(CloogMatrix *equal, CloogMatrix *matrix, int level, i
   /* We update the line of equal corresponding to level:
    * - the first element gives the equality type,
    */
-  value_set_si(equal->p[level-1][0],clast_equal_type(matrix,level,line)) ;
+  cloog_matrix_element_set_si(equal, level-1, 0, clast_equal_type(matrix,level,line)) ;
   /* - the other elements corresponding to the equality itself
    *   (the iterators up to level, then the parameters and the scalar).
    */
   for (i=1;i<=level;i++)
-  value_assign(equal->p[level-1][i],matrix->p[line][i]) ;
+    cloog_matrix_element_assign(equal, level-1, i, cloog_matrix_element(matrix, line, i)) ;
   for (i=0;i<infos->names->nb_parameters+1;i++)
-  value_assign(equal->p[level-1][equal->NbColumns-i-1],
-               matrix->p[line][matrix->NbColumns-i-1]) ;
+    cloog_matrix_element_assign(equal, level-1, equal->NbColumns-i-1,
+				cloog_matrix_element(matrix, line, matrix->NbColumns-i-1)) ;
   
   cloog_matrix_equality_update(equal,level,infos->names->nb_parameters) ;
   
@@ -571,7 +570,7 @@ static void clast_equal_del(CloogMatrix * equal, int level)
   int i ;
   
   for (i=0;i<equal->NbColumns;i++)
-  value_set_si(equal->p[level-1][i],0) ;
+    cloog_matrix_element_set_si(equal, level-1, i, 0) ;
 }
 
 
@@ -601,17 +600,17 @@ static struct clast_stmt * clast_equal(CloogInfos *infos)
    * never appear in the statement bodies.
    */
   for (i=infos->names->nb_scattering;i<equal->NbRows;i++)
-  { if (value_notzero_p(equal->p[i][0])&&clast_equal_allow(equal,i+1,i,infos)) {
+  { if (value_notzero_p(cloog_matrix_element(equal, i, 0))&&clast_equal_allow(equal,i+1,i,infos)) {
       iterator = i - infos->names->nb_scattering ;
     
       /* pprint_line needs to know that the current line is an equality, so
        * we temporary remove the equality type and set it to zero (the equality
        * tag in PolyLib.
        */
-      value_assign(type,equal->p[i][0]) ;
-      value_set_si(equal->p[i][0],0) ;
+      value_assign(type,cloog_matrix_element(equal, i, 0)) ;
+      cloog_matrix_element_set_si(equal, i, 0, 0) ;
       e = clast_bound_from_constraint(equal, i, i+1, infos->names);
-      value_assign(equal->p[i][0],type) ;
+      cloog_matrix_element_assign(equal, i, 0, type) ;
       *next = &new_clast_assignment(infos->names->iterators[iterator], e)->stmt;
       next = &(*next)->next;
     }
@@ -648,15 +647,15 @@ static struct clast_stmt * clast_equal_cpp(int level, CloogInfos *infos)
   value_init_c(type) ;
   
   for (i=infos->names->nb_scattering;i<level-1;i++)
-  { if (value_notzero_p(equal->p[i][0]))
+    { if (value_notzero_p(cloog_matrix_element(equal, i, 0)))
     { /* pprint_line needs to know that the current line is an equality, so
        * we temporary remove the equality type and set it to zero (the equality
        * tag in PolyLib.
        */
-      value_assign(type,equal->p[i][0]) ;
-      value_set_si(equal->p[i][0],0) ;
+      value_assign(type,cloog_matrix_element(equal, i, 0)) ;
+      cloog_matrix_element_set_si(equal, i, 0, 0) ;
       e = clast_bound_from_constraint(equal, i, i+1, infos->names);
-      value_assign(equal->p[i][0],type) ;
+      cloog_matrix_element_assign(equal, i, 0, type) ;
     } else {
       value_set_si(type, 1);
       e = &new_clast_term(type, 
@@ -694,21 +693,20 @@ struct clast_expr *clast_bound_from_constraint(CloogMatrix *matrix,
 { 
   int i, nb_iter, sign, nb_elts=0 ;
   char * name;
-  Value * line, numerator, denominator, temp, division ;
+  Value numerator, denominator, temp, division ;
   struct clast_expr *e = NULL;
 
-  line = matrix->p[line_num] ;
   value_init_c(temp) ;
   value_init_c(numerator) ;
   value_init_c(denominator) ;
 
-  if (value_notzero_p(line[level])) {
+  if (value_notzero_p(cloog_matrix_element(matrix, line_num, level))) {
     struct clast_reduction *r;
     /* Maybe we need to invert signs in such a way that the element sign is>0.*/
-    sign = value_pos_p(line[level]) ? -1 : 1 ;
+    sign = value_pos_p(cloog_matrix_element(matrix, line_num, level)) ? -1 : 1 ;
 
     for (i = 1, nb_elts = 0; i <= matrix->NbColumns - 1; ++i)
-	if (i != level && value_notzero_p(line[i]))
+      if (i != level && value_notzero_p(cloog_matrix_element(matrix, line_num, i)))
 	    nb_elts++;
     r = new_clast_reduction(clast_red_sum, nb_elts);
     nb_elts = 0;
@@ -716,50 +714,53 @@ struct clast_expr *clast_bound_from_constraint(CloogMatrix *matrix,
     /* First, we have to print the iterators. */
     nb_iter = matrix->NbColumns - 2 - names->nb_parameters;
     for (i=1;i<=nb_iter;i++)
-    if ((i != level) && value_notzero_p(line[i])) {
+      if ((i != level) && value_notzero_p(cloog_matrix_element(matrix, line_num, i))) {
       if (i <= names->nb_scattering)
         name = names->scattering[i-1];
       else
         name = names->iterators[i-names->nb_scattering-1];
       
       if (sign == -1)
-      value_oppose(temp,line[i]) ;
+	value_oppose(temp,cloog_matrix_element(matrix, line_num, i)) ;
       else
-      value_assign(temp,line[i]) ;
+	value_assign(temp,cloog_matrix_element(matrix, line_num, i)) ;
       
       r->elts[nb_elts++] = &new_clast_term(temp, name)->expr;
     }    
 
     /* Next, the parameters. */
     for (i=nb_iter+1;i<=matrix->NbColumns-2;i++)
-    if ((i != level) && value_notzero_p(line[i])) {
+      if ((i != level) && value_notzero_p(cloog_matrix_element(matrix, line_num, i))) {
       name = names->parameters[i-nb_iter-1];
       
       if (sign == -1)
-      value_oppose(temp,line[i]) ;
+	value_oppose(temp,cloog_matrix_element(matrix, line_num, i)) ;
       else
-      value_assign(temp,line[i]) ;
+	value_assign(temp,cloog_matrix_element(matrix, line_num, i)) ;
       
       r->elts[nb_elts++] = &new_clast_term(temp, name)->expr;
     }    
 
     if (sign == -1)
-    { value_oppose(numerator,line[matrix->NbColumns - 1]) ;
-      value_assign(denominator,line[level]) ;
-    }
+      {
+	value_oppose(numerator,cloog_matrix_element(matrix, line_num, matrix->NbColumns - 1)) ;
+	value_assign(denominator,cloog_matrix_element(matrix, line_num, level)) ;
+      }
     else
-    { value_assign(numerator,line[matrix->NbColumns - 1]) ;
-      value_oppose(denominator,line[level]) ;
-    }
+      {
+	value_assign(numerator,cloog_matrix_element(matrix, line_num, matrix->NbColumns - 1)) ;
+	value_oppose(denominator,cloog_matrix_element(matrix, line_num, level)) ;
+      }
         
     /* Finally, the constant, and the final printing. */
     if (nb_elts) {
       if (value_notzero_p(numerator))
 	  r->elts[nb_elts++] = &new_clast_term(numerator, NULL)->expr;
     
-      if (value_notone_p(line[level]) && value_notmone_p(line[level]))
-      { if (value_one_p(line[0]))
-        { if (value_pos_p(line[level]))
+      if (value_notone_p(cloog_matrix_element(matrix, line_num, level)) 
+	  && value_notmone_p(cloog_matrix_element(matrix, line_num, level)))
+	{ if (value_one_p(cloog_matrix_element(matrix, line_num, 0)))
+	    { if (value_pos_p(cloog_matrix_element(matrix, line_num, level)))
 	    e = &new_clast_binary(clast_bin_cdiv, &r->expr, denominator)->expr;
           else
 	    e = &new_clast_binary(clast_bin_fdiv, &r->expr, denominator)->expr;
@@ -774,7 +775,7 @@ struct clast_expr *clast_bound_from_constraint(CloogMatrix *matrix,
 	e = &new_clast_term(numerator, NULL)->expr;
       else
       { if (value_notone_p(denominator))
-        { if (value_one_p(line[0])) /* useful? */
+	  { if (value_one_p(cloog_matrix_element(matrix, line_num, 0))) /* useful? */
           { value_modulus(temp,numerator,denominator) ;
             if (value_zero_p(temp))
             { value_division(temp,numerator,denominator) ;
@@ -784,7 +785,7 @@ struct clast_expr *clast_bound_from_constraint(CloogMatrix *matrix,
             { value_init_c(division) ;
 	      value_division(division,numerator,denominator) ;
 	      if (value_neg_p(numerator)) {
-                if (value_pos_p(line[level])) {
+                if (value_pos_p(cloog_matrix_element(matrix, line_num, level))) {
 		    /* nb<0 need max */
 		    e = &new_clast_term(division, NULL)->expr;
 		} else {
@@ -794,7 +795,7 @@ struct clast_expr *clast_bound_from_constraint(CloogMatrix *matrix,
                 }
 	      }
               else
-              { if (value_pos_p(line[level]))
+		{ if (value_pos_p(cloog_matrix_element(matrix, line_num, level)))
 	        { /* nb>0 need max */
                   value_increment(temp,division) ;
 		  e = &new_clast_term(temp, NULL)->expr;
@@ -854,21 +855,21 @@ static struct clast_expr *clast_minmax(CloogMatrix *matrix,
   struct clast_reduction *r;
   
   for (i=0, n=0;i<matrix->NbRows;i++)
-      if (((max && value_pos_p(matrix->p[i][level])) ||
-	   (!max && value_neg_p(matrix->p[i][level]))) &&
-	  (!guard || value_zero_p(matrix->p[i][guard])) &&
-	  (value_notzero_p(matrix->p[i][0])))
-	n++;
+    if (((max && value_pos_p(cloog_matrix_element(matrix, i, level))) ||
+	 (!max && value_neg_p(cloog_matrix_element(matrix, i, level)))) &&
+	(!guard || value_zero_p(cloog_matrix_element(matrix, i, guard))) &&
+	(value_notzero_p(cloog_matrix_element(matrix, i, 0))))
+      n++;
   if (!n)
     return NULL;
   r = new_clast_reduction(max ? clast_red_max : clast_red_min, n);
 
   for (i=0, n=0;i<matrix->NbRows;i++)
-      if (((max && value_pos_p(matrix->p[i][level])) ||
-	   (!max && value_neg_p(matrix->p[i][level]))) &&
-	  (!guard || value_zero_p(matrix->p[i][guard])) &&
-	  (value_notzero_p(matrix->p[i][0])))
-	r->elts[n++] = clast_bound_from_constraint(matrix,i,level,infos->names);
+    if (((max && value_pos_p(cloog_matrix_element(matrix, i, level))) ||
+	 (!max && value_neg_p(cloog_matrix_element(matrix, i, level)))) &&
+	(!guard || value_zero_p(cloog_matrix_element(matrix, i, guard))) &&
+	(value_notzero_p(cloog_matrix_element(matrix, i, 0))))
+      r->elts[n++] = clast_bound_from_constraint(matrix,i,level,infos->names);
 
   return &r->expr;
 }
@@ -929,8 +930,8 @@ static void insert_guard(CloogMatrix *matrix, int level,
     /* We search for guard parts. */
     for (i=1;i<=copy->NbColumns-2;i++)
     for (j=0;j<copy->NbRows;j++)
-    if (value_notzero_p(copy->p[j][i]) &&
-        (value_zero_p(copy->p[j][level]) || (nb_iter < level))) {
+      if (value_notzero_p(cloog_matrix_element(copy, j, i)) &&
+	  (value_zero_p(cloog_matrix_element(copy, j, level)) || (nb_iter < level))) {
       struct clast_term *t;
       if (i <= nb_iter)
       { if (i <= infos->names->nb_scattering)
@@ -942,15 +943,15 @@ static void insert_guard(CloogMatrix *matrix, int level,
       name = infos->names->parameters[i-(nb_iter+1)] ;
       
       g->eq[nb_and].LHS = &(t = new_clast_term(one, name))->expr;
-      if (value_zero_p(copy->p[j][0])) {
+      if (value_zero_p(cloog_matrix_element(copy, j, 0))) {
 	/* put the "denominator" in the LHS */
-	value_assign(t->val, copy->p[j][i]);
-	value_set_si(copy->p[j][i], 1);
+	value_assign(t->val, cloog_matrix_element(copy, j, i));
+	cloog_matrix_element_set_si(copy, j, i, 1);
 	g->eq[nb_and].sign = 0;
         g->eq[nb_and].RHS = clast_bound_from_constraint(copy,j,i,infos->names);
-	value_assign(copy->p[j][i], t->val);
+	cloog_matrix_element_assign(copy, j, i, t->val);
       } else {
-        if (value_pos_p(copy->p[j][i])) {
+        if (value_pos_p(cloog_matrix_element(copy, j, i))) {
 	    minmax = 1;
 	    g->eq[nb_and].sign = 1;
         } else {
@@ -968,14 +969,14 @@ static void insert_guard(CloogMatrix *matrix, int level,
        * and the next lines if they are in a min or a max.
        */
       for (k=i;k<=copy->NbColumns-2;k++)
-      value_set_si(copy->p[j][k],0) ;
+	cloog_matrix_element_set_si(copy, j, k, 0) ;
     
       if (minmax != -1)
       for (l=j+1;l<copy->NbRows;l++)
-      if (((minmax == 1) && value_pos_p(copy->p[l][i])) ||
-          ((minmax == 0) && value_neg_p(copy->p[l][i])))
+	if (((minmax == 1) && value_pos_p(cloog_matrix_element(copy, l, i))) ||
+	    ((minmax == 0) && value_neg_p(cloog_matrix_element(copy, l, i))))
       for (k=i;k<=copy->NbColumns-2;k++)
-      value_set_si(copy->p[l][k],0) ;
+	cloog_matrix_element_set_si(copy, l, k, 0) ;
     }
     cloog_matrix_free(copy) ;
   
@@ -1054,7 +1055,7 @@ static void insert_modulo_guard(CloogMatrix *matrix, int num, int level,
   Vector *line_vector;
   Value *line, val, x, y, g;
 
-  if (value_one_p(matrix->p[num][level]) || value_mone_p(matrix->p[num][level]))
+  if (value_one_p(cloog_matrix_element(matrix, num, level)) || value_mone_p(cloog_matrix_element(matrix, num, level)))
     return;
 
   value_init_c(val);
@@ -1068,7 +1069,7 @@ static void insert_modulo_guard(CloogMatrix *matrix, int num, int level,
 
   line_vector = Vector_Alloc(len);
   line = line_vector->p;
-  if (value_neg_p(matrix->p[num][level]))
+  if (value_neg_p(cloog_matrix_element(matrix, num, level)))
     Vector_Copy(matrix->p[num]+1, line+1, len-1);
   else {
     value_set_si(val, -1);
@@ -1092,24 +1093,24 @@ static void insert_modulo_guard(CloogMatrix *matrix, int num, int level,
      * with smaller index.
      */
     for (j = level-1; j >= 0; --j) {
-      if (value_cmp_si(infos->equal->p[j][0], EQTYPE_EXAFFINE) != 0)
+      if (value_cmp_si(cloog_matrix_element(infos->equal, j, 0), EQTYPE_EXAFFINE) != 0)
 	continue;
-      value_modulus(val, infos->equal->p[j][1+j], line[level]);
+      value_modulus(val, cloog_matrix_element(infos->equal, j, 1+j), line[level]);
       if (value_notzero_p(val))
 	continue;
-      value_modulus(val, infos->equal->p[j][i], line[level]);
+      value_modulus(val, cloog_matrix_element(infos->equal, j, i), line[level]);
       if (value_zero_p(val))
 	continue;
       for (k = j; k > i; --k) {
-	if (value_zero_p(infos->equal->p[j][k]))
+	if (value_zero_p(cloog_matrix_element(infos->equal, j, k)))
 	  continue;
-	value_modulus(val, infos->equal->p[j][k], line[level]);
+	value_modulus(val, cloog_matrix_element(infos->equal, j, k), line[level]);
 	if (value_notzero_p(val))
 	  break;
       }
       if (k > i)
 	 continue;
-      Euclid(infos->equal->p[j][i], line[level], &x, &y, &g);
+      Euclid(cloog_matrix_element(infos->equal, j, i), line[level], &x, &y, &g);
       value_modulus(val, line[i], g);
       if (value_notzero_p(val))
 	continue;
@@ -1480,8 +1481,8 @@ static void insert_loop(CloogLoop * loop, int level, int scalar,
 	 * [[if] equality] or [for].
 	 */
 	for (i=0;i<matrix->NbRows;i++)
-	if (value_zero_p(matrix->p[i][0]) &&
-	    value_notzero_p(matrix->p[i][level]))
+	  if (value_zero_p(cloog_matrix_element(matrix, i, 0)) &&
+	      value_notzero_p(cloog_matrix_element(matrix, i, level)))
 	{ /* If there is an equality, we can print it directly -no ambiguity-.
 	   * PolyLib can give more than one equality, we use just the first one
 	   * (this is a PolyLib problem, but all equalities are equivalent).
