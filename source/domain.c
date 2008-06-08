@@ -136,7 +136,7 @@ void cloog_value_leak_down()
  * polyhedron with its double representation: constraint matrix and the set of
  * rays).
  */ 
-CloogDomain * cloog_domain_matrix2domain(CloogMatrix * matrix)
+static CloogDomain * cloog_domain_matrix2domain(CloogMatrix * matrix)
 { return (cloog_domain_alloc(Constraints2Polyhedron(matrix,MAX_RAYS))) ;
 }
 
