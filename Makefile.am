@@ -46,11 +46,11 @@ AM_CFLAGS = -Wall -fomit-frame-pointer
 libcloog_la_SOURCES = \
 	source/block.c \
 	source/clast.c \
-	source/domain.c \
 	source/loop.c \
-	source/matrix.c \
 	source/names.c \
 	source/options.c \
+	source/polylib/domain.c \
+	source/polylib/matrix.c \
 	source/pprint.c \
 	source/program.c \
 	source/statement.c \
