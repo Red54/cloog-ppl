@@ -213,7 +213,7 @@ CloogDomain * cloog_domain_copy(CloogDomain * domain)
  * polyhedral domain is computed from the former one into another
  * domain according to a given affine mapping function (mapping). 
  */
-CloogDomain * cloog_domain_image(CloogDomain * domain, CloogMatrix * mapping)
+static CloogDomain * cloog_domain_image(CloogDomain * domain, CloogMatrix * mapping)
 { return (cloog_domain_alloc(DomainImage(domain->polyhedron,mapping,MAX_RAYS)));
 }
 

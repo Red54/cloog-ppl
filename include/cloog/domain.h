@@ -104,7 +104,6 @@ void          cloog_domain_print(FILE *, CloogDomain *) ;
 void          cloog_polyhedron_print(FILE *, Polyhedron *) ;
 void          cloog_domain_free(CloogDomain *) ;
 CloogDomain * cloog_domain_copy(CloogDomain *) ;
-CloogDomain * cloog_domain_image(CloogDomain *, Matrix *) ;
 CloogDomain * cloog_domain_convex(CloogDomain * Pol) ;
 CloogDomain * cloog_domain_simple_convex(CloogDomain * domain, int nb_par);
 CloogDomain * cloog_domain_simplify(CloogDomain *, CloogDomain *) ;
