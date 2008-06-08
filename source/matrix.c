@@ -543,7 +543,7 @@ int level, nb_par ;
   return NULL ;
   
   /* The simplified matrix is such that each row has been simplified thanks
-   * tho the "equal" matrix. We allocate the memory for the simplified matrix,
+   * to the "equal" matrix. We allocate the memory for the simplified matrix,
    * then for each row of the original matrix, we compute the simplified
    * vector and we copy its content into the according simplified row.
    */
