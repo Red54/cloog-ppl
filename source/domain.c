@@ -225,7 +225,7 @@ CloogDomain * cloog_domain_image(CloogDomain * domain, CloogMatrix * mapping)
  * with a polyhedral domain which when transformed by mapping function (mapping)
  * gives (polyhedron).
  */
-CloogDomain * cloog_domain_preimage(CloogDomain * domain, CloogMatrix * mapping)
+static CloogDomain * cloog_domain_preimage(CloogDomain * domain, CloogMatrix * mapping)
 { return (cloog_domain_alloc(DomainPreimage(domain->polyhedron,
                                             mapping,MAX_RAYS))) ;
 }
