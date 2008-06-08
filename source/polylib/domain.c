@@ -40,7 +40,7 @@
 # include <stdlib.h>
 # include <stdio.h>
 # include <ctype.h>
-# include "../include/cloog/cloog.h"
+# include "../../include/cloog/cloog.h"
 
 
 /**
