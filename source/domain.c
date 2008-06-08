@@ -495,33 +495,6 @@ CloogDomain * cloog_domain_difference(CloogDomain * domain, CloogDomain * minus)
 
 
 /**
- * cloog_domain_includes function:
- * This function returns 1 if the polyhedral domain inside 'container' includes
- * the polyhedral domain inside 'contents', 0 otherwise.
- * - September 14th 2002: first version. 
- */
-int cloog_domain_includes(CloogDomain * container, CloogDomain * contents)
-{ int is_in ;
-  Polyhedron * p1, * p2 ;
-  
-  for (p1=container->polyhedron; p1; p1=p1->next)
-  { is_in = 0 ;
-    
-    for (p2=contents->polyhedron; p2; p2=p2->next)
-    if (PolyhedronIncludes(p1,p2))
-    { is_in = 1 ;
-      break ;
-    }
-    
-    if (!is_in)
-    return 0 ;
-  }
-  
-  return 1 ;
-}
-
-
-/**
  * cloog_domain_addconstraints function :
  * This function adds source's polyhedron constraints to target polyhedron: for
  * each element of the polyhedron inside 'target' (i.e. element of the union

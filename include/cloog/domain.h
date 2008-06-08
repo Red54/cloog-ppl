@@ -113,7 +113,6 @@ CloogDomain * cloog_domain_union(CloogDomain *, CloogDomain *) ;
 CloogDomain * cloog_domain_disjoint(CloogDomain *) ;
 CloogDomain * cloog_domain_intersection(CloogDomain *, CloogDomain *) ;
 CloogDomain * cloog_domain_difference(CloogDomain *, CloogDomain *) ;
-int           cloog_domain_includes(CloogDomain *, CloogDomain *) ;
 CloogDomain * cloog_domain_addconstraints(CloogDomain *, CloogDomain *) ;
 void          cloog_domain_sort(Polyhedron**,unsigned,unsigned,unsigned,int *);
 CloogDomain * cloog_domain_empty(int) ;
