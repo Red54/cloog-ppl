@@ -162,7 +162,6 @@ int           cloog_domain_lazy_block(CloogDomain *, CloogDomain *,
 int           cloog_domain_lazy_isscalar(CloogDomain *, int) ;
 int           cloog_domain_list_lazy_same(CloogDomainList *) ;
 void          cloog_domain_scalar(CloogDomain *, int, Value *) ;
-CloogDomain * cloog_domain_grow(CloogDomain *, int, int) ;
 CloogDomain * cloog_domain_cut_first(CloogDomain *) ;
 CloogDomain * cloog_domain_erase_dimension(CloogDomain *, int) ;
 

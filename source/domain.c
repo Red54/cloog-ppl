@@ -1563,40 +1563,6 @@ int cloog_domain_list_lazy_same(CloogDomainList * list)
   return 0 ;
 }
 
-
-/**
- * cloog_domain_grow function:
- * This function extend the polyhedron (domain) onto the dimension (level) by a
- * step of 1, if (lower) is 1 then the lower bound of the dimension is the same
- * minus one, if (lower) is 0 then the upper bound of the dimension is the
- * same plus one. This function frees the Polyhedron structure given as input
- * and returns the extended one.
- * - March 27th 2004: first version.
- * - June  21rd 2005: Adaptation for GMP.
- */
-CloogDomain * cloog_domain_grow(CloogDomain * domain, int level, int lower)
-{ int i, scalar_dim ;
-  CloogMatrix * matrix ;
-  CloogDomain * grow ;  
-  
-  matrix = cloog_domain_domain2matrix(domain) ;
-  cloog_domain_free(domain) ;
-  scalar_dim = matrix->NbColumns - 1 ;
-
-  for (i=0;i<matrix->NbRows;i++)
-    if (value_one_p(cloog_matrix_element (matrix, i, 0)))
-      { if (((lower == 1) && value_pos_p(cloog_matrix_element(matrix, i, level))) ||
-	    ((lower == 0) && value_neg_p(cloog_matrix_element(matrix, i, level))))
-	  cloog_matrix_element_increment (matrix, i, scalar_dim,
-					  cloog_matrix_element(matrix, i, scalar_dim)) ;
-      }
-  
-  grow = cloog_domain_matrix2domain(matrix) ;
-  cloog_matrix_free(matrix) ;
-  return grow ;
-}
-
-
 /**
  * Those functions are provided for "object encapsulation", to separate as much
  * as possible the inside of the CloogDomain structure from the rest of the
