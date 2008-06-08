@@ -98,7 +98,8 @@ void cloog_value_leak_down(void);
 /******************************************************************************
  *                              PolyLib interface                             *
  ******************************************************************************/
-Matrix      * cloog_domain_domain2matrix(CloogDomain *) ;
+CloogMatrix * cloog_simplify_domain_matrix_with_equalities (CloogDomain *, int,
+							    CloogMatrix *, int);
 void          cloog_domain_print(FILE *, CloogDomain *) ;
 void          cloog_polyhedron_print(FILE *, Polyhedron *) ;
 void          cloog_domain_free(CloogDomain *) ;

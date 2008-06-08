@@ -1452,7 +1452,7 @@ static void insert_loop(CloogLoop * loop, int level, int scalar,
 			struct clast_stmt ***next, CloogInfos *infos)
 {
     int i, equality=0, scalar_level;
-    CloogMatrix * matrix, * temp;
+    CloogMatrix * matrix;
     struct clast_stmt **top = *next;
 
     /* It can happen that loop be NULL when an input polyhedron is empty. */
@@ -1462,11 +1462,8 @@ static void insert_loop(CloogLoop * loop, int level, int scalar,
     /* The matrix has not always a shape that allows us to generate code from it,
     * thus we normalize it, we also simplify it with the matrix of equalities.
     */ 
-    temp = cloog_domain_domain2matrix(loop->domain);
-    cloog_matrix_normalize(temp,level);
-    matrix = cloog_matrix_simplify(temp,infos->equal,level,
-				   infos->names->nb_parameters);
-    cloog_matrix_free(temp);
+    matrix = cloog_simplify_domain_matrix_with_equalities
+      (loop->domain, level, infos->equal, infos->names->nb_parameters);
     value_assign(infos->stride[level-1],loop->stride);
 
     /* First of all we have to print the guard. */

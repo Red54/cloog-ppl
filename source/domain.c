@@ -146,7 +146,7 @@ static CloogDomain * cloog_domain_matrix2domain(CloogMatrix * matrix)
  * Given a polyhedron (in domain), this function returns its corresponding
  * matrix of constraints.
  */
-CloogMatrix * cloog_domain_domain2matrix(CloogDomain * domain)
+static CloogMatrix * cloog_domain_domain2matrix(CloogDomain * domain)
 {
   return cloog_matrix_matrix(Polyhedron2Constraints(domain->polyhedron));
 }
@@ -1777,3 +1777,16 @@ void cloog_domain_reverse(CloogDomain * domain)
   domain->polyhedron = q ;
 }
 
+CloogMatrix *
+cloog_simplify_domain_matrix_with_equalities (CloogDomain *domain, int level,
+					      CloogMatrix *equal, int nb_parameters)
+{
+  CloogMatrix *temp, *res;
+
+  temp = cloog_domain_domain2matrix (domain);
+  cloog_matrix_normalize (temp, level);
+  res = cloog_matrix_simplify (temp, equal, level, nb_parameters);
+  cloog_matrix_free(temp);
+
+  return res;
+}
