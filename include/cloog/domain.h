@@ -147,7 +147,6 @@ CloogDomain * cloog_domain_malloc(void);
 CloogDomain * cloog_domain_alloc(Polyhedron *) ;
 CloogDomain * cloog_domain_compact(CloogDomain *) ;
 int           cloog_domain_isempty(CloogDomain *) ;
-int           cloog_domain_universe(CloogDomain *) ;
 CloogDomain * cloog_domain_project(CloogDomain *, int, int) ;
 CloogDomain * cloog_domain_extend(CloogDomain *, int, int) ;
 int           cloog_domain_never_integral(CloogDomain *) ;

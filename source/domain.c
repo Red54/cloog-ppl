@@ -851,20 +851,6 @@ int cloog_domain_isempty(CloogDomain * domain)
 
 
 /**
- * cloog_domain_universe function:
- * This function returns 1 if the polyhedron given as input describe the
- * universe of its dimension, 0 otherwise. Nb: the NbBid field of a polyhedron
- * gives the number of bidirectionnal rays.
- * - November 19th 2001: first version.
- */
-int cloog_domain_universe(CloogDomain * domain)
-{ if (domain->polyhedron->next)
-  return(0) ;
-  return((domain->polyhedron->Dimension == domain->polyhedron->NbBid) ? 1 : 0) ;
-}
-
-
-/**
  * cloog_domain_project function:
  * From Quillere's LoopGen 0.4. This function returns the projection of
  * (domain) on the (level) first dimensions (i.e. outer loops). It returns a
