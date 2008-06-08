@@ -794,7 +794,7 @@ CloogDomainList * cloog_domain_list_read(FILE * foo)
  * allocated space.
  * - November 21th 2005: first version.
  */
-CloogDomain * cloog_domain_malloc()
+static CloogDomain * cloog_domain_malloc()
 { CloogDomain * domain ;
   
   domain = (CloogDomain *)malloc(sizeof(CloogDomain)) ;
