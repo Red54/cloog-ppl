@@ -456,17 +456,6 @@ CloogDomain * cloog_domain_union(CloogDomain * dom1, CloogDomain * dom2)
 
 
 /**
- * cloog_domain_disjoint function:
- * This function returns a new CloogDomain structure including a polyhedral
- * domain represented using union of *disjoint* polyhedra (no intersection
- * between the different union components).
- */
-CloogDomain * cloog_domain_disjoint(CloogDomain * dom)
-{ return (cloog_domain_alloc(Disjoint_Domain(dom->polyhedron,0,MAX_RAYS))) ;
-}
-
-
-/**
  * cloog_domain_intersection function:
  * This function returns a new CloogDomain structure including a polyhedral
  * domain which is the intersection of two polyhedral domains (pol1)inter(pol2)

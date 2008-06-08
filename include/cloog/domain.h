@@ -110,7 +110,6 @@ CloogDomain * cloog_domain_convex(CloogDomain * Pol) ;
 CloogDomain * cloog_domain_simple_convex(CloogDomain * domain, int nb_par);
 CloogDomain * cloog_domain_simplify(CloogDomain *, CloogDomain *) ;
 CloogDomain * cloog_domain_union(CloogDomain *, CloogDomain *) ;
-CloogDomain * cloog_domain_disjoint(CloogDomain *) ;
 CloogDomain * cloog_domain_intersection(CloogDomain *, CloogDomain *) ;
 CloogDomain * cloog_domain_difference(CloogDomain *, CloogDomain *) ;
 CloogDomain * cloog_domain_addconstraints(CloogDomain *, CloogDomain *) ;
