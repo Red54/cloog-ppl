@@ -1751,32 +1751,6 @@ CloogDomain * cloog_domain_erase_dimension(CloogDomain * domain, int dimension)
   return erased ;
 }
 
-
-/**
- * To change the order of the part of a polyhedral union, for funny results !
- * - September 10th 2005.
- */
-void cloog_domain_reverse(CloogDomain * domain)
-{ Polyhedron * polyhedron, * p, * q ,* r ;
-  
-  polyhedron = domain->polyhedron ;
-  
-  if ((polyhedron == NULL)||(polyhedron->next == NULL)) 
-  return ;
-  
-  q = polyhedron->next ;
-  polyhedron->next = NULL ; 
-  r = q->next ;
-  q->next = polyhedron ;
-  while (r != NULL)
-  { p = q ;
-    q = r ;
-    r = r->next ;
-    q->next  = p ;
-  }
-  domain->polyhedron = q ;
-}
-
 CloogMatrix *
 cloog_simplify_domain_matrix_with_equalities (CloogDomain *domain, int level,
 					      CloogMatrix *equal, int nb_parameters)

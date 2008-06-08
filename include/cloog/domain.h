@@ -165,7 +165,6 @@ void          cloog_domain_scalar(CloogDomain *, int, Value *) ;
 CloogDomain * cloog_domain_grow(CloogDomain *, int, int) ;
 CloogDomain * cloog_domain_cut_first(CloogDomain *) ;
 CloogDomain * cloog_domain_erase_dimension(CloogDomain *, int) ;
-void          cloog_domain_reverse(CloogDomain *) ;
 
 #define cloog_domain_polyhedron(x)    (x)->polyhedron
 #define cloog_domain_dimension(x)     (x)->polyhedron->Dimension
