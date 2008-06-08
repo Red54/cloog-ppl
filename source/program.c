@@ -83,7 +83,6 @@ FILE * file ;
 CloogProgram * program ;
 int level ;
 { int i, j ;
-  CloogMatrix * matrix ;
 
   /* Go to the right level. */
   for (i=0; i<level; i++)
@@ -142,17 +141,7 @@ int level ;
   fprintf(file,"\n") ;
   
   /* Print the context. */
-  for (i=0; i<=level; i++)
-  fprintf(file,"|\t") ;
-  fprintf(file,"+-- Context\n") ;
-  matrix = cloog_domain_domain2matrix(program->context) ;
-  cloog_matrix_print_structure(file,matrix,level+1) ;
-  cloog_matrix_free(matrix) ;
-
-  /* A special blank line. */
-  for (i=0; i<=level+1; i++)
-  fprintf(file,"|\t") ;
-  fprintf(file,"\n") ;
+  cloog_domain_print_structure(file, program->context, level+1);
     
   /* Print the loop. */
   cloog_loop_print_structure(file,program->loop,level+1) ;
@@ -181,7 +170,6 @@ int level ;
  */
 void cloog_program_dump_cloog(FILE * foo, CloogProgram * program)
 { int i, j ;
-  CloogMatrix * matrix ;
   Polyhedron * polyhedron ;
   CloogLoop * loop ;
 
@@ -204,9 +192,7 @@ void cloog_program_dump_cloog(FILE * foo, CloogProgram * program)
   /* Context. */
   fprintf(foo,"# Context (%d parameter(s)):\n",
            cloog_domain_dimension(program->context)) ;
-  matrix = cloog_domain_domain2matrix(program->context) ;
-  cloog_matrix_print(foo,matrix) ;
-  cloog_matrix_free(matrix) ;
+  cloog_domain_print_structure (foo, program->context, 0);
   fprintf(foo,"1 # Parameter name(s)\n") ;
   for (i=0;i<program->names->nb_parameters;i++)
   fprintf(foo,"%s ",program->names->parameters[i]) ;
@@ -239,6 +225,7 @@ void cloog_program_dump_cloog(FILE * foo, CloogProgram * program)
     /* The polyhedra themselves. */
     polyhedron = cloog_domain_polyhedron(loop->domain) ;
     while (polyhedron != NULL) {
+      CloogMatrix * matrix ;
       matrix = cloog_matrix_matrix(Polyhedron2Constraints(polyhedron));
       cloog_matrix_print(foo,matrix) ;
       cloog_matrix_free(matrix) ;
