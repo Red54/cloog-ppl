@@ -149,7 +149,6 @@ CloogDomain * cloog_domain_compact(CloogDomain *) ;
 int           cloog_domain_isempty(CloogDomain *) ;
 int           cloog_domain_universe(CloogDomain *) ;
 CloogDomain * cloog_domain_project(CloogDomain *, int, int) ;
-CloogDomain * cloog_domain_bounds(CloogDomain * domain, int dim, int nb_par);
 CloogDomain * cloog_domain_extend(CloogDomain *, int, int) ;
 int           cloog_domain_never_integral(CloogDomain *) ;
 void          cloog_domain_stride(CloogDomain *, int, int, Value *, Value *) ;
