@@ -145,7 +145,6 @@ CloogDomainList * cloog_domain_list_read(FILE *) ;
  ******************************************************************************/
 CloogDomain * cloog_domain_malloc(void);
 CloogDomain * cloog_domain_alloc(Polyhedron *) ;
-CloogDomain * cloog_domain_compact(CloogDomain *) ;
 int           cloog_domain_isempty(CloogDomain *) ;
 CloogDomain * cloog_domain_project(CloogDomain *, int, int) ;
 CloogDomain * cloog_domain_extend(CloogDomain *, int, int) ;
