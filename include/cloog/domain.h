@@ -88,29 +88,45 @@ struct cloogdomainlist
 typedef struct cloogdomainlist CloogDomainList ;
 
 static inline Polyhedron * cloog_domain_polyhedron(CloogDomain * domain)
-{ return domain->polyhedron ;
+{
+  return domain->polyhedron ;
 }
 
 static inline Polyhedron * cloog_domain_polyhedron_set(CloogDomain *d,
 						       Polyhedron *p)
-{ return d->polyhedron = p ;
+{
+  return d->polyhedron = p ;
+}
+
+static inline Polyhedron * cloog_polyhedron_next(Polyhedron *p)
+{ 
+  return p->next ;
+}
+
+static inline void cloog_polyhedron_set_next(Polyhedron *p, Polyhedron *n)
+{
+  p->next = n;
 }
 
 static inline Polyhedron * cloog_domain_polyhedron_next(CloogDomain * domain)
-{ return domain->polyhedron->next ;
+{
+  return cloog_polyhedron_next (cloog_domain_polyhedron (domain));
 }
 
-static inline Polyhedron * cloog_domain_polyhedron_set_next(CloogDomain *d,
-							    Polyhedron *p)
-{ return d->polyhedron->next = p ;
+static inline void cloog_domain_polyhedron_set_next(CloogDomain *d,
+						    Polyhedron *n)
+{
+  cloog_polyhedron_set_next (cloog_domain_polyhedron (d), n) ;
 }
 
 static inline int cloog_domain_nbconstraints(CloogDomain * domain)
-{ return domain->polyhedron->NbConstraints ;
+{
+  return domain->polyhedron->NbConstraints ;
 }
 
 static inline int cloog_domain_isconvex(CloogDomain * domain)
-{ return !cloog_domain_polyhedron_next (domain);
+{
+  return !cloog_domain_polyhedron_next (domain);
 }
 
 static inline unsigned cloog_polyhedron_nbeq (Polyhedron *p)

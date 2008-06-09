@@ -263,17 +263,17 @@ static CloogDomain *cloog_domain_simplified_hull(CloogDomain * domain)
   CloogDomain *bounds;
 
   value_init(tmp);
-  for (P = cloog_domain_polyhedron (domain); P; P = P->next) {
+  for (P = cloog_domain_polyhedron (domain); P; P = cloog_polyhedron_next (P)) {
     ++nb_pol;
     nb_constraints += cloog_polyhedron_nbc (P);
   }
   matrix = cloog_matrix_alloc(nb_constraints, 1 + dim + 1);
   nb_constraints = 0;
   rays = (CloogMatrix **)malloc(nb_pol * sizeof(CloogMatrix*));
-  for (P = cloog_domain_polyhedron (domain), i = 0; P; P = P->next, ++i)
+  for (P = cloog_domain_polyhedron (domain), i = 0; P; P = cloog_polyhedron_next (P), ++i)
     rays[i] = Polyhedron2Rays(P);
 
-  for (P = cloog_domain_polyhedron (domain), i = 0; P; P = P->next, ++i) {
+  for (P = cloog_domain_polyhedron (domain), i = 0; P; P = cloog_polyhedron_next (P), ++i) {
     CloogMatrix *constraints = Polyhedron2Constraints(P);
     for (j = 0; j < constraints->NbRows; ++j) {
       for (k = 0; k < nb_pol; ++k) {
@@ -296,7 +296,7 @@ static CloogDomain *cloog_domain_simplified_hull(CloogDomain * domain)
     Matrix_Free(constraints);
   }
 
-  for (P = cloog_domain_polyhedron (domain), i = 0; P; P = P->next, ++i)
+  for (P = cloog_domain_polyhedron (domain), i = 0; P; P = cloog_polyhedron_next (P), ++i)
     Matrix_Free(rays[i]);
   free(rays);
   value_clear(tmp);
@@ -507,10 +507,10 @@ CloogDomain * domain_source, * domain_target ;
   
   constraints = source->p_Init ;
   nb_constraint = cloog_polyhedron_nbc (source) ;
-  source = source->next ;
+  source = cloog_polyhedron_next (source) ;
   new = AddConstraints(constraints,nb_constraint,target,MAX_RAYS) ;
   last = new ;
-  next = target->next ;
+  next = cloog_polyhedron_next (target) ;
 
   while (next != NULL)
   { /* BUG !!! This is actually a bug. I don't know yet how to cleanly avoid
@@ -520,11 +520,12 @@ CloogDomain * domain_source, * domain_target ;
     if (source != NULL)
     { constraints = source->p_Init ;
       nb_constraint = cloog_polyhedron_nbc (source) ;
-      source = source->next ;
+      source = cloog_polyhedron_next (source) ;
     }
-    last->next = AddConstraints(constraints,nb_constraint,next,MAX_RAYS) ;
-    last = last->next ;
-    next = next->next ;
+    cloog_polyhedron_set_next (last, AddConstraints (constraints, nb_constraint,
+						     next, MAX_RAYS));
+    last = cloog_polyhedron_next (last);
+    next = cloog_polyhedron_next (next);
   }
 
   return (cloog_domain_alloc(new)) ;
@@ -807,8 +808,9 @@ int cloog_domain_isempty(CloogDomain * domain)
 { if (cloog_domain_polyhedron (domain) == NULL)
   return 1 ;
 
-  if (cloog_domain_polyhedron (domain)->next)
-  return(0) ;
+  if (cloog_domain_polyhedron_next (domain))
+    return(0) ;
+
   return((cloog_domain_dim (domain) 
 	  < cloog_domain_nbeq (domain)) ? 1 : 0) ;
 }
@@ -1170,8 +1172,8 @@ int cloog_domain_lazy_equal(CloogDomain * d1, CloogDomain * d2)
     if (value_ne(p1->p_Init[i], p2->p_Init[i]))
     return 0 ;
     
-    p1 = p1->next ;
-    p2 = p2->next ;
+    p1 = cloog_polyhedron_next (p1) ;
+    p2 = cloog_polyhedron_next (p2) ;
   }
   
   if ((p1 != NULL) || (p2 != NULL))
@@ -1217,7 +1219,7 @@ int scattdims ;
   /* Some basic checks: we only accept convex domains, with same constraint
    * and dimension numbers.
    */
-  if ((p1->next != NULL) || (p2->next != NULL) ||
+  if (cloog_polyhedron_next (p1) || cloog_polyhedron_next (p2) ||
       (cloog_polyhedron_nbc (p1) != cloog_polyhedron_nbc (p2)) ||
       (cloog_polyhedron_dim (p1) != cloog_polyhedron_dim (p2)))
   return 0 ;
@@ -1448,7 +1450,7 @@ int cloog_domain_lazy_disjoint(CloogDomain * d1, CloogDomain * d2)
   p1 = cloog_domain_polyhedron (d1) ;
   p2 = cloog_domain_polyhedron (d2) ;
 
-  if ((p1->next != NULL) || (p2->next != NULL))
+  if (cloog_polyhedron_next (p1) || cloog_polyhedron_next (p2))
     return 0 ;
   
   value_init_c(scat_val) ;
