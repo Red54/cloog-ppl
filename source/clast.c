@@ -1463,7 +1463,7 @@ static void insert_loop(CloogLoop * loop, int level, int scalar,
     * thus we normalize it, we also simplify it with the matrix of equalities.
     */ 
     matrix = cloog_simplify_domain_matrix_with_equalities
-      (loop->domain, level, infos->equal, infos->names->nb_parameters);
+      (cloog_loop_domain (loop), level, infos->equal, infos->names->nb_parameters);
     value_assign(infos->stride[level-1],loop->stride);
 
     /* First of all we have to print the guard. */

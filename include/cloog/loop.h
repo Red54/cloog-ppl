@@ -59,7 +59,7 @@ extern "C"
  *   the loop.
  */
 struct cloogloop
-{ CloogDomain * domain ;      /**< The iteration domain. */
+{ CloogDomain * _domain ;      /**< The iteration domain. */
   Value stride ;              /**< The stride for the corresponding iterator
                                *   (filled only after loop generation).
                                */
@@ -76,12 +76,12 @@ typedef struct cloogloop CloogLoop ;
 
 static inline CloogDomain *cloog_loop_domain (CloogLoop *l)
 {
-  return l->domain;
+  return l->_domain;
 }
 
 static inline void cloog_loop_set_domain (CloogLoop *l, CloogDomain *d)
 {
-  l->domain = d;
+  l->_domain = d;
 }
 
 
