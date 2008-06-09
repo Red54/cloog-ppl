@@ -58,7 +58,7 @@ struct cloogprogram
   CloogDomain    * _context ;   /**< The context of the program. */
   CloogLoop      * _loop ;      /**< The loops of the program. */
   CloogNames     * _names ;     /**< Iterators and parameters names. */
-  CloogBlockList * blocklist ; /**< The statement block list. */
+  CloogBlockList * _blocklist ; /**< The statement block list. */
   
   /* Internal service fields, filled up by cloog_program_scatter function. */
   int * scaldims ;             /**< Boolean array saying whether a given
@@ -123,6 +123,16 @@ static inline void cloog_program_set_names (CloogProgram *p, CloogNames *n)
   p->_names = n;
 }
 
+
+static inline CloogBlockList *cloog_program_blocklist (CloogProgram *p)
+{
+  return p->_blocklist;
+}
+
+static inline void cloog_program_set_blocklist (CloogProgram *p, CloogBlockList *b)
+{
+  p->_blocklist = b;
+}
 
 /******************************************************************************
  *                          Structure display function                        *

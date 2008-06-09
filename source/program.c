@@ -335,7 +335,7 @@ CloogOptions * options ;
 
     /* The statement macros. */
     fprintf(file,"/* Statement macros (please set). */\n") ;
-    blocklist = program->blocklist ;
+    blocklist = cloog_program_blocklist (program) ;
     while (blocklist != NULL)
     { block = blocklist->block ;
       statement = block->statement ;
@@ -431,7 +431,7 @@ void cloog_program_free(CloogProgram * program)
 { cloog_names_free(cloog_program_names (program)) ;
   cloog_loop_free(cloog_program_loop (program)) ;
   cloog_domain_free (cloog_program_context (program)) ;
-  cloog_block_list_free(program->blocklist) ;
+  cloog_block_list_free (cloog_program_blocklist (program)) ;
   if (program->scaldims != NULL)
   free(program->scaldims) ;
   
@@ -491,8 +491,8 @@ CloogProgram * cloog_program_read(FILE * file, CloogOptions * options)
   if (nb_statements > 0)
   { /* Reading of the first domain. */
     cloog_program_set_loop (p, cloog_loop_read (file,0,nb_parameters));
-    p->blocklist = cloog_block_list_alloc(cloog_program_loop (p)->block) ;
-    previous = p->blocklist ;
+    cloog_program_set_blocklist (p, cloog_block_list_alloc (cloog_program_loop (p)->block));
+    previous = cloog_program_blocklist (p);
     
     if (cloog_loop_domain (cloog_program_loop (p)) != NULL)
       nb_iterators = cloog_domain_dim(cloog_loop_domain (cloog_program_loop (p))) - nb_parameters ;
@@ -563,11 +563,12 @@ CloogProgram * cloog_program_read(FILE * file, CloogOptions * options)
     cloog_names_scalarize (cloog_program_names (p), cloog_program_nb_scattdims (p), p->scaldims);
   }
   else
-    { cloog_program_set_loop (p, NULL);
+    {
+      cloog_program_set_loop (p, NULL);
       cloog_program_set_names (p, NULL);
-    p->blocklist = NULL ;
-    p->scaldims  = NULL ;
-  }
+      cloog_program_set_blocklist (p, NULL);
+      p->scaldims  = NULL ;
+    }
    
   return(p) ;
 }
@@ -601,7 +602,7 @@ CloogProgram * cloog_program_malloc()
   cloog_program_set_context (program, NULL);
   cloog_program_set_loop (program, NULL);
   cloog_program_set_names (program, NULL);
-  program->blocklist    = NULL ;
+  cloog_program_set_blocklist (program, NULL);
   program->scaldims     = NULL ;
   program->usr          = NULL;
   
@@ -738,9 +739,9 @@ void cloog_program_block(CloogProgram * program, CloogDomainList * scattering)
   return ;
 
   /* We will have to rebuild the block list. */
-  cloog_block_list_free(program->blocklist) ;
-  program->blocklist = cloog_block_list_alloc(cloog_program_loop (program)->block) ;
-  previous = program->blocklist ;
+  cloog_block_list_free (cloog_program_blocklist (program)) ;
+  cloog_program_set_blocklist (program, cloog_block_list_alloc (cloog_program_loop (program)->block));
+  previous = cloog_program_blocklist (program);
   
   /* The process will use three variables for the linked list :
    * - 'start' is the starting point of a new block,
@@ -893,7 +894,7 @@ CloogDomainList * scattering ;
   /* Otherwise, in each block, we have to put the number of scalar dimensions,
    * and to allocate the memory for the scalar values.
    */
-  blocklist = program->blocklist ;
+  blocklist = cloog_program_blocklist (program);
   while (blocklist != NULL)
   { block = blocklist->block ;
     block->nb_scaldims = nb_scaldims ;
@@ -912,14 +913,17 @@ CloogDomainList * scattering ;
   current = nb_scaldims - 1 ;
   for (i = cloog_program_nb_scattdims (program) - 1; i >= 0; i--)
   if (program->scaldims[i])
-  { blocklist = program->blocklist ;
-    scattering = start ;
-    while (blocklist != NULL)
-    { block = blocklist->block ;
-      cloog_domain_scalar (cloog_domain (scattering), i, &block->scaldims[current]) ;
-      blocklist = blocklist->next ;
-      scattering = scattering->next ;
-    } 
+    {
+      blocklist = cloog_program_blocklist (program);
+      scattering = start;
+
+      while (blocklist != NULL)
+	{ 
+	  block = blocklist->block ;
+	  cloog_domain_scalar (cloog_domain (scattering), i, &block->scaldims[current]) ;
+	  blocklist = blocklist->next ;
+	  scattering = scattering->next ;
+	}
   
     scattering = start ;
     while (scattering != NULL)
