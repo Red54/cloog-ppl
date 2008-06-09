@@ -82,19 +82,19 @@ typedef struct cloogdomain CloogDomain ;
  * this structure reprensents a node of a linked list of CloogDomain structures.
  */
 struct cloogdomainlist
-{ CloogDomain * domain ;         /**< An element of the list. */
+{ CloogDomain * _domain ;         /**< An element of the list. */
   struct cloogdomainlist * next ;/**< Pointer to the next element of the list.*/
 } ;
 typedef struct cloogdomainlist CloogDomainList ;
 
 static inline CloogDomain *cloog_domain (CloogDomainList *l)
 {
-  return l->domain;
+  return l->_domain;
 }
 
 static inline void cloog_set_domain (CloogDomainList *l, CloogDomain *d)
 {
-  l->domain = d;
+  l->_domain = d;
 }
 
 static inline CloogDomainList *cloog_next_domain (CloogDomainList *l)
