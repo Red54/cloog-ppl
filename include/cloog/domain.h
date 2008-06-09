@@ -133,6 +133,12 @@ static inline unsigned cloog_domain_dim (CloogDomain *d)
   return cloog_polyhedron_dim (cloog_domain_polyhedron (d));
 }
 
+static inline unsigned cloog_polyhedron_nbc (Polyhedron *p)
+{
+  return p->NbConstraints;
+}
+
+
 /******************************************************************************
  *                              PolyLib interface                             *
  ******************************************************************************/
