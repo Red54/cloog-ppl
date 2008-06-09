@@ -61,7 +61,7 @@ struct cloogprogram
   CloogBlockList * _blocklist ; /**< The statement block list. */
   
   /* Internal service fields, filled up by cloog_program_scatter function. */
-  int * scaldims ;             /**< Boolean array saying whether a given
+  int * _scaldims ;             /**< Boolean array saying whether a given
                                 *   scattering dimension is scalar or not.
 				*/
   /* Library user reserved field. */
@@ -123,7 +123,6 @@ static inline void cloog_program_set_names (CloogProgram *p, CloogNames *n)
   p->_names = n;
 }
 
-
 static inline CloogBlockList *cloog_program_blocklist (CloogProgram *p)
 {
   return p->_blocklist;
@@ -132,6 +131,26 @@ static inline CloogBlockList *cloog_program_blocklist (CloogProgram *p)
 static inline void cloog_program_set_blocklist (CloogProgram *p, CloogBlockList *b)
 {
   p->_blocklist = b;
+}
+
+static inline int *cloog_program_scaldims (CloogProgram *p)
+{
+  return p->_scaldims;
+}
+
+static inline void cloog_program_set_scaldims (CloogProgram *p, int *s)
+{
+  p->_scaldims = s;
+}
+
+static inline int cloog_program_scaldim (CloogProgram *p, int i)
+{
+  return p->_scaldims[i];
+}
+
+static inline void cloog_program_set_scaldim (CloogProgram *p, int i, int k)
+{
+  p->_scaldims[i] = k;
 }
 
 /******************************************************************************

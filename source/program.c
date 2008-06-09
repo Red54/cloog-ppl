@@ -119,14 +119,15 @@ int level ;
   /* Print the scalar scattering dimension informations. */
   for (i=0; i<=level; i++)
   fprintf(file,"|\t") ;
-  if (program->scaldims != NULL)
-  { fprintf(file,"Scalar dimensions:") ;
-    for (i=0;i<cloog_program_nb_scattdims (program);i++)
-    fprintf(file," %d:%d ",i,program->scaldims[i]) ;
-    fprintf(file,"\n") ;
-  }
+  if (cloog_program_scaldims (program))
+    {
+      fprintf (file,"Scalar dimensions:");
+      for (i = 0; i < cloog_program_nb_scattdims (program); i++)
+	fprintf (file," %d:%d ", i, cloog_program_scaldim (program, i));
+      fprintf (file,"\n");
+    }
   else
-  fprintf(file,"No scalar scattering dimensions\n") ;
+    fprintf (file, "No scalar scattering dimensions\n");
   
   /* A blank line. */
   for (i=0; i<=level+1; i++)
@@ -432,8 +433,8 @@ void cloog_program_free(CloogProgram * program)
   cloog_loop_free(cloog_program_loop (program)) ;
   cloog_domain_free (cloog_program_context (program)) ;
   cloog_block_list_free (cloog_program_blocklist (program)) ;
-  if (program->scaldims != NULL)
-  free(program->scaldims) ;
+  if (cloog_program_scaldims (program))
+    free (cloog_program_scaldims (program));
   
   free(program) ;
 }
@@ -521,53 +522,55 @@ CloogProgram * cloog_program_read(FILE * file, CloogOptions * options)
     scatteringl = cloog_domain_list_read(file) ;
     
     if (scatteringl != NULL)
-    { if (cloog_domain_list_lazy_same(scatteringl))
-      { fprintf(stderr, "[CLooG]WARNING: some scattering functions are "
-                        "similar.\n") ;
-      }
+      {
+	if (cloog_domain_list_lazy_same(scatteringl))
+	  fprintf(stderr, "[CLooG]WARNING: some scattering functions are "
+		  "similar.\n") ;
       
-      cloog_program_set_nb_scattdims (p, 
-				      cloog_domain_dim (cloog_domain (scatteringl)) - 
-				      cloog_domain_dim (cloog_loop_domain (cloog_program_loop (p)))) ;
-      nb_scattering = cloog_program_nb_scattdims (p);
-      scattering = cloog_names_read_strings (file, cloog_program_nb_scattdims (p), prefix, -1);
+	cloog_program_set_nb_scattdims (p, 
+					cloog_domain_dim (cloog_domain (scatteringl)) - 
+					cloog_domain_dim (cloog_loop_domain (cloog_program_loop (p)))) ;
+	nb_scattering = cloog_program_nb_scattdims (p);
+	scattering = cloog_names_read_strings (file, cloog_program_nb_scattdims (p), prefix, -1);
     
-      /* The boolean array for scalar dimensions is created and set to 0. */
-      p->scaldims = (int *) malloc (cloog_program_nb_scattdims (p) * sizeof (int)) ;
-      if (p->scaldims == NULL) 
-      { fprintf(stderr, "[CLooG]ERROR: memory overflow.\n") ;
-        exit(1) ;
+	/* The boolean array for scalar dimensions is created and set to 0. */
+	cloog_program_set_scaldims (p, (int *) malloc (cloog_program_nb_scattdims (p) * sizeof (int)));
+	if (cloog_program_scaldims (p) == NULL)
+	  {
+	    fprintf(stderr, "[CLooG]ERROR: memory overflow.\n") ;
+	    exit(1) ;
+	  }
+	for (i=0;i<cloog_program_nb_scattdims (p);i++)
+	  cloog_program_set_scaldim (p, i, 0);
+      
+	/* We try to find blocks in the input problem to reduce complexity. */
+	if (!options->noblocks)
+	  cloog_program_block(p,scatteringl) ;
+	if (!options->noscalars)
+	  cloog_program_extract_scalars(p,scatteringl) ;
+      
+	cloog_program_scatter(p,scatteringl) ;
+	cloog_domain_list_free(scatteringl) ;
       }
-      for (i=0;i<cloog_program_nb_scattdims (p);i++)
-      p->scaldims[i] = 0 ;
-      
-      /* We try to find blocks in the input problem to reduce complexity. */
-      if (!options->noblocks)
-      cloog_program_block(p,scatteringl) ;
-      if (!options->noscalars)
-      cloog_program_extract_scalars(p,scatteringl) ;
-      
-      cloog_program_scatter(p,scatteringl) ;
-      cloog_domain_list_free(scatteringl) ;
-    }
     else
-    { 
-      cloog_program_set_nb_scattdims (p, 0);
-      p->scaldims  = NULL ;
-    }
+      {
+	cloog_program_set_nb_scattdims (p, 0);
+	cloog_program_set_scaldims (p, NULL);
+      }
     
     cloog_program_set_names 
       (p, cloog_names_alloc (0, nb_scattering, nb_iterators, nb_parameters,
 			     NULL, scattering, iterators, parameters));
   
-    cloog_names_scalarize (cloog_program_names (p), cloog_program_nb_scattdims (p), p->scaldims);
+    cloog_names_scalarize (cloog_program_names (p), cloog_program_nb_scattdims (p), 
+			   cloog_program_scaldims (p));
   }
   else
     {
       cloog_program_set_loop (p, NULL);
       cloog_program_set_names (p, NULL);
       cloog_program_set_blocklist (p, NULL);
-      p->scaldims  = NULL ;
+      cloog_program_set_scaldims (p, NULL);
     }
    
   return(p) ;
@@ -603,7 +606,7 @@ CloogProgram * cloog_program_malloc()
   cloog_program_set_loop (program, NULL);
   cloog_program_set_names (program, NULL);
   cloog_program_set_blocklist (program, NULL);
-  program->scaldims     = NULL ;
+  cloog_program_set_scaldims (program, NULL);
   program->usr          = NULL;
   
   return program ;
@@ -681,7 +684,7 @@ CloogOptions * options ;
     
     /* Here we go ! */
     loop = cloog_loop_generate(loop, cloog_program_context (program), 1, 0,
-                               program->scaldims,
+                               cloog_program_scaldims (program),
 			       cloog_program_nb_scattdims (program),
                                cloog_domain_dim (cloog_program_context (program)),
 			       options);
@@ -882,9 +885,10 @@ CloogDomainList * scattering ;
       }
     
     if (scalar)
-    { nb_scaldims ++ ;
-      program->scaldims[i] = 1 ;
-    }
+      {
+	nb_scaldims ++ ;
+	cloog_program_set_scaldim (program, i, 1);
+      }
   }
   
   /* If there are no scalar dimensions, we can continue directly. */
@@ -912,10 +916,10 @@ CloogDomainList * scattering ;
    */
   current = nb_scaldims - 1 ;
   for (i = cloog_program_nb_scattdims (program) - 1; i >= 0; i--)
-  if (program->scaldims[i])
-    {
-      blocklist = cloog_program_blocklist (program);
-      scattering = start;
+    if (cloog_program_scaldim (program, i))
+      {
+	blocklist = cloog_program_blocklist (program);
+	scattering = start;
 
       while (blocklist != NULL)
 	{ 
@@ -941,14 +945,19 @@ CloogDomainList * scattering ;
    * some other processing easier (e.g. knowledge of some offsets).
    */
   for (i = 0; i < cloog_program_nb_scattdims (program) - 1; i++)
-  { if (program->scaldims[i])
-    { j = i + 1 ;
-      while ((j < cloog_program_nb_scattdims (program)) && program->scaldims[j])
-      { program->scaldims[i] ++ ;
-        j ++ ;
-      }
+    { 
+      if (cloog_program_scaldim (program, i))
+	{
+	  j = i + 1 ;
+	  while ((j < cloog_program_nb_scattdims (program))
+		 && cloog_program_scaldim (program, j))
+	    {
+	      cloog_program_set_scaldim (program, i, 
+					 cloog_program_scaldim (program, i) + 1);
+	      j ++ ;
+	    }
+	}
     }
-  }
   
   if (nb_scaldims != 0)
   fprintf(stderr, "[CLooG]INFO: %d dimensions (over %d) are scalar.\n",

@@ -1521,7 +1521,7 @@ struct clast_stmt *cloog_clast_create(CloogProgram *program,
 
     infos->names    = cloog_program_names (program);
     infos->options  = options;
-    infos->scaldims = program->scaldims;
+    infos->scaldims = cloog_program_scaldims (program);
     infos->nb_scattdims = cloog_program_nb_scattdims (program);
 
     /* Allocation for the array of strides, there is a +1 since the statement can
