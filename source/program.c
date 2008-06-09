@@ -762,7 +762,7 @@ void cloog_program_block(CloogProgram * program, CloogDomainList * scattering)
   loop            = reference->next ;
   scatt_reference = scattering ;
   scatt_start     = scattering ;
-  scatt_loop      = scattering->next ;
+  scatt_loop      = cloog_next_domain (scattering) ;
    
   while (loop != NULL)
     { 
@@ -784,7 +784,7 @@ void cloog_program_block(CloogProgram * program, CloogDomainList * scattering)
       cloog_block_merge(start->block,loop->block); /* merge frees loop->block */
       loop->block = NULL ;
       start->next = loop->next ;
-      scatt_start->next = scatt_loop->next ;
+      cloog_set_next_domain (scatt_start, cloog_next_domain (scatt_loop));
     }
     else
     { /* If we didn't find a block, the next start of a block is updated:
@@ -819,7 +819,7 @@ void cloog_program_block(CloogProgram * program, CloogDomainList * scattering)
     reference       = loop ;
     loop            = loop->next ;
     scatt_reference = scatt_loop ;
-    scatt_loop      = scatt_loop->next ;
+    scatt_loop      = cloog_next_domain (scatt_loop) ;
     
     /* We mark the new reference as being blocked or not, if will be freed
      * during the next while loop execution.
@@ -881,7 +881,7 @@ CloogDomainList * scattering ;
 	    scalar = 0 ;
 	    break ;
 	  }
-	scattering = scattering->next ;
+	scattering = cloog_next_domain (scattering);
       }
     
     if (scalar)
@@ -926,7 +926,7 @@ CloogDomainList * scattering ;
 	  block = blocklist->block ;
 	  cloog_domain_scalar (cloog_domain (scattering), i, &block->scaldims[current]) ;
 	  blocklist = blocklist->next ;
-	  scattering = scattering->next ;
+	  scattering = cloog_next_domain (scattering);
 	}
   
     scattering = start ;
@@ -935,7 +935,7 @@ CloogDomainList * scattering ;
 	old = cloog_domain (scattering) ;
 	cloog_set_domain (scattering, cloog_domain_erase_dimension (old, i)) ;
 	cloog_domain_free (old) ;
-	scattering = scattering->next ;
+	scattering = cloog_next_domain (scattering);
       }
     current-- ;
   }
@@ -1001,7 +1001,7 @@ CloogDomainList * scattering ;
       /* Finally we scatter all loops. */
       cloog_loop_scatter(loop, cloog_domain (scattering)) ;
       loop = loop->next ;
-      scattering = scattering->next ;    
+      scattering = cloog_next_domain (scattering);    
     
       while ((loop != NULL) && (scattering != NULL))
 	{
@@ -1018,7 +1018,7 @@ CloogDomainList * scattering ;
       
 	  cloog_loop_scatter(loop,cloog_domain (scattering)) ;
 	  loop = loop->next ;
-	  scattering = scattering->next ;
+	  scattering = cloog_next_domain (scattering);
 	}
       if ((loop != NULL) || (scattering != NULL))
 	fprintf(stderr, "[CLooG]WARNING: "

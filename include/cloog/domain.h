@@ -83,7 +83,7 @@ typedef struct cloogdomain CloogDomain ;
  */
 struct cloogdomainlist
 { CloogDomain * _domain ;         /**< An element of the list. */
-  struct cloogdomainlist * next ;/**< Pointer to the next element of the list.*/
+  struct cloogdomainlist * _next ;/**< Pointer to the next element of the list.*/
 } ;
 typedef struct cloogdomainlist CloogDomainList ;
 
@@ -99,12 +99,12 @@ static inline void cloog_set_domain (CloogDomainList *l, CloogDomain *d)
 
 static inline CloogDomainList *cloog_next_domain (CloogDomainList *l)
 {
-  return l->next;
+  return l->_next;
 }
 
 static inline CloogDomainList *cloog_set_next_domain (CloogDomainList *l, CloogDomainList *n)
 {
-  return l->next = n;
+  return l->_next = n;
 }
 
 static inline Polyhedron * cloog_domain_polyhedron (CloogDomain * domain)
