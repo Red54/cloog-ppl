@@ -1355,25 +1355,26 @@ static void insert_scalar(CloogLoop *loop, int level, int *scalar,
   if ((!infos->options->csp) &&
       (level+(*scalar) <= infos->nb_scattdims) &&
       (infos->scaldims[level+(*scalar)-1]))
-  { while (loop->block == NULL)
-    loop = loop->inner ;
+    {
+      while (cloog_loop_block (loop) == NULL)
+	loop = loop->inner ;
 
-    while ((level+(*scalar) <= infos->nb_scattdims) &&
-           (infos->scaldims[level+(*scalar)-1])) { 
-      if (infos->options->block) {
+      while ((level+(*scalar) <= infos->nb_scattdims) &&
+	     (infos->scaldims[level+(*scalar)-1])) { 
+	if (infos->options->block) {
 	  b = new_clast_block();
 	  **next = &b->stmt;
 	  *next = &b->body;
+	}
+      
+	t = new_clast_term(cloog_loop_block (loop)->scaldims[(*scalar)], NULL);
+	**next = &new_clast_assignment(infos->names->scalars[(*scalar)],
+				       &t->expr)->stmt;
+	*next = &(**next)->next;
+	(*scalar) ++ ;
+      
       }
-      
-      t = new_clast_term(loop->block->scaldims[(*scalar)], NULL);
-      **next = &new_clast_assignment(infos->names->scalars[(*scalar)],
-		    &t->expr)->stmt;
-      *next = &(**next)->next;
-      (*scalar) ++ ;
-      
     }
-  }
   
   return;
 }
@@ -1494,7 +1495,7 @@ static void insert_loop(CloogLoop * loop, int level, int scalar,
     }
 
     /* Finally, if there is an included statement block, print it. */
-    insert_block(loop->block, level+equality, next, infos);
+    insert_block(cloog_loop_block (loop), level+equality, next, infos);
 
     /* Go to the next level. */
     if (loop->inner != NULL)

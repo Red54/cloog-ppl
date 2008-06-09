@@ -63,7 +63,7 @@ struct cloogloop
   Value _stride ;              /**< The stride for the corresponding iterator
                                *   (filled only after loop generation).
                                */
-  CloogBlock * block ;        /**< The included statement block, NULL if none.*/
+  CloogBlock * _block ;        /**< The included statement block, NULL if none.*/
   void * usr;		      /**< User field, for library user convenience.
 			       *   This pointer is not freed when the
 			       *   CloogLoop structure is freed.
@@ -109,6 +109,15 @@ static inline void cloog_loop_set_si_stride (CloogLoop *l, int i)
   value_set_si (l->_stride, i);
 }
 
+static inline CloogBlock *cloog_loop_block (CloogLoop *l)
+{
+  return l->_block;
+}
+
+static inline void cloog_loop_set_block (CloogLoop *l, CloogBlock *b)
+{
+  l->_block = b;
+}
 
 
 /******************************************************************************

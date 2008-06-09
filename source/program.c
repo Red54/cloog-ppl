@@ -492,7 +492,8 @@ CloogProgram * cloog_program_read(FILE * file, CloogOptions * options)
   if (nb_statements > 0)
   { /* Reading of the first domain. */
     cloog_program_set_loop (p, cloog_loop_read (file,0,nb_parameters));
-    cloog_program_set_blocklist (p, cloog_block_list_alloc (cloog_program_loop (p)->block));
+    cloog_program_set_blocklist 
+      (p, cloog_block_list_alloc (cloog_loop_block (cloog_program_loop (p))));
     previous = cloog_program_blocklist (p);
     
     if (cloog_loop_domain (cloog_program_loop (p)) != NULL)
@@ -508,7 +509,7 @@ CloogProgram * cloog_program_read(FILE * file, CloogOptions * options)
 	if (cloog_domain_dim(cloog_loop_domain (next)) - nb_parameters > nb_iterators)
 	  nb_iterators = cloog_domain_dim (cloog_loop_domain (next)) - nb_parameters ;
       
-      previous->next = cloog_block_list_alloc(next->block) ;
+      previous->next = cloog_block_list_alloc(cloog_loop_block (next)) ;
       previous = previous->next ;    
     
       current->next = next ;
@@ -743,7 +744,8 @@ void cloog_program_block(CloogProgram * program, CloogDomainList * scattering)
 
   /* We will have to rebuild the block list. */
   cloog_block_list_free (cloog_program_blocklist (program)) ;
-  cloog_program_set_blocklist (program, cloog_block_list_alloc (cloog_program_loop (program)->block));
+  cloog_program_set_blocklist 
+    (program, cloog_block_list_alloc (cloog_loop_block (cloog_program_loop (program))));
   previous = cloog_program_blocklist (program);
   
   /* The process will use three variables for the linked list :
@@ -781,8 +783,8 @@ void cloog_program_block(CloogProgram * program, CloogDomainList * scattering)
        */
       blocked = 1 ;
       nb_blocked ++ ;
-      cloog_block_merge(start->block,loop->block); /* merge frees loop->block */
-      loop->block = NULL ;
+      cloog_block_merge(cloog_loop_block (start), cloog_loop_block (loop)); /* merge frees loop->block */
+      cloog_loop_set_block (loop, NULL);
       start->next = loop->next ;
       cloog_set_next_domain (scatt_start, cloog_next_domain (scatt_loop));
     }
@@ -798,7 +800,7 @@ void cloog_program_block(CloogProgram * program, CloogDomainList * scattering)
       scatt_start = scatt_loop ;
       
       /* We update the block list. */
-      previous->next = cloog_block_list_alloc(start->block) ;
+      previous->next = cloog_block_list_alloc(cloog_loop_block (start)) ;
       previous = previous->next ;    
     }
 
