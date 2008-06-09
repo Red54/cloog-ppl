@@ -622,7 +622,7 @@ void cloog_domain_print_structure(FILE * file, CloogDomain * domain, int level)
 void cloog_domain_list_print(FILE * foo, CloogDomainList * list)
 { while (list != NULL)
   { cloog_domain_print(foo,list->domain) ;
-    list = list->next ;
+    list = cloog_next_domain (list) ;
   }
 }
 
@@ -641,11 +641,12 @@ void cloog_domain_list_free(CloogDomainList * list)
 { CloogDomainList * temp ;
   
   while (list != NULL)
-  { temp = list->next ;
-    cloog_domain_free(list->domain) ;
-    free(list) ;
-    list = temp ;
-  }
+    {
+      temp = cloog_next_domain (list) ;
+      cloog_domain_free(list->domain) ;
+      free(list) ;
+      list = temp ;
+    }
 }
 
 
@@ -732,14 +733,14 @@ CloogDomainList * cloog_domain_list_read(FILE * foo)
   if (nb_pols > 0)
   { list = (CloogDomainList *)malloc(sizeof(CloogDomainList)) ;
     list->domain = cloog_domain_read(foo) ;
-    list->next = NULL ;
+    cloog_set_next_domain (list, NULL);
     now = list ;
     for (i=1;i<nb_pols;i++)
     { next = (CloogDomainList *)malloc(sizeof(CloogDomainList)) ;
       next->domain = cloog_domain_read(foo) ;
-      next->next = NULL ;
-      now->next = next ;
-      now = now->next ;
+      cloog_set_next_domain (next, NULL);
+      cloog_set_next_domain (now, next);
+      now = cloog_next_domain (now);
     }
   }
   return(list) ;
@@ -1414,7 +1415,7 @@ int scattdims ;
       }
     }
   
-    scattering = scattering->next ;
+    scattering = cloog_next_domain (scattering);
   }
    
   value_clear_c(date1) ;
@@ -1521,19 +1522,21 @@ int cloog_domain_list_lazy_same(CloogDomainList * list)
 
   current = list ;
   while (current != NULL)
-  { next = current->next ;
-    /*j=i+1;*/
-    while (next != NULL)
-    { if (cloog_domain_lazy_equal(current->domain,next->domain))
-      { /*printf("Same domains: %d and %d\n",i,j) ;*/
-        return 1 ;
-      }
-      /*j++ ;*/
-      next = next->next ;
+    {
+      next = cloog_next_domain (current);
+      /*j=i+1;*/
+      while (next != NULL)
+	{
+	  if (cloog_domain_lazy_equal(current->domain,next->domain))
+	    { /*printf("Same domains: %d and %d\n",i,j) ;*/
+	      return 1 ;
+	    }
+	  /*j++ ;*/
+	  next = cloog_next_domain (next) ;
+	}
+      /*i++ ;*/
+      current = cloog_next_domain (current) ;
     }
-    /*i++ ;*/
-    current = current->next ;
-  }
   
   return 0 ;
 }

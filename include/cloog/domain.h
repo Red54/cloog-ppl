@@ -87,6 +87,16 @@ struct cloogdomainlist
 } ;
 typedef struct cloogdomainlist CloogDomainList ;
 
+static inline CloogDomainList *cloog_next_domain (CloogDomainList *l)
+{
+  return l->next;
+}
+
+static inline CloogDomainList *cloog_set_next_domain (CloogDomainList *l, CloogDomainList *n)
+{
+  return l->next = n;
+}
+
 static inline Polyhedron * cloog_domain_polyhedron(CloogDomain * domain)
 {
   return domain->polyhedron ;
