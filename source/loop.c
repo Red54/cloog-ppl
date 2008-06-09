@@ -292,7 +292,7 @@ CloogLoop * cloog_loop_read(FILE * foo, int number, int nb_parameters)
   /* domain. */
   loop->domain = cloog_domain_union_read(foo) ;
   if (loop->domain != NULL)
-  nb_iterators = cloog_domain_dimension(loop->domain) - nb_parameters ;
+  nb_iterators = cloog_domain_dim(loop->domain) - nb_parameters ;
   else
   nb_iterators = 0 ;
   /* stride is initialized to 1. */
@@ -583,8 +583,8 @@ int nb_par ;
   CloogLoop * new_loop ;
       
   domain = loop->domain ;
-  if (cloog_domain_dimension(domain) > cloog_domain_dimension(context))
-  { new_dimension = cloog_domain_dimension(domain) - nb_par ;
+  if (cloog_domain_dim(domain) > cloog_domain_dim(context))
+  { new_dimension = cloog_domain_dim(domain) - nb_par ;
     extended_context = cloog_domain_extend(context,new_dimension,nb_par) ;
     new_domain = cloog_domain_intersection(extended_context,loop->domain) ;
     cloog_domain_free(extended_context) ;
@@ -628,7 +628,7 @@ CloogLoop * cloog_loop_project(CloogLoop * loop, int level, int nb_par)
   copy = cloog_loop_alloc(loop->domain,loop->stride,loop->block,
                           loop->inner,NULL) ;
 
-  if ((cloog_domain_dimension(loop->domain)-nb_par) == level)
+  if ((cloog_domain_dim(loop->domain)-nb_par) == level)
   new_domain = cloog_domain_copy(loop->domain) ;  
   else
   new_domain = cloog_domain_project(loop->domain,level,nb_par) ;
@@ -734,7 +734,7 @@ CloogLoop * cloog_loop_separate(CloogLoop * loop)
 	domain = cloog_domain_copy(Q->domain) ;
 	else
 	{ if (lazy_equal)
-	  domain = cloog_domain_empty(cloog_domain_dimension(Q->domain)) ;
+	  domain = cloog_domain_empty(cloog_domain_dim(Q->domain)) ;
 	  else
 	  domain = cloog_domain_difference(Q->domain,loop->domain) ;
 	}
@@ -761,7 +761,7 @@ CloogLoop * cloog_loop_separate(CloogLoop * loop)
     domain = cloog_domain_copy(loop->domain) ;
     else
     { if (cloog_domain_lazy_equal(loop->domain,UQ))
-      domain = cloog_domain_empty(cloog_domain_dimension(UQ)) ;
+      domain = cloog_domain_empty(cloog_domain_dim(UQ)) ;
       else
       domain = cloog_domain_difference(loop->domain,UQ) ;
     }
@@ -998,8 +998,8 @@ int level, nb_par ;
        * and smaller, and each projection includes the preceding projection
        * (thus, in the target list, dimensions are added one by one).
        */
-      if ((cloog_domain_dimension(p->domain)-nb_par) > level)
-      for (l=cloog_domain_dimension(p->domain)-nb_par-1;l>=level;l--)
+      if ((cloog_domain_dim(p->domain)-nb_par) > level)
+      for (l=cloog_domain_dim(p->domain)-nb_par-1;l>=level;l--)
       { new_domain = cloog_domain_project(p->domain,l,nb_par) ;
         temp = cloog_loop_alloc(new_domain,one,NULL,temp,NULL) ;
       }
@@ -1369,10 +1369,10 @@ CloogOptions * options ;
     into = NULL ;
     while (inner != NULL)
     { /* 4b. -ced- recurse for each sub-list of non terminal loops. */
-      if (cloog_domain_dimension(inner->domain) > (level + nb_par))
+      if (cloog_domain_dim(inner->domain) > (level + nb_par))
       { end = inner ;
         while ((end->next != NULL) &&
-               (cloog_domain_dimension(end->next->domain) > (level + nb_par)))
+               (cloog_domain_dim(end->next->domain) > (level + nb_par)))
         end = end->next ;
         
 	next = end->next ;
@@ -1617,7 +1617,7 @@ int level, nb_par ;
   
   next = cloog_loop_simplify(loop->next,context,level,nb_par) ;
   
-  domain_dim = cloog_domain_dimension(domain) - nb_par ;
+  domain_dim = cloog_domain_dim(domain) - nb_par ;
   extended_context=cloog_domain_extend(context,domain_dim,nb_par);
   inter = cloog_domain_intersection(domain,extended_context) ;
   simp = cloog_domain_simplify(inter,extended_context) ;
@@ -1672,14 +1672,14 @@ void cloog_loop_scatter(CloogLoop * loop, CloogDomain * scatt)
   
   domain = loop->domain ;
   newdom = NULL ;
-  scatt_dim = cloog_domain_dimension(scatt) - cloog_domain_dimension(domain) ;
+  scatt_dim = cloog_domain_dim(scatt) - cloog_domain_dim(domain) ;
   
   /* For each polyhedron of domain (it can be an union of polyhedra). */
   while (domain != NULL)
   { /* Extend the domain by adding the scattering dimensions as the new
      * first domain dimensions.
      */
-    ext = cloog_domain_extend(domain,scatt_dim,cloog_domain_dimension(domain)) ;
+    ext = cloog_domain_extend(domain,scatt_dim,cloog_domain_dim(domain)) ;
     /* Then add the scattering constraints. */
     newpart = cloog_domain_addconstraints(scatt,ext) ;
     cloog_domain_free(ext) ;

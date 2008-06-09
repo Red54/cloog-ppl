@@ -105,10 +105,6 @@ static inline Polyhedron * cloog_domain_polyhedron_set_next(CloogDomain *d,
 { return d->polyhedron->next = p ;
 }
 
-static inline int cloog_domain_dimension(CloogDomain * domain)
-{ return domain->polyhedron->Dimension ;
-}
-
 static inline int cloog_domain_nbconstraints(CloogDomain * domain)
 { return domain->polyhedron->NbConstraints ;
 }
@@ -125,6 +121,16 @@ static inline unsigned cloog_polyhedron_nbeq (Polyhedron *p)
 static inline unsigned cloog_domain_nbeq (CloogDomain *d)
 {
   return cloog_polyhedron_nbeq (cloog_domain_polyhedron (d));
+}
+
+static inline unsigned cloog_polyhedron_dim (Polyhedron *p)
+{
+  return p->Dimension;
+}
+
+static inline unsigned cloog_domain_dim (CloogDomain *d)
+{
+  return cloog_polyhedron_dim (cloog_domain_polyhedron (d));
 }
 
 /******************************************************************************

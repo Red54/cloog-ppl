@@ -191,7 +191,7 @@ void cloog_program_dump_cloog(FILE * foo, CloogProgram * program)
 
   /* Context. */
   fprintf(foo,"# Context (%d parameter(s)):\n",
-           cloog_domain_dimension(program->context)) ;
+           cloog_domain_dim(program->context)) ;
   cloog_domain_print_structure (foo, program->context, 0);
   fprintf(foo,"1 # Parameter name(s)\n") ;
   for (i=0;i<program->names->nb_parameters;i++)
@@ -475,7 +475,7 @@ CloogProgram * cloog_program_read(FILE * file, CloogOptions * options)
 
   /* We then read the context data. */
   p->context = cloog_domain_read(file) ;
-  nb_parameters = cloog_domain_dimension(p->context) ;
+  nb_parameters = cloog_domain_dim(p->context) ;
   
   /* First part of the CloogNames structure: reading of the parameter names. */
   parameters=cloog_names_read_strings(file,nb_parameters,NULL,FIRST_PARAMETER) ;
@@ -493,7 +493,7 @@ CloogProgram * cloog_program_read(FILE * file, CloogOptions * options)
     previous = p->blocklist ;
     
     if (p->loop->domain != NULL)
-    nb_iterators = cloog_domain_dimension(p->loop->domain) - nb_parameters ;
+    nb_iterators = cloog_domain_dim(p->loop->domain) - nb_parameters ;
     else
     nb_iterators = 0 ;
     
@@ -502,8 +502,8 @@ CloogProgram * cloog_program_read(FILE * file, CloogOptions * options)
     for (i=2;i<=nb_statements;i++)
     { next = cloog_loop_read(file,i-1,nb_parameters) ;
       if (next->domain != NULL)
-      if (cloog_domain_dimension(next->domain) - nb_parameters > nb_iterators)
-      nb_iterators = cloog_domain_dimension(next->domain) - nb_parameters ;
+      if (cloog_domain_dim(next->domain) - nb_parameters > nb_iterators)
+      nb_iterators = cloog_domain_dim(next->domain) - nb_parameters ;
       
       previous->next = cloog_block_list_alloc(next->block) ;
       previous = previous->next ;    
@@ -524,8 +524,8 @@ CloogProgram * cloog_program_read(FILE * file, CloogOptions * options)
                         "similar.\n") ;
       }
       
-      p->nb_scattdims = cloog_domain_dimension(scatteringl->domain) - 
-                        cloog_domain_dimension(p->loop->domain) ;
+      p->nb_scattdims = cloog_domain_dim(scatteringl->domain) - 
+                        cloog_domain_dim(p->loop->domain) ;
       nb_scattering = p->nb_scattdims  ;
       scattering = cloog_names_read_strings(file, p->nb_scattdims, prefix, -1);
     
@@ -676,7 +676,7 @@ CloogOptions * options ;
     loop = cloog_loop_generate(loop, program->context, 1, 0,
                                program->scaldims,
 			       program->nb_scattdims,
-                               cloog_domain_dimension(program->context),
+                               cloog_domain_dim(program->context),
 			       options);
 			          
 #ifdef CLOOG_MEMORY
@@ -690,7 +690,7 @@ CloogOptions * options ;
     
     if ((!options->nosimplify) && (program->loop != NULL))
     loop = cloog_loop_simplify(loop,program->context,1,
-                               cloog_domain_dimension(program->context)) ;
+                               cloog_domain_dim(program->context)) ;
    
     program->loop = loop ;
   }
@@ -957,8 +957,8 @@ CloogDomainList * scattering ;
   { loop = program->loop ;
     
     /* We compute the scattering dimension and check it is >=0. */
-    scattering_dim = cloog_domain_dimension(scattering->domain) -
-                     cloog_domain_dimension(loop->domain) ;
+    scattering_dim = cloog_domain_dim(scattering->domain) -
+                     cloog_domain_dim(loop->domain) ;
     if (scattering_dim < 0)
     { fprintf(stderr, "[CLooG]ERROR: scattering has not enough dimensions.\n") ;
       exit(1) ;
@@ -967,8 +967,8 @@ CloogDomainList * scattering ;
     not_enough_constraints ++ ;
          
     /* The scattering dimension may have been modified by scalar extraction. */
-    scattering_dim = cloog_domain_dimension(scattering->domain) -
-                     cloog_domain_dimension(loop->domain) ;
+    scattering_dim = cloog_domain_dim(scattering->domain) -
+                     cloog_domain_dim(loop->domain) ;
 
     /* Finally we scatter all loops. */
     cloog_loop_scatter(loop,scattering->domain) ;
@@ -976,8 +976,8 @@ CloogDomainList * scattering ;
     scattering = scattering->next ;    
     
     while ((loop != NULL) && (scattering != NULL))
-    { scattering_dim2 = cloog_domain_dimension(scattering->domain) - 
-                        cloog_domain_dimension(loop->domain) ;
+    { scattering_dim2 = cloog_domain_dim(scattering->domain) - 
+                        cloog_domain_dim(loop->domain) ;
       if (scattering_dim2 != scattering_dim)
       { fprintf(stderr, "[CLooG]ERROR: "
                         "scattering dimensions are not the same.\n") ;
