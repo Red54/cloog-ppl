@@ -134,7 +134,7 @@ int level ;
   fprintf(file,"\n") ;
 
   /* Print the parameter and the iterator names. */
-  cloog_names_print_structure(file,program->names,level+1) ;
+  cloog_names_print_structure (file, cloog_program_names (program), level + 1);
  
   /* A blank line. */
   for (i=0; i<=level+1; i++)
@@ -195,8 +195,8 @@ void cloog_program_dump_cloog(FILE * foo, CloogProgram * program)
 	   cloog_domain_dim (cloog_program_context (program)));
   cloog_domain_print_structure (foo, cloog_program_context (program), 0);
   fprintf(foo,"1 # Parameter name(s)\n") ;
-  for (i=0;i<program->names->nb_parameters;i++)
-  fprintf(foo,"%s ",program->names->parameters[i]) ;
+  for (i = 0; i < cloog_program_names (program)->nb_parameters; i++)
+    fprintf (foo, "%s ", cloog_program_names (program)->parameters[i]) ;
 
   /* Statement number. */
   i = 0 ;
@@ -238,10 +238,10 @@ void cloog_program_dump_cloog(FILE * foo, CloogProgram * program)
     loop = loop->next ;
   }
   fprintf(foo,"\n1 # Iterator name(s)\n") ;
-  for (i=0;i<program->names->nb_scattering;i++)
-    fprintf(foo,"%s ",program->names->scattering[i]);
-  for (i=0;i<program->names->nb_iterators;i++)
-    fprintf(foo,"%s ",program->names->iterators[i]);
+  for (i = 0; i < cloog_program_names (program)->nb_scattering; i++)
+    fprintf (foo, "%s ", cloog_program_names (program)->scattering[i]);
+  for (i = 0; i < cloog_program_names (program)->nb_iterators; i++)
+    fprintf (foo, "%s ", cloog_program_names (program)->iterators[i]);
   fprintf(foo,"\n\n") ;
 
   /* Scattering functions (none since included inside domains). */
@@ -323,7 +323,7 @@ CloogOptions * options ;
 
     /* The value of parameters. */
     fprintf(file,"/* Parameter value. */\n") ;
-    for (i = 1; i <= program->names->nb_parameters; i++)
+    for (i = 1; i <= cloog_program_names (program)->nb_parameters; i++)
       fprintf(file, "#define PARVAL%d %d\n", i, options->compilable);
     
     /* The macros. */
@@ -342,19 +342,20 @@ CloogOptions * options ;
       while (statement != NULL)
       { fprintf(file,"#define S%d(",statement->number) ;
         if (block->depth > 0)
-        { fprintf(file,"%s",program->names->iterators[0]) ;
-          for(j=1;j<block->depth;j++)
-          fprintf(file,",%s",program->names->iterators[j]) ;
-        }
+	  { 
+	    fprintf (file, "%s", cloog_program_names (program)->iterators[0]);
+	    for(j=1;j<block->depth;j++)
+	      fprintf (file, ",%s", cloog_program_names (program)->iterators[j]) ;
+	  }
         fprintf(file,") {total++;") ;
 	if (block->depth > 0)
         { fprintf(file," printf(\"S%d \%%d",statement->number) ;
           for(j=1;j<block->depth;j++)
           fprintf(file," \%%d") ;
           
-          fprintf(file,"\\n\",%s",program->names->iterators[0]) ;
+          fprintf(file,"\\n\",%s", cloog_program_names (program)->iterators[0]) ;
 	  for(j=1;j<block->depth;j++)
-          fprintf(file,",%s",program->names->iterators[j]) ;
+	    fprintf (file, ",%s", cloog_program_names (program)->iterators[j]) ;
           fprintf(file,");") ;
         }
         fprintf(file,"}\n") ;
@@ -366,35 +367,35 @@ CloogOptions * options ;
     
     /* The iterator and parameter declaration. */
     fprintf(file,"\nint main() {\n") ; 
-    if ((program->names->nb_scalars > 0) && (!options->csp))
+    if ((cloog_program_names (program)->nb_scalars > 0) && (!options->csp))
     { fprintf(file,"  /* Scalar dimension iterators. */\n") ;
-      fprintf(file,"  int %s",program->names->scalars[0]) ; 
-      for(i=2;i<=program->names->nb_scalars;i++)
-      fprintf(file,", %s",program->names->scalars[i-1]) ; 
+      fprintf (file,"  int %s", cloog_program_names (program)->scalars[0]);
+      for (i = 2; i <= cloog_program_names (program)->nb_scalars; i++)
+	fprintf (file, ", %s", cloog_program_names (program)->scalars[i-1]);
       
       fprintf(file," ;\n") ;
     }
-    if (program->names->nb_scattering > 0)
+    if (cloog_program_names (program)->nb_scattering > 0)
     { fprintf(file,"  /* Scattering iterators. */\n") ;
-      fprintf(file,"  int %s",program->names->scattering[0]) ; 
-      for(i=2;i<=program->names->nb_scattering;i++)
-      fprintf(file,", %s",program->names->scattering[i-1]) ; 
+      fprintf(file,"  int %s",cloog_program_names (program)->scattering[0]) ; 
+      for(i=2;i<=cloog_program_names (program)->nb_scattering;i++)
+	fprintf(file,", %s",cloog_program_names (program)->scattering[i-1]) ; 
       
       fprintf(file," ;\n") ;
     }
-    if (program->names->nb_iterators > 0)
+    if (cloog_program_names (program)->nb_iterators > 0)
     { fprintf(file,"  /* Original iterators. */\n") ;
-      fprintf(file,"  int %s",program->names->iterators[0]) ; 
-      for(i=2;i<=program->names->nb_iterators;i++)
-      fprintf(file,", %s",program->names->iterators[i-1]) ; 
+      fprintf(file,"  int %s",cloog_program_names (program)->iterators[0]) ; 
+      for(i=2;i<=cloog_program_names (program)->nb_iterators;i++)
+	fprintf(file,", %s",cloog_program_names (program)->iterators[i-1]) ; 
       
       fprintf(file," ;\n") ;
     }
-    if (program->names->nb_parameters > 0)
+    if (cloog_program_names (program)->nb_parameters > 0)
     { fprintf(file,"  /* Parameters. */\n") ;
-      fprintf(file, "  int %s=PARVAL1",program->names->parameters[0]);
-      for(i=2;i<=program->names->nb_parameters;i++)
-        fprintf(file, ", %s=PARVAL%d", program->names->parameters[i-1], i);
+      fprintf(file, "  int %s=PARVAL1",cloog_program_names (program)->parameters[0]);
+      for(i=2;i<=cloog_program_names (program)->nb_parameters;i++)
+        fprintf(file, ", %s=PARVAL%d", cloog_program_names (program)->parameters[i-1], i);
       
       fprintf(file,";\n");
     }
@@ -427,7 +428,7 @@ CloogOptions * options ;
  * This function frees the allocated memory for a CloogProgram structure.
  */
 void cloog_program_free(CloogProgram * program)
-{ cloog_names_free(program->names) ;
+{ cloog_names_free(cloog_program_names (program)) ;
   cloog_loop_free(cloog_program_loop (program)) ;
   cloog_domain_free (cloog_program_context (program)) ;
   cloog_block_list_free(program->blocklist) ;
@@ -555,14 +556,15 @@ CloogProgram * cloog_program_read(FILE * file, CloogOptions * options)
       p->scaldims  = NULL ;
     }
     
-    p->names = cloog_names_alloc(0, nb_scattering, nb_iterators, nb_parameters,
-                                 NULL, scattering,    iterators,    parameters);
+    cloog_program_set_names 
+      (p, cloog_names_alloc (0, nb_scattering, nb_iterators, nb_parameters,
+			     NULL, scattering, iterators, parameters));
   
-    cloog_names_scalarize (p->names, cloog_program_nb_scattdims (p), p->scaldims);
+    cloog_names_scalarize (cloog_program_names (p), cloog_program_nb_scattdims (p), p->scaldims);
   }
   else
     { cloog_program_set_loop (p, NULL);
-    p->names     = NULL ;
+      cloog_program_set_names (p, NULL);
     p->blocklist = NULL ;
     p->scaldims  = NULL ;
   }
@@ -598,7 +600,7 @@ CloogProgram * cloog_program_malloc()
   cloog_program_set_nb_scattdims (program, 0);
   cloog_program_set_context (program, NULL);
   cloog_program_set_loop (program, NULL);
-  program->names        = NULL ;
+  cloog_program_set_names (program, NULL);
   program->blocklist    = NULL ;
   program->scaldims     = NULL ;
   program->usr          = NULL;

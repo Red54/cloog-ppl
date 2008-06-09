@@ -1516,10 +1516,10 @@ struct clast_stmt *cloog_clast_create(CloogProgram *program,
 {
     CloogInfos *infos = ALLOC(CloogInfos);
     int i, nb_levels;
-    struct clast_stmt *root = &new_clast_root(program->names)->stmt;
+    struct clast_stmt *root = &new_clast_root(cloog_program_names (program))->stmt;
     struct clast_stmt **next = &root->next;
 
-    infos->names    = program->names;
+    infos->names    = cloog_program_names (program);
     infos->options  = options;
     infos->scaldims = program->scaldims;
     infos->nb_scattdims = cloog_program_nb_scattdims (program);
@@ -1527,13 +1527,13 @@ struct clast_stmt *cloog_clast_create(CloogProgram *program,
     /* Allocation for the array of strides, there is a +1 since the statement can
     * be included inside an external loop without iteration domain.
     */ 
-    nb_levels = program->names->nb_scattering+program->names->nb_iterators+1;
+    nb_levels = cloog_program_names (program)->nb_scattering + cloog_program_names (program)->nb_iterators + 1;
     infos->stride = ALLOCN(Value, nb_levels);
     for (i = 0; i < nb_levels; ++i)
 	value_init_c(infos->stride[i]);
 
-    infos->equal = cloog_matrix_alloc(nb_levels,
-			       nb_levels + program->names->nb_parameters + 1);
+    infos->equal = 
+      cloog_matrix_alloc (nb_levels, nb_levels + cloog_program_names (program)->nb_parameters + 1);
 	
     insert_loop (cloog_program_loop (program), 1, 0, &next, infos);
 

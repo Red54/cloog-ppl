@@ -57,7 +57,7 @@ struct cloogprogram
   int _nb_scattdims ;          /**< Scattering dimension number. */
   CloogDomain    * _context ;   /**< The context of the program. */
   CloogLoop      * _loop ;      /**< The loops of the program. */
-  CloogNames     * names ;     /**< Iterators and parameters names. */
+  CloogNames     * _names ;     /**< Iterators and parameters names. */
   CloogBlockList * blocklist ; /**< The statement block list. */
   
   /* Internal service fields, filled up by cloog_program_scatter function. */
@@ -72,16 +72,6 @@ struct cloogprogram
 } ;
 typedef struct cloogprogram CloogProgram ;
 
-
-static inline CloogLoop *cloog_program_loop (CloogProgram *p)
-{
-  return p->_loop;
-}
-
-static inline void cloog_program_set_loop (CloogProgram *p, CloogLoop *l)
-{
-  p->_loop = l;
-}
 
 static inline char cloog_program_language (CloogProgram *p)
 {
@@ -113,6 +103,25 @@ static inline void cloog_program_set_context (CloogProgram *p, CloogDomain *c)
   p->_context = c;
 }
 
+static inline CloogLoop *cloog_program_loop (CloogProgram *p)
+{
+  return p->_loop;
+}
+
+static inline void cloog_program_set_loop (CloogProgram *p, CloogLoop *l)
+{
+  p->_loop = l;
+}
+
+static inline CloogNames *cloog_program_names (CloogProgram *p)
+{
+  return p->_names;
+}
+
+static inline void cloog_program_set_names (CloogProgram *p, CloogNames *n)
+{
+  p->_names = n;
+}
 
 
 /******************************************************************************
