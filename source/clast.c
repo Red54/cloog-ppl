@@ -1507,8 +1507,8 @@ static void insert_loop(CloogLoop * loop, int level, int scalar,
     /* Go to the next loop on the same level. */
     while (*top)
 	top = &(*top)->next;
-    if (loop->next != NULL)
-	insert_loop(loop->next, level,scalar_level, &top,infos);
+    if (cloog_loop_next (loop))
+      insert_loop(cloog_loop_next (loop), level,scalar_level, &top,infos);
 }
 
 

@@ -69,7 +69,7 @@ struct cloogloop
 			       *   CloogLoop structure is freed.
 			       */
   struct cloogloop * _inner ;  /**< Loops at the next level. */
-  struct cloogloop * next ;   /**< Next loop at the same level. */
+  struct cloogloop * _next ;   /**< Next loop at the same level. */
 } ;
 typedef struct cloogloop CloogLoop ;
 
@@ -137,6 +137,21 @@ static inline CloogLoop *cloog_loop_inner (CloogLoop *l)
 static inline void cloog_loop_set_inner (CloogLoop *l, CloogLoop *i)
 {
   l->_inner = i;
+}
+
+static inline CloogLoop *cloog_loop_next (CloogLoop *l)
+{
+  return l->_next;
+}
+
+static inline CloogLoop **cloog_loop_next_addr (CloogLoop *l)
+{
+  return &l->_next;
+}
+
+static inline void cloog_loop_set_next (CloogLoop *l, CloogLoop *n)
+{
+  l->_next = n;
 }
 
 

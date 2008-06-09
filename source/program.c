@@ -204,7 +204,7 @@ void cloog_program_dump_cloog(FILE * foo, CloogProgram * program)
   loop = cloog_program_loop (program);
   while (loop != NULL)
   { i++ ;
-    loop = loop->next ;
+    loop = cloog_loop_next (loop) ;
   }
   fprintf(foo,"\n\n# Statement number:\n%d\n\n",i) ;
 
@@ -236,7 +236,7 @@ void cloog_program_dump_cloog(FILE * foo, CloogProgram * program)
     fprintf(foo,"0 0 0 # For future options.\n\n") ;
     
     i++ ;
-    loop = loop->next ;
+    loop = cloog_loop_next (loop) ;
   }
   fprintf(foo,"\n1 # Iterator name(s)\n") ;
   for (i = 0; i < cloog_program_names (program)->nb_scattering; i++)
@@ -512,8 +512,8 @@ CloogProgram * cloog_program_read(FILE * file, CloogOptions * options)
       previous->next = cloog_block_list_alloc(cloog_loop_block (next)) ;
       previous = previous->next ;    
     
-      current->next = next ;
-      current = current->next ;
+      cloog_loop_set_next (current, next);
+      current = cloog_loop_next (current) ;
     }     
         
     /* Reading of the iterator names. */
@@ -739,7 +739,8 @@ void cloog_program_block(CloogProgram * program, CloogDomainList * scattering)
   CloogDomainList * scatt_reference, * scatt_loop, * scatt_start ;
   CloogBlockList * previous ;
   
-  if ((cloog_program_loop (program) == NULL) || (cloog_program_loop (program)->next == NULL))
+  if ((cloog_program_loop (program) == NULL) 
+      || (cloog_loop_next (cloog_program_loop (program)) == NULL))
   return ;
 
   /* We will have to rebuild the block list. */
@@ -761,7 +762,7 @@ void cloog_program_block(CloogProgram * program, CloogDomainList * scattering)
 
   reference       = cloog_program_loop (program) ;
   start           = cloog_program_loop (program) ;
-  loop            = reference->next ;
+  loop            = cloog_loop_next (reference) ;
   scatt_reference = scattering ;
   scatt_start     = scattering ;
   scatt_loop      = cloog_next_domain (scattering) ;
@@ -785,7 +786,7 @@ void cloog_program_block(CloogProgram * program, CloogDomainList * scattering)
       nb_blocked ++ ;
       cloog_block_merge(cloog_loop_block (start), cloog_loop_block (loop)); /* merge frees loop->block */
       cloog_loop_set_block (loop, NULL);
-      start->next = loop->next ;
+      cloog_loop_set_next (start, cloog_loop_next (loop));
       cloog_set_next_domain (scatt_start, cloog_next_domain (scatt_loop));
     }
     else
@@ -806,7 +807,7 @@ void cloog_program_block(CloogProgram * program, CloogDomainList * scattering)
 
     /* If the reference node has been included into a block, we can free it. */
     if (blocked_reference)
-    { reference->next = NULL ;
+      { cloog_loop_set_next (reference, NULL);
       cloog_loop_free (reference) ;
       cloog_domain_free (cloog_domain (scatt_reference)) ;
       free (scatt_reference) ;
@@ -819,7 +820,7 @@ void cloog_program_block(CloogProgram * program, CloogDomainList * scattering)
      *           reference loop
      */
     reference       = loop ;
-    loop            = loop->next ;
+    loop            = cloog_loop_next (loop) ;
     scatt_reference = scatt_loop ;
     scatt_loop      = cloog_next_domain (scatt_loop) ;
     
@@ -837,7 +838,7 @@ void cloog_program_block(CloogProgram * program, CloogDomainList * scattering)
    * last one inside).
    */
   if (blocked_reference)
-  { reference->next = NULL ;
+    { cloog_loop_set_next (reference, NULL);
     cloog_loop_free (reference) ;
     cloog_domain_free (cloog_domain (scatt_reference)) ;
     free (scatt_reference) ;
@@ -1002,7 +1003,7 @@ CloogDomainList * scattering ;
 
       /* Finally we scatter all loops. */
       cloog_loop_scatter(loop, cloog_domain (scattering)) ;
-      loop = loop->next ;
+      loop = cloog_loop_next (loop) ;
       scattering = cloog_next_domain (scattering);    
     
       while ((loop != NULL) && (scattering != NULL))
@@ -1019,7 +1020,7 @@ CloogDomainList * scattering ;
 	    not_enough_constraints ++ ;
       
 	  cloog_loop_scatter(loop,cloog_domain (scattering)) ;
-	  loop = loop->next ;
+	  loop = cloog_loop_next (loop) ;
 	  scattering = cloog_next_domain (scattering);
 	}
       if ((loop != NULL) || (scattering != NULL))
