@@ -151,6 +151,15 @@ static CloogMatrix * cloog_domain_domain2matrix(CloogDomain * domain)
   return cloog_matrix_matrix(Polyhedron2Constraints(cloog_domain_polyhedron (domain)));
 }
 
+static inline int cloog_domain_references (CloogDomain *d)
+{
+  return d->_references;
+}
+
+static inline void cloog_domain_set_references (CloogDomain *d, int i)
+{
+  d->_references = i;
+}
 
 /**
  * cloog_domain_print function:

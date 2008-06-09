@@ -72,7 +72,7 @@ extern "C"
  */
 struct cloogdomain
 { Polyhedron * polyhedron ;      /**< The polyhedral domain. */
-  int references ;               /**< Number of references to this structure. */
+  int _references ;               /**< Number of references to this structure. */
 } ;
 typedef struct cloogdomain CloogDomain ;
 
@@ -116,16 +116,6 @@ static inline Polyhedron * cloog_domain_polyhedron_set (CloogDomain *d,
 							Polyhedron *p)
 {
   return d->polyhedron = p ;
-}
-
-static inline int cloog_domain_references (CloogDomain *d)
-{
-  return d->references;
-}
-
-static inline void cloog_domain_set_references (CloogDomain *d, int i)
-{
-  d->references = i;
 }
 
 static inline Polyhedron * cloog_polyhedron_next (Polyhedron *p)
