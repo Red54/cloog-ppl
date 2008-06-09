@@ -157,16 +157,21 @@ void          cloog_domain_scalar(CloogDomain *, int, Value *) ;
 CloogDomain * cloog_domain_cut_first(CloogDomain *) ;
 CloogDomain * cloog_domain_erase_dimension(CloogDomain *, int) ;
 
-#define cloog_domain_polyhedron(x)    (x)->polyhedron
-#define cloog_domain_dimension(x)     (x)->polyhedron->Dimension
-#define cloog_domain_nbconstraints(x) (x)->polyhedron->NbConstraints
-#define cloog_domain_isconvex(x)      ((x)->polyhedron->next == NULL)? 1 : 0
-/*
-Polyhedron  * cloog_domain_polyhedron(CloogDomain *) ;
-int           cloog_domain_dimension(CloogDomain *) ;
-int           cloog_domain_nbconstraints(CloogDomain *) ;
-int           cloog_domain_isconvex(CloogDomain *) ;
-*/  
+static inline Polyhedron * cloog_domain_polyhedron(CloogDomain * domain)
+{ return domain->polyhedron ;
+}
+
+static inline int cloog_domain_dimension(CloogDomain * domain)
+{ return domain->polyhedron->Dimension ;
+}
+
+static inline int cloog_domain_nbconstraints(CloogDomain * domain)
+{ return domain->polyhedron->NbConstraints ;
+}
+
+static inline int cloog_domain_isconvex(CloogDomain * domain)
+{ return (domain->polyhedron->next == NULL)? 1 : 0 ;
+}
 
 #if defined(__cplusplus)
   }

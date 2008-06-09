@@ -1509,31 +1509,6 @@ int cloog_domain_list_lazy_same(CloogDomainList * list)
 }
 
 /**
- * Those functions are provided for "object encapsulation", to separate as much
- * as possible the inside of the CloogDomain structure from the rest of the
- * program, in order to ease the change of polyhedral library. For efficiency
- * reasons, they are defined and used as macros in domain.h.
- * - April 20th 2005: setting.
- *
-Polyhedron * cloog_domain_polyhedron(CloogDomain * domain)
-{ return domain->polyhedron ;
-}
-
-int cloog_domain_dimension(CloogDomain * domain)
-{ return domain->polyhedron->Dimension ;
-}
-
-int cloog_domain_nbconstraints(CloogDomain * domain)
-{ return domain->polyhedron->NbConstraints ;
-}
-
-int cloog_domain_isconvex(CloogDomain * domain)
-{ return (domain->polyhedron->next == NULL)? 1 : 0 ;
-}
- */
-
-
-/**
  * cloog_domain_cut_first function:
  * this function returns a CloogDomain structure with everything except the
  * first part of the polyhedra union of the input domain as domain. After a call
