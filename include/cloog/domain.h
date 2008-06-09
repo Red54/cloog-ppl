@@ -89,13 +89,6 @@ typedef struct cloogdomainlist CloogDomainList ;
 
 
 /******************************************************************************
- *                          Memory leak hunt functions                        *
- ******************************************************************************/
-void cloog_value_leak_up(void);
-void cloog_value_leak_down(void);
-
-
-/******************************************************************************
  *                              PolyLib interface                             *
  ******************************************************************************/
 CloogMatrix * cloog_simplify_domain_matrix_with_equalities (CloogDomain *, int,
