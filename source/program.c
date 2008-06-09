@@ -108,7 +108,8 @@ int level ;
   /* Print the scattering dimension number. */
   for (i=0; i<=level; i++)
   fprintf(file,"|\t") ;
-  fprintf(file,"Scattering dimension number: %d\n",program->nb_scattdims) ;
+  fprintf(file,"Scattering dimension number: %d\n",
+	  cloog_program_nb_scattdims (program)) ;
   
   /* A blank line. */
   for (i=0; i<=level+1; i++)
@@ -120,7 +121,7 @@ int level ;
   fprintf(file,"|\t") ;
   if (program->scaldims != NULL)
   { fprintf(file,"Scalar dimensions:") ;
-    for (i=0;i<program->nb_scattdims;i++)
+    for (i=0;i<cloog_program_nb_scattdims (program);i++)
     fprintf(file," %d:%d ",i,program->scaldims[i]) ;
     fprintf(file,"\n") ;
   }
@@ -311,7 +312,7 @@ CloogOptions * options ;
    * a compilable code. This code just do nothing, but now the user can edit
    * the source and set the statement macros and parameters values.
    */
-  nb_scattering = program->nb_scattdims ;
+  nb_scattering = cloog_program_nb_scattdims (program) ;
   if (options->compilable && (cloog_program_language (program) == 'c'))
   { /* The headers. */
     fprintf(file,"/* DON'T FORGET TO USE -lm OPTION TO COMPILE. */\n\n") ;
@@ -524,18 +525,19 @@ CloogProgram * cloog_program_read(FILE * file, CloogOptions * options)
                         "similar.\n") ;
       }
       
-      p->nb_scattdims = cloog_domain_dim(cloog_domain (scatteringl)) - 
-	cloog_domain_dim(cloog_loop_domain (cloog_program_loop (p))) ;
-      nb_scattering = p->nb_scattdims  ;
-      scattering = cloog_names_read_strings(file, p->nb_scattdims, prefix, -1);
+      cloog_program_set_nb_scattdims (p, 
+				      cloog_domain_dim (cloog_domain (scatteringl)) - 
+				      cloog_domain_dim (cloog_loop_domain (cloog_program_loop (p)))) ;
+      nb_scattering = cloog_program_nb_scattdims (p);
+      scattering = cloog_names_read_strings (file, cloog_program_nb_scattdims (p), prefix, -1);
     
       /* The boolean array for scalar dimensions is created and set to 0. */
-      p->scaldims = (int *)malloc(p->nb_scattdims*(sizeof(int))) ;
+      p->scaldims = (int *) malloc (cloog_program_nb_scattdims (p) * sizeof (int)) ;
       if (p->scaldims == NULL) 
       { fprintf(stderr, "[CLooG]ERROR: memory overflow.\n") ;
         exit(1) ;
       }
-      for (i=0;i<p->nb_scattdims;i++)
+      for (i=0;i<cloog_program_nb_scattdims (p);i++)
       p->scaldims[i] = 0 ;
       
       /* We try to find blocks in the input problem to reduce complexity. */
@@ -548,14 +550,15 @@ CloogProgram * cloog_program_read(FILE * file, CloogOptions * options)
       cloog_domain_list_free(scatteringl) ;
     }
     else
-    { p->nb_scattdims = 0 ;
+    { 
+      cloog_program_set_nb_scattdims (p, 0);
       p->scaldims  = NULL ;
     }
     
     p->names = cloog_names_alloc(0, nb_scattering, nb_iterators, nb_parameters,
                                  NULL, scattering,    iterators,    parameters);
   
-    cloog_names_scalarize(p->names,p->nb_scattdims,p->scaldims) ;
+    cloog_names_scalarize (p->names, cloog_program_nb_scattdims (p), p->scaldims);
   }
   else
     { cloog_program_set_loop (p, NULL);
@@ -592,7 +595,7 @@ CloogProgram * cloog_program_malloc()
   
   /* We set the various fields with default values. */
   cloog_program_set_language (program, 'c');
-  program->nb_scattdims = 0 ;
+  cloog_program_set_nb_scattdims (program, 0);
   program->context      = NULL ;
   cloog_program_set_loop (program, NULL);
   program->names        = NULL ;
@@ -641,13 +644,13 @@ CloogOptions * options ;
      *    an illegal target code (since the scattering is not respected), if
      *    it is the case, we set -l depth to the first acceptable value.
      */
-    if ((program->nb_scattdims > options->l) && (options->l >= 0))
+    if ((cloog_program_nb_scattdims (program) > options->l) && (options->l >= 0))
     { fprintf(stderr,
       "[CLooG]WARNING: -l depth is less than the scattering dimension number "
       "(the \n                generated code may be incorrect), it has been "
       "automaticaly set\n                to this value (use option -override "
       "to override).\n") ;
-      options->l = program->nb_scattdims ;
+      options->l = cloog_program_nb_scattdims (program);
     }
       
     /* 2. Using -f option greater than one while -l depth is greater than the
@@ -657,14 +660,14 @@ CloogOptions * options ;
      *    the first acceptable value.
      */
     if (((options->f > 1) || (options->f < 0)) &&
-        ((options->l > program->nb_scattdims) || (options->l < 0)))
+        ((options->l > cloog_program_nb_scattdims (program)) || (options->l < 0)))
     { fprintf(stderr,
       "[CLooG]WARNING: -f depth is more than one, -l depth has been "
       "automaticaly set\n                to the scattering dimension number "
       "(target code may have\n                duplicated iterations), -l depth "
       "has been automaticaly set to\n                this value (use option "
       "-override to override).\n") ;
-      options->l = program->nb_scattdims ;
+      options->l = cloog_program_nb_scattdims (program);
     }
   }
   
@@ -676,7 +679,7 @@ CloogOptions * options ;
     /* Here we go ! */
     loop = cloog_loop_generate(loop, program->context, 1, 0,
                                program->scaldims,
-			       program->nb_scattdims,
+			       cloog_program_nb_scattdims (program),
                                cloog_domain_dim(program->context),
 			       options);
 			          
@@ -761,7 +764,7 @@ void cloog_program_block(CloogProgram * program, CloogDomainList * scattering)
 				   cloog_loop_domain (loop)) &&
 	  cloog_domain_lazy_block(cloog_domain (scatt_reference),
 				  cloog_domain (scatt_loop),
-				  scattering,program->nb_scattdims))
+				  scattering, cloog_program_nb_scattdims (program)))
     { /* If we find a block we update the links:
        *     +---------------+
        *     |               v
@@ -862,7 +865,7 @@ CloogDomainList * scattering ;
 
   start = scattering ;
     
-  for (i=0;i<program->nb_scattdims;i++)
+  for (i = 0; i < cloog_program_nb_scattdims (program); i++)
   { scalar = 1 ;
     scattering = start ;
     while (scattering != NULL)
@@ -905,7 +908,7 @@ CloogDomainList * scattering ;
    * then the next one is not the (i+1)^th but still the i^th...).
    */
   current = nb_scaldims - 1 ;
-  for (i=program->nb_scattdims-1;i>=0;i--)
+  for (i = cloog_program_nb_scattdims (program) - 1; i >= 0; i--)
   if (program->scaldims[i])
   { blocklist = program->blocklist ;
     scattering = start ;
@@ -931,10 +934,10 @@ CloogDomainList * scattering ;
    * many scalar dimensions follows + 1 (the current one). This will make 
    * some other processing easier (e.g. knowledge of some offsets).
    */
-  for (i=0;i<program->nb_scattdims-1;i++)
+  for (i = 0; i < cloog_program_nb_scattdims (program) - 1; i++)
   { if (program->scaldims[i])
     { j = i + 1 ;
-      while ((j < program->nb_scattdims) && program->scaldims[j])
+      while ((j < cloog_program_nb_scattdims (program)) && program->scaldims[j])
       { program->scaldims[i] ++ ;
         j ++ ;
       }
@@ -943,7 +946,7 @@ CloogDomainList * scattering ;
   
   if (nb_scaldims != 0)
   fprintf(stderr, "[CLooG]INFO: %d dimensions (over %d) are scalar.\n",
-          nb_scaldims,program->nb_scattdims) ;
+          nb_scaldims, cloog_program_nb_scattdims (program)) ;
 }
 
 

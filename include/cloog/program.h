@@ -93,6 +93,16 @@ static inline void cloog_program_set_language (CloogProgram *p, char c)
   p->language = c;
 }
 
+static inline int cloog_program_nb_scattdims (CloogProgram *p)
+{
+  return p->nb_scattdims;
+}
+
+static inline void cloog_program_set_nb_scattdims (CloogProgram *p, int n)
+{
+  p->nb_scattdims = n;
+}
+
 
 /******************************************************************************
  *                          Structure display function                        *
