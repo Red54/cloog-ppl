@@ -98,7 +98,7 @@ int level ;
   /* Print the language. */
   for (i=0; i<=level; i++)
   fprintf(file,"|\t") ;
-  fprintf(file, "Language: %c\n",program->language) ;
+  fprintf(file, "Language: %c\n",cloog_program_language (program)) ;
   
   /* A blank line. */
   for (i=0; i<=level+1; i++)
@@ -183,11 +183,11 @@ void cloog_program_dump_cloog(FILE * foo, CloogProgram * program)
   "# ASK THE AUTHOR IF YOU *NEED* SOMETHING MORE ROBUST\n") ;
 
   /* Language. */
-  if (program->language == 'c')
+  if (cloog_program_language (program) == 'c')
   fprintf(foo,"# Language: C\n") ;
   else
   fprintf(foo,"# Language: FORTRAN\n") ;
-  fprintf(foo,"%c\n\n",program->language) ;
+  fprintf(foo,"%c\n\n", cloog_program_language (program)) ;
 
   /* Context. */
   fprintf(foo,"# Context (%d parameter(s)):\n",
@@ -294,7 +294,7 @@ CloogOptions * options ;
   CloogBlock * block ;
   struct clast_stmt *root;
    
-  if (program->language == 'f')
+  if (cloog_program_language (program) == 'f')
     options->language = LANGUAGE_FORTRAN ;
   else
     options->language = LANGUAGE_C ;
@@ -312,7 +312,7 @@ CloogOptions * options ;
    * the source and set the statement macros and parameters values.
    */
   nb_scattering = program->nb_scattdims ;
-  if (options->compilable && (program->language == 'c'))
+  if (options->compilable && (cloog_program_language (program) == 'c'))
   { /* The headers. */
     fprintf(file,"/* DON'T FORGET TO USE -lm OPTION TO COMPILE. */\n\n") ;
     fprintf(file,"/* Useful headers. */\n") ;
@@ -409,7 +409,7 @@ CloogOptions * options ;
   cloog_clast_free(root);
   
   /* The end of the compilable code in case of 'compilable' option. */
-  if (options->compilable && (program->language == 'c'))
+  if (options->compilable && (cloog_program_language (program) == 'c'))
   { fprintf(file,"\n  printf(\"Number of integral points: %%d.\\n\",total) ;") ;
     fprintf(file,"\n  return 0 ;\n}\n") ;
   }
@@ -471,7 +471,7 @@ CloogProgram * cloog_program_read(FILE * file, CloogOptions * options)
   while (fgets(s,MAX_STRING,file) == 0) ;
   while ((*s=='#'||*s=='\n') || (sscanf(s," %c",&language)<1))
   fgets(s,MAX_STRING,file) ;
-  p->language = language ;
+  cloog_program_set_language (p, language);
 
   /* We then read the context data. */
   p->context = cloog_domain_read(file) ;
@@ -591,7 +591,7 @@ CloogProgram * cloog_program_malloc()
   }
   
   /* We set the various fields with default values. */
-  program->language     = 'c' ;
+  cloog_program_set_language (program, 'c');
   program->nb_scattdims = 0 ;
   program->context      = NULL ;
   cloog_program_set_loop (program, NULL);

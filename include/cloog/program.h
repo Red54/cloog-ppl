@@ -83,6 +83,16 @@ static inline void cloog_program_set_loop (CloogProgram *p, CloogLoop *l)
   p->loop = l;
 }
 
+static inline char cloog_program_language (CloogProgram *p)
+{
+  return p->language;
+}
+
+static inline void cloog_program_set_language (CloogProgram *p, char c)
+{
+  p->language = c;
+}
+
 
 /******************************************************************************
  *                          Structure display function                        *
