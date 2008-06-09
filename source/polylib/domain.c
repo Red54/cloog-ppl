@@ -411,27 +411,27 @@ CloogDomain * cloog_domain_simplify(CloogDomain * dom1, CloogDomain * dom2)
    */
   if (cloog_domain_isconvex (dom1)
       && cloog_domain_isconvex (dom2)
-      && P->NbEq && cloog_domain_polyhedron (dom2)->NbEq) {
+      && cloog_polyhedron_nbeq (P) && cloog_domain_nbeq (dom2)) {
     int i, row;
-    int rows = P->NbEq + cloog_domain_polyhedron (dom2)->NbEq;
+    int rows = cloog_polyhedron_nbeq (P) + cloog_domain_nbeq (dom2);
     int cols = P->Dimension+2;
     int rank;
     M = cloog_matrix_alloc(rows, cols);
     M2 = cloog_matrix_alloc(P->NbConstraints, cols);
     Vector_Copy(cloog_domain_polyhedron (dom2)->Constraint[0], M->p[0], 
-		cloog_domain_polyhedron (dom2)->NbEq * cols);
-    rank = cloog_domain_polyhedron (dom2)->NbEq;
+		cloog_domain_nbeq (dom2) * cols);
+    rank = cloog_domain_nbeq (dom2);
     row = 0;
-    for (i = 0; i < P->NbEq; ++i) {
+    for (i = 0; i < cloog_polyhedron_nbeq (P); ++i) {
       Vector_Copy(P->Constraint[i], M->p[rank], cols);
       if (Gauss(M, rank+1, cols-1) > rank) {
 	Vector_Copy(P->Constraint[i], M2->p[row++], cols);
 	rank++;
       }
     }
-    if (row < P->NbEq) {
-      Vector_Copy(P->Constraint[P->NbEq], M2->p[row], 
-		  (P->NbConstraints - P->NbEq) * cols);
+    if (row < cloog_polyhedron_nbeq (P)) {
+      Vector_Copy(P->Constraint[cloog_polyhedron_nbeq (P)], M2->p[row], 
+		  (P->NbConstraints - cloog_polyhedron_nbeq (P)) * cols);
       P = Constraints2Polyhedron(M2, MAX_RAYS);
     }
     cloog_matrix_free(M2);
@@ -810,7 +810,7 @@ int cloog_domain_isempty(CloogDomain * domain)
   if (cloog_domain_polyhedron (domain)->next)
   return(0) ;
   return((cloog_domain_polyhedron (domain)->Dimension 
-	  < cloog_domain_polyhedron (domain)->NbEq) ? 1 : 0) ;
+	  < cloog_domain_nbeq (domain)) ? 1 : 0) ;
 }
 
 
@@ -992,12 +992,12 @@ Value  * stride, * offset;
    * be a constant.
    */
   n_col = (1+dimension-nb_par) - strided_level;
-  for (i=0, n_row=0; i < polyhedron->NbEq; i++)
+  for (i=0, n_row=0; i < cloog_polyhedron_nbeq (polyhedron); i++)
     if (First_Non_Zero(polyhedron->Constraint[i]+strided_level, n_col) != -1)
       ++n_row;
 
   M = cloog_matrix_alloc(n_row+1, n_col+1);
-  for (i=0, n_row = 0; i < polyhedron->NbEq; i++) {
+  for (i=0, n_row = 0; i < cloog_polyhedron_nbeq (polyhedron); i++) {
     if (First_Non_Zero(polyhedron->Constraint[i]+strided_level, n_col) == -1)
       continue;
     Vector_Copy(polyhedron->Constraint[i]+strided_level, M->p[n_row], n_col);

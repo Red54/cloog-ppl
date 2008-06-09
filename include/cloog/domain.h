@@ -117,6 +117,16 @@ static inline int cloog_domain_isconvex(CloogDomain * domain)
 { return !cloog_domain_polyhedron_next (domain);
 }
 
+static inline unsigned cloog_polyhedron_nbeq (Polyhedron *p)
+{
+  return p->NbEq;
+}
+
+static inline unsigned cloog_domain_nbeq (CloogDomain *d)
+{
+  return cloog_polyhedron_nbeq (cloog_domain_polyhedron (d));
+}
+
 /******************************************************************************
  *                              PolyLib interface                             *
  ******************************************************************************/
