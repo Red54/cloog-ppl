@@ -87,6 +87,35 @@ struct cloogdomainlist
 } ;
 typedef struct cloogdomainlist CloogDomainList ;
 
+static inline Polyhedron * cloog_domain_polyhedron(CloogDomain * domain)
+{ return domain->polyhedron ;
+}
+
+static inline Polyhedron * cloog_domain_polyhedron_set(CloogDomain *d,
+						       Polyhedron *p)
+{ return d->polyhedron = p ;
+}
+
+static inline Polyhedron * cloog_domain_polyhedron_next(CloogDomain * domain)
+{ return domain->polyhedron->next ;
+}
+
+static inline Polyhedron * cloog_domain_polyhedron_set_next(CloogDomain *d,
+							    Polyhedron *p)
+{ return d->polyhedron->next = p ;
+}
+
+static inline int cloog_domain_dimension(CloogDomain * domain)
+{ return domain->polyhedron->Dimension ;
+}
+
+static inline int cloog_domain_nbconstraints(CloogDomain * domain)
+{ return domain->polyhedron->NbConstraints ;
+}
+
+static inline int cloog_domain_isconvex(CloogDomain * domain)
+{ return !cloog_domain_polyhedron_next (domain);
+}
 
 /******************************************************************************
  *                              PolyLib interface                             *
@@ -149,22 +178,6 @@ int           cloog_domain_list_lazy_same(CloogDomainList *) ;
 void          cloog_domain_scalar(CloogDomain *, int, Value *) ;
 CloogDomain * cloog_domain_cut_first(CloogDomain *) ;
 CloogDomain * cloog_domain_erase_dimension(CloogDomain *, int) ;
-
-static inline Polyhedron * cloog_domain_polyhedron(CloogDomain * domain)
-{ return domain->polyhedron ;
-}
-
-static inline int cloog_domain_dimension(CloogDomain * domain)
-{ return domain->polyhedron->Dimension ;
-}
-
-static inline int cloog_domain_nbconstraints(CloogDomain * domain)
-{ return domain->polyhedron->NbConstraints ;
-}
-
-static inline int cloog_domain_isconvex(CloogDomain * domain)
-{ return (domain->polyhedron->next == NULL)? 1 : 0 ;
-}
 
 #if defined(__cplusplus)
   }
