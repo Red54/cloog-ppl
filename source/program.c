@@ -607,7 +607,7 @@ CloogProgram * cloog_program_malloc()
   cloog_program_set_names (program, NULL);
   cloog_program_set_blocklist (program, NULL);
   cloog_program_set_scaldims (program, NULL);
-  program->usr          = NULL;
+  cloog_program_set_usr (program, NULL);
   
   return program ;
 }  

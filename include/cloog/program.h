@@ -65,7 +65,7 @@ struct cloogprogram
                                 *   scattering dimension is scalar or not.
 				*/
   /* Library user reserved field. */
-  void * usr;		       /**< User field, for library user convenience.
+  void * _usr;		       /**< User field, for library user convenience.
 			        *   This pointer is not freed when the
 			        *   CloogProgram structure is freed.
 			        */
@@ -151,6 +151,16 @@ static inline int cloog_program_scaldim (CloogProgram *p, int i)
 static inline void cloog_program_set_scaldim (CloogProgram *p, int i, int k)
 {
   p->_scaldims[i] = k;
+}
+
+static inline void *cloog_program_usr (CloogProgram *p)
+{
+  return p->_usr;
+}
+
+static inline void cloog_program_set_usr (CloogProgram *p, void *u)
+{
+  p->_usr = u;
 }
 
 /******************************************************************************
