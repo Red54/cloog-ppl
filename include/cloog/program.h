@@ -49,7 +49,7 @@ extern "C"
 /**
  * CloogProgram structure:
  * this structure contains all the informations of a program generated or to be
- * generated.
+ * generated.  Never access this structure directly: use the function interface below.
  */
 struct cloogprogram
 { /* Basic program description fields. */
