@@ -133,7 +133,7 @@ void cloog_loop_print_structure(FILE * file, CloogLoop * loop, int level)
     for(j=0; j<=level; j++)
     fprintf(file,"|\t") ;
     fprintf(file, "Stride: ") ;
-    value_print(file,VALUE_FMT,loop->stride) ;
+    value_print(file,VALUE_FMT,cloog_loop_stride (loop)) ;
     fprintf(file, "\n") ;
         
     /* A blank line. */
@@ -212,7 +212,7 @@ void cloog_loop_free(CloogLoop * loop)
     if (loop->inner != NULL)
     cloog_loop_free(loop->inner) ;
     
-    value_clear_c(loop->stride) ;
+    cloog_loop_clear_stride (loop);
     free(loop) ;
     loop = next ;
   }
@@ -246,7 +246,7 @@ int domain, block, inner, next ;
     if ((inner) && (loop->inner != NULL))
     cloog_loop_free_parts(loop->inner,domain,block,inner,1) ;
     
-    value_clear_c(loop->stride) ;
+    cloog_loop_clear_stride (loop);
     free(loop) ;
     if (next)
     loop = follow ;
@@ -296,8 +296,8 @@ CloogLoop * cloog_loop_read(FILE * foo, int number, int nb_parameters)
   else
     nb_iterators = 0 ;
   /* stride is initialized to 1. */
-  value_init_c(loop->stride) ;
-  value_set_si(loop->stride,1) ;
+  cloog_loop_init_stride (loop);
+  cloog_loop_set_si_stride (loop, 1);
   /* included statement block. */
   statement = cloog_statement_alloc(number+1);
   loop->block = cloog_block_alloc(statement,NULL,0,NULL,nb_iterators) ;
@@ -346,8 +346,8 @@ CloogLoop * cloog_loop_malloc()
   loop->usr    = NULL;
   loop->inner  = NULL ;
   loop->next   = NULL ;
-  value_init_c(loop->stride) ;
-  value_set_si(loop->stride,1) ; 
+  cloog_loop_init_stride (loop);
+  cloog_loop_set_si_stride (loop, 1); 
   
   return loop ;
 }  
@@ -375,7 +375,7 @@ CloogLoop * inner, * next ;
   loop->block  = block ;
   loop->inner  = inner ;
   loop->next   = next ;
-  value_assign(loop->stride,stride) ;
+  cloog_loop_set_stride (loop, stride);
   
   return(loop) ;
 }
@@ -443,7 +443,7 @@ CloogLoop * cloog_loop_copy(CloogLoop * source)
     {
       domain = cloog_domain_copy (cloog_loop_domain (source)) ;
       block  = cloog_block_copy(source->block) ;
-      loop   = cloog_loop_alloc(domain,source->stride,block,NULL,NULL) ;
+      loop   = cloog_loop_alloc(domain,cloog_loop_stride (source),block,NULL,NULL) ;
       loop->usr = source->usr;
       loop->inner = cloog_loop_copy(source->inner) ;
       loop->next = cloog_loop_copy(source->next) ;
@@ -626,7 +626,7 @@ CloogLoop * cloog_loop_project(CloogLoop * loop, int level, int nb_par)
   value_init_c(one) ;
   value_set_si(one,1) ;
   
-  copy = cloog_loop_alloc(cloog_loop_domain (loop),loop->stride,loop->block,
+  copy = cloog_loop_alloc(cloog_loop_domain (loop),cloog_loop_stride (loop),loop->block,
                           loop->inner,NULL) ;
 
   if ((cloog_domain_dim(cloog_loop_domain (loop))-nb_par) == level)
@@ -1024,7 +1024,7 @@ int level, nb_par ;
 
 
 /**
- * cloog_loop_stride function:
+ * cloog_loop_stride_1 function:
  * This function will find the stride of a loop for the iterator at the column
  * number 'level' in the constraint matrix. It will update the lower bound of
  * the iterator accordingly. Basically, the function will try to find in the
@@ -1043,7 +1043,7 @@ int level, nb_par ;
  * - July 14th 2003: simpler version.
  * - June 22nd 2005: Adaptation for GMP (from S. Verdoolaege's 0.12.1 version).
  */
-void cloog_loop_stride(CloogLoop * loop, int level, int nb_par)
+static void cloog_loop_stride_1 (CloogLoop * loop, int level, int nb_par)
 { int first_search ;
   Value stride, ref_offset, offset, potential, lower ;
   CloogLoop * inner ;
@@ -1090,7 +1090,7 @@ void cloog_loop_stride(CloogLoop * loop, int level, int nb_par)
   /* Update the values if necessary. */
   if (value_notone_p(stride))
   { /* Update the stride value. */
-    value_assign(loop->stride,stride) ;
+    cloog_loop_set_stride (loop, stride);
     /* The new lower bound l' is such that 
      *      (l' + offset) % s = 0 and l <= l' <= l+(s-1)
      * Let l' = k s - offset, then 
@@ -1298,10 +1298,11 @@ CloogOptions * options ;
     { l = cloog_loop_separate(l) ;
       l = cloog_loop_sort(l,level,nb_par) ;
       while (l != NULL)
-      { value_assign(l->stride,temp->stride) ;
-        cloog_loop_add(&loop,&now,l) ;
-        l = l->next ;
-      }
+	{
+	  cloog_loop_set_stride (l, cloog_loop_stride (temp));
+	  cloog_loop_add(&loop,&now,l) ;
+	  l = l->next ;
+	}
     }
     next2 = temp->next ;
     cloog_loop_free_parts(temp,1,0,0,0) ;
@@ -1367,7 +1368,7 @@ CloogOptions * options ;
   if ((level+scalar < options->l) || (options->l < 0))
   while(temp != NULL)
   { if (options->strides)
-    cloog_loop_stride(temp,level,nb_par) ;
+    cloog_loop_stride_1 (temp,level,nb_par) ;
     inner = temp->inner ;
     domain = cloog_loop_domain (temp) ;
     into = NULL ;
@@ -1649,7 +1650,7 @@ int level, nb_par ;
 
   new_block = cloog_block_copy(loop->block) ;
   
-  simplified = cloog_loop_alloc(simp,loop->stride,new_block,inner,next) ;
+  simplified = cloog_loop_alloc (simp, cloog_loop_stride (loop), new_block, inner, next);
   
   /* Examples like test/iftest2.cloog give unions of polyhedra after
    * simplifying, thus we we have to disjoint them. Another good reason to

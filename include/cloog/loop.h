@@ -60,7 +60,7 @@ extern "C"
  */
 struct cloogloop
 { CloogDomain * _domain ;      /**< The iteration domain. */
-  Value stride ;              /**< The stride for the corresponding iterator
+  Value _stride ;              /**< The stride for the corresponding iterator
                                *   (filled only after loop generation).
                                */
   CloogBlock * block ;        /**< The included statement block, NULL if none.*/
@@ -83,6 +83,32 @@ static inline void cloog_loop_set_domain (CloogLoop *l, CloogDomain *d)
 {
   l->_domain = d;
 }
+
+static inline Value cloog_loop_stride (CloogLoop *l)
+{
+  return l->_stride;
+}
+
+static inline void cloog_loop_set_stride (CloogLoop *l, Value v)
+{
+  value_assign (l->_stride, v);
+}
+
+static inline void cloog_loop_clear_stride (CloogLoop *l)
+{
+  value_clear_c (l->_stride);
+}
+
+static inline void cloog_loop_init_stride (CloogLoop *l)
+{
+  value_init_c (l->_stride);
+}
+
+static inline void cloog_loop_set_si_stride (CloogLoop *l, int i)
+{
+  value_set_si (l->_stride, i);
+}
+
 
 
 /******************************************************************************
