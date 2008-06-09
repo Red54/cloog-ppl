@@ -73,6 +73,17 @@ struct cloogprogram
 typedef struct cloogprogram CloogProgram ;
 
 
+static inline CloogLoop *cloog_program_loop (CloogProgram *p)
+{
+  return p->loop;
+}
+
+static inline void cloog_program_set_loop (CloogProgram *p, CloogLoop *l)
+{
+  p->loop = l;
+}
+
+
 /******************************************************************************
  *                          Structure display function                        *
  ******************************************************************************/
