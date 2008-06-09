@@ -1357,7 +1357,7 @@ static void insert_scalar(CloogLoop *loop, int level, int *scalar,
       (infos->scaldims[level+(*scalar)-1]))
     {
       while (cloog_loop_block (loop) == NULL)
-	loop = loop->inner ;
+	loop = cloog_loop_inner (loop) ;
 
       while ((level+(*scalar) <= infos->nb_scattdims) &&
 	     (infos->scaldims[level+(*scalar)-1])) { 
@@ -1498,8 +1498,8 @@ static void insert_loop(CloogLoop * loop, int level, int scalar,
     insert_block(cloog_loop_block (loop), level+equality, next, infos);
 
     /* Go to the next level. */
-    if (loop->inner != NULL)
-	insert_loop(loop->inner, level+1,scalar, next, infos);
+    if (cloog_loop_inner (loop))
+      insert_loop(cloog_loop_inner (loop), level+1,scalar, next, infos);
 
     clast_equal_del(infos->equal,level);
     cloog_matrix_free(matrix);

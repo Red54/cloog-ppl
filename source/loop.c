@@ -150,8 +150,8 @@ void cloog_loop_print_structure(FILE * file, CloogLoop * loop, int level)
     fprintf(file,"\n") ;
     
     /* Print inner if any. */
-    if (loop->inner)
-    cloog_loop_print_structure(file,loop->inner,level+1) ;
+    if (cloog_loop_inner (loop))
+      cloog_loop_print_structure (file,cloog_loop_inner (loop), level + 1);
     
     /* And let's go for the next one. */
     loop = loop->next ;
@@ -209,8 +209,8 @@ void cloog_loop_free(CloogLoop * loop)
     next = loop->next ;
     cloog_domain_free(cloog_loop_domain (loop)) ;
     cloog_block_free(cloog_loop_block (loop)) ;
-    if (loop->inner != NULL)
-    cloog_loop_free(loop->inner) ;
+    if (cloog_loop_inner (loop))
+      cloog_loop_free (cloog_loop_inner (loop));
     
     cloog_loop_clear_stride (loop);
     free(loop) ;
@@ -243,8 +243,8 @@ int domain, block, inner, next ;
     if (block)
       cloog_block_free(cloog_loop_block (loop)) ;
      
-    if ((inner) && (loop->inner != NULL))
-    cloog_loop_free_parts(loop->inner,domain,block,inner,1) ;
+    if (inner && cloog_loop_inner (loop))
+      cloog_loop_free_parts (cloog_loop_inner (loop), domain, block, inner, 1);
     
     cloog_loop_clear_stride (loop);
     free(loop) ;
@@ -303,7 +303,7 @@ CloogLoop * cloog_loop_read(FILE * foo, int number, int nb_parameters)
   cloog_loop_set_block (loop, cloog_block_alloc (statement, NULL, 0, NULL, nb_iterators));
   cloog_loop_set_usr (loop, NULL);
   /* inner is NULL at beginning. */
-  loop->inner = NULL ;
+  cloog_loop_set_inner (loop, NULL);
   /* next element. */
   loop->next = NULL ;  
     
@@ -344,7 +344,7 @@ CloogLoop * cloog_loop_malloc()
   cloog_loop_set_domain (loop, NULL);
   cloog_loop_set_block (loop, NULL);
   cloog_loop_set_usr (loop, NULL);
-  loop->inner  = NULL ;
+  cloog_loop_set_inner (loop, NULL);
   loop->next   = NULL ;
   cloog_loop_init_stride (loop);
   cloog_loop_set_si_stride (loop, 1); 
@@ -373,7 +373,7 @@ CloogLoop * inner, * next ;
   
   cloog_loop_set_domain (loop, domain);
   cloog_loop_set_block (loop, block);
-  loop->inner  = inner ;
+  cloog_loop_set_inner (loop, inner);
   loop->next   = next ;
   cloog_loop_set_stride (loop, stride);
   
@@ -445,7 +445,7 @@ CloogLoop * cloog_loop_copy(CloogLoop * source)
       block  = cloog_block_copy (cloog_loop_block (source));
       loop   = cloog_loop_alloc(domain,cloog_loop_stride (source),block,NULL,NULL) ;
       cloog_loop_set_usr (loop, cloog_loop_usr (source));
-      loop->inner = cloog_loop_copy(source->inner) ;
+      cloog_loop_set_inner (loop, cloog_loop_copy (cloog_loop_inner (source)));
       loop->next = cloog_loop_copy(source->next) ;
     }
   return(loop) ;
@@ -496,7 +496,8 @@ CloogLoop ** start, ** now, * loop ;
     rest = cloog_domain_cut_first(domain) ;
             
     /* This first element is the first of the list of disjoint polyhedra. */
-    sep = cloog_loop_alloc(domain,one,cloog_loop_block (loop),loop->inner,NULL) ;
+    sep = cloog_loop_alloc (domain, one, cloog_loop_block (loop),
+			    cloog_loop_inner (loop), NULL);
     cloog_loop_add(start,now,sep) ;
   
     /* If there are other elements, add a loop for each of them. */
@@ -512,8 +513,8 @@ CloogLoop ** start, ** now, * loop ;
          * inner loop and included block. Then each one must have its own copy
 	 * of both 'inner' and 'block'.
          */
-        inner = cloog_loop_copy(loop->inner) ;
-        block = cloog_block_copy(cloog_loop_block (loop)) ;
+        inner = cloog_loop_copy (cloog_loop_inner (loop)) ;
+        block = cloog_block_copy (cloog_loop_block (loop)) ;
 	
 	sep = cloog_loop_alloc(temp,one,block,inner,NULL) ;
         /* temp can be an union too. If so: recursion. */
@@ -600,7 +601,8 @@ int nb_par ;
   else
   { value_init_c(one) ;
     value_set_si(one,1) ;
-    new_loop = cloog_loop_alloc(new_domain,one,cloog_loop_block (loop),loop->inner,NULL) ;
+    new_loop = cloog_loop_alloc (new_domain, one, cloog_loop_block (loop),
+				 cloog_loop_inner (loop), NULL);
     value_clear_c(one) ;
     return(new_loop) ;
   }
@@ -627,7 +629,7 @@ CloogLoop * cloog_loop_project(CloogLoop * loop, int level, int nb_par)
   value_set_si(one,1) ;
   
   copy = cloog_loop_alloc(cloog_loop_domain (loop),cloog_loop_stride (loop),cloog_loop_block (loop),
-                          loop->inner,NULL) ;
+                          cloog_loop_inner (loop),NULL) ;
 
   if ((cloog_domain_dim(cloog_loop_domain (loop))-nb_par) == level)
     new_domain = cloog_domain_copy(cloog_loop_domain (loop)) ;  
@@ -698,7 +700,7 @@ CloogLoop * cloog_loop_separate(CloogLoop * loop)
 
   UQ     = cloog_domain_copy(cloog_loop_domain (loop)) ;
   domain = cloog_domain_copy(cloog_loop_domain (loop)) ;
-  res    = cloog_loop_alloc(domain,one,cloog_loop_block (loop),loop->inner,NULL) ;
+  res    = cloog_loop_alloc(domain,one,cloog_loop_block (loop),cloog_loop_inner (loop),NULL) ;
   	  
   old = loop ;
   while((loop = loop->next) != NULL)
@@ -721,8 +723,8 @@ CloogLoop * cloog_loop_separate(CloogLoop * loop)
 	    domain = cloog_domain_intersection(cloog_loop_domain (Q),cloog_loop_domain (loop)) ;
           
 	  if (!cloog_domain_isempty(domain))
-          { new_inner = cloog_loop_concat(cloog_loop_copy(Q->inner),
-                                          cloog_loop_copy(loop->inner)) ;
+	    { new_inner = cloog_loop_concat(cloog_loop_copy(cloog_loop_inner (Q)),
+					    cloog_loop_copy(cloog_loop_inner (loop))) ;
 	    new_loop = cloog_loop_alloc(domain,one,NULL,new_inner,NULL) ;
             cloog_loop_add_disjoint(&temp,&now,new_loop) ;
           }
@@ -741,16 +743,16 @@ CloogLoop * cloog_loop_separate(CloogLoop * loop)
 	}
 	
 	if (!cloog_domain_isempty(domain))
-        { new_loop = cloog_loop_alloc(domain,one,NULL,Q->inner,NULL) ;
+	  { new_loop = cloog_loop_alloc(domain,one,NULL,cloog_loop_inner (Q),NULL) ;
           cloog_loop_add_disjoint(&temp,&now,new_loop) ;
         }
         else
         { cloog_domain_free(domain) ;
-	  /* If Q->inner is no more useful, we can free it. */
-          inner = Q->inner ;
-          Q->inner = NULL ;
-          if (first) /* For the first Q, inner is also old->inner. */
-          old->inner = NULL ;
+	  /* If cloog_loop_inner (Q) is no more useful, we can free it. */
+          inner = cloog_loop_inner (Q) ;
+          cloog_loop_set_inner (Q, NULL);
+          if (first) /* For the first Q, inner is also cloog_loop_inner (old). */
+	    cloog_loop_set_inner (old, NULL);
           cloog_loop_free(inner) ;
         }
       }
@@ -768,16 +770,16 @@ CloogLoop * cloog_loop_separate(CloogLoop * loop)
     }
     
     if (!cloog_domain_isempty(domain))
-    { new_loop = cloog_loop_alloc(domain,one,NULL,loop->inner,NULL) ;
+      { new_loop = cloog_loop_alloc(domain,one,NULL,cloog_loop_inner (loop),NULL) ;
       cloog_loop_add_disjoint(&temp,&now,new_loop) ;
     }
     else
     { cloog_domain_free(domain) ;
-      /* If loop->inner is no more useful, we can free it. */
-      cloog_loop_free(loop->inner) ;
+      /* If cloog_loop_inner (loop) is no more useful, we can free it. */
+      cloog_loop_free(cloog_loop_inner (loop)) ;
     }
     
-    loop->inner = NULL ;
+    cloog_loop_set_inner (loop, NULL);
 
     old_UQ = UQ ;
     if (loop->next != NULL)
@@ -812,13 +814,13 @@ static CloogLoop *cloog_loop_merge_inner_list(CloogLoop *a, CloogLoop *b,
   next = &loop;
 
   for ( ; order && (a||b); order = order->next) {
-    if (a && cloog_loop_block (order->inner) == cloog_loop_block (a)) {
+    if (a && cloog_loop_block (cloog_loop_inner (order)) == cloog_loop_block (a)) {
       *next = a;
       a = a->next;
       next = &(*next)->next;
       continue;
     }
-    if (b && cloog_loop_block (order->inner) == cloog_loop_block (b)) {
+    if (b && cloog_loop_block (cloog_loop_inner (order)) == cloog_loop_block (b)) {
       *next = b;
       b = b->next;
       next = &(*next)->next;
@@ -851,7 +853,7 @@ CloogLoop * cloog_loop_merge(CloogLoop * loop, int nb_par, CloogOptions * option
   
   /* First loop is added to the target list. */
   res = cloog_loop_alloc (cloog_loop_domain (loop), one,
-			  cloog_loop_block (loop), loop->inner, NULL);
+			  cloog_loop_block (loop), cloog_loop_inner (loop), NULL);
   old = loop ;
   /* Now the domain is in 'res' and it will be freed. */
   cloog_loop_set_domain (loop, NULL);
@@ -860,7 +862,7 @@ CloogLoop * cloog_loop_merge(CloogLoop * loop, int nb_par, CloogOptions * option
   while((loop = loop->next) != NULL)
   { merge = NULL ;
     P = cloog_loop_alloc (cloog_loop_domain (loop), one,
-			  cloog_loop_block (loop), loop->inner, NULL) ;
+			  cloog_loop_block (loop), cloog_loop_inner (loop), NULL) ;
     Q = res ;
     /* Now the domain is in 'P' and it will be freed. */
     cloog_loop_set_domain (loop, NULL);
@@ -879,7 +881,7 @@ CloogLoop * cloog_loop_merge(CloogLoop * loop, int nb_par, CloogOptions * option
 	  }
 	else 
 	  { cloog_domain_free(temp) ;
-	    new_inner = cloog_loop_merge_inner_list(Q->inner, P->inner, old);
+	    new_inner = cloog_loop_merge_inner_list(cloog_loop_inner (Q), cloog_loop_inner (P), old);
 	    temp = cloog_domain_union(cloog_loop_domain (P),cloog_loop_domain (Q)) ;
 	    if (options->sh)
 	      new_domain = cloog_domain_simple_convex(temp, nb_par);
@@ -997,7 +999,7 @@ int level, nb_par ;
     if (p != NULL)
     { cloog_loop_free_parts(loop,1,0,0,0) ;
     
-      temp = cloog_loop_alloc(cloog_loop_domain (p),one,cloog_loop_block (p),p->inner,NULL) ;
+      temp = cloog_loop_alloc(cloog_loop_domain (p),one,cloog_loop_block (p),cloog_loop_inner (p),NULL) ;
     
       /* If the intersection dimension is too big, we make projections smaller
        * and smaller, and each projection includes the preceding projection
@@ -1063,7 +1065,7 @@ static void cloog_loop_stride_1 (CloogLoop * loop, int level, int nb_par)
   /* Default stride. */
   value_set_si(stride,1) ;
   first_search = 1 ;
-  inner = loop->inner ;
+  inner = cloog_loop_inner (loop) ;
     
   if (cloog_domain_integral_lowerbound(cloog_loop_domain (loop),level,&lower))
   while (inner != NULL)
@@ -1165,9 +1167,9 @@ CloogLoop * cloog_loop_stop(CloogLoop * loop, CloogDomain * context)
 int cloog_loop_scalar_gt(l1, l2, level, scaldims, nb_scattdims, scalar)
 CloogLoop * l1, * l2 ;
 int level, * scaldims, nb_scattdims, scalar ;
-{ while ((scalar < cloog_loop_block (l1->inner)->nb_scaldims) && scaldims[level+scalar-1])
-    { if (value_gt(cloog_loop_block (l1->inner)->scaldims[scalar],
-		   cloog_loop_block (l2->inner)->scaldims[scalar]))
+{ while ((scalar < cloog_loop_block (cloog_loop_inner (l1))->nb_scaldims) && scaldims[level+scalar-1])
+    { if (value_gt(cloog_loop_block (cloog_loop_inner (l1))->scaldims[scalar],
+		   cloog_loop_block (cloog_loop_inner (l2))->scaldims[scalar]))
     scalar ++ ;
     else
     return 0 ;
@@ -1196,9 +1198,9 @@ int level, * scaldims, nb_scattdims, scalar ;
 int cloog_loop_scalar_eq(l1, l2, level, scaldims, nb_scattdims, scalar)
 CloogLoop * l1, * l2 ;
 int level, * scaldims, nb_scattdims, scalar ;
-{ while ((scalar < cloog_loop_block (l1->inner)->nb_scaldims) && scaldims[level+scalar-1])
-    { if (value_eq(cloog_loop_block (l1->inner)->scaldims[scalar],
-		   cloog_loop_block (l2->inner)->scaldims[scalar]))
+{ while ((scalar < cloog_loop_block (cloog_loop_inner (l1))->nb_scaldims) && scaldims[level+scalar-1])
+    { if (value_eq(cloog_loop_block (cloog_loop_inner (l1))->scaldims[scalar],
+		   cloog_loop_block (cloog_loop_inner (l2))->scaldims[scalar]))
     scalar ++ ;
     else
     return 0 ;
@@ -1276,7 +1278,7 @@ CloogOptions * options ;
 
   while (temp != NULL)
   { l = NULL ;
-    inner = temp->inner ;
+    inner = cloog_loop_inner (temp) ;
       
     while (inner != NULL)
     { next = inner->next ;
@@ -1296,7 +1298,7 @@ CloogOptions * options ;
       inner = next ;
     }
       
-    temp->inner = NULL ;
+    cloog_loop_set_inner (temp, NULL);
       
     if (l != NULL)
     { l = cloog_loop_separate(l) ;
@@ -1373,7 +1375,7 @@ CloogOptions * options ;
   while(temp != NULL)
   { if (options->strides)
     cloog_loop_stride_1 (temp,level,nb_par) ;
-    inner = temp->inner ;
+    inner = cloog_loop_inner (temp) ;
     domain = cloog_loop_domain (temp) ;
     into = NULL ;
     while (inner != NULL)
@@ -1402,16 +1404,16 @@ CloogOptions * options ;
     }
     next = temp->next ;
     temp->next = NULL ;
-    temp->inner = into ;
+    cloog_loop_set_inner (temp, into);
     cloog_loop_add(&res,&now2,temp) ;
     temp = next ;
   }
   else
   while (temp != NULL)
   { next = temp->next ;
-    l = cloog_loop_nest(temp->inner,cloog_loop_domain (temp),level+1,nb_par) ;
+    l = cloog_loop_nest(cloog_loop_inner (temp),cloog_loop_domain (temp),level+1,nb_par) ;
     new_loop = cloog_loop_alloc(cloog_loop_domain (temp),one,NULL,l,NULL) ;
-    temp->inner = NULL ;
+    cloog_loop_set_inner (temp, NULL);
     temp->next = NULL ;
     cloog_loop_free_parts(temp,0,0,0,0) ;
     cloog_loop_add(&res,&now,new_loop) ;
@@ -1641,11 +1643,11 @@ int level, nb_par ;
     return next;
   }
 
-  inner = cloog_loop_simplify(loop->inner,inter,level+1,nb_par) ;
+  inner = cloog_loop_simplify(cloog_loop_inner (loop),inter,level+1,nb_par) ;
   cloog_domain_free(inter) ;
   
   if ((inner == NULL) && (cloog_loop_block (loop) == NULL))
-  { loop->inner = NULL ; /* For loop integrity. */
+    { cloog_loop_set_inner (loop, NULL); /* For loop integrity. */
     loop->next = NULL ;  /* For loop integrity. */
     cloog_loop_free_parts(loop,1,1,1,0) ;
     cloog_domain_free(simp);
@@ -1662,7 +1664,7 @@ int level, nb_par ;
    */
   simplified = cloog_loop_disjoint(simplified) ;
 
-  loop->inner = NULL ; /* For loop integrity. */
+  cloog_loop_set_inner (loop, NULL); /* For loop integrity. */
   loop->next = NULL ;  /* For loop integrity. */
   cloog_loop_free_parts(loop,1,1,0,0) ;
 
