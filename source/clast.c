@@ -1535,7 +1535,7 @@ struct clast_stmt *cloog_clast_create(CloogProgram *program,
     infos->equal = cloog_matrix_alloc(nb_levels,
 			       nb_levels + program->names->nb_parameters + 1);
 	
-    insert_loop(program->loop, 1, 0, &next, infos);
+    insert_loop (cloog_program_loop (program), 1, 0, &next, infos);
 
     cloog_matrix_free(infos->equal);
 

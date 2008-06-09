@@ -56,7 +56,7 @@ struct cloogprogram
   char _language ;              /**< The language of the program. */
   int _nb_scattdims ;          /**< Scattering dimension number. */
   CloogDomain    * _context ;   /**< The context of the program. */
-  CloogLoop      * loop ;      /**< The loops of the program. */
+  CloogLoop      * _loop ;      /**< The loops of the program. */
   CloogNames     * names ;     /**< Iterators and parameters names. */
   CloogBlockList * blocklist ; /**< The statement block list. */
   
@@ -75,12 +75,12 @@ typedef struct cloogprogram CloogProgram ;
 
 static inline CloogLoop *cloog_program_loop (CloogProgram *p)
 {
-  return p->loop;
+  return p->_loop;
 }
 
 static inline void cloog_program_set_loop (CloogProgram *p, CloogLoop *l)
 {
-  p->loop = l;
+  p->_loop = l;
 }
 
 static inline char cloog_program_language (CloogProgram *p)
