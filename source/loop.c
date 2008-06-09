@@ -301,7 +301,7 @@ CloogLoop * cloog_loop_read(FILE * foo, int number, int nb_parameters)
   /* included statement block. */
   statement = cloog_statement_alloc(number+1);
   cloog_loop_set_block (loop, cloog_block_alloc (statement, NULL, 0, NULL, nb_iterators));
-  loop->usr = NULL;
+  cloog_loop_set_usr (loop, NULL);
   /* inner is NULL at beginning. */
   loop->inner = NULL ;
   /* next element. */
@@ -343,7 +343,7 @@ CloogLoop * cloog_loop_malloc()
   /* We set the various fields with default values. */
   cloog_loop_set_domain (loop, NULL);
   cloog_loop_set_block (loop, NULL);
-  loop->usr    = NULL;
+  cloog_loop_set_usr (loop, NULL);
   loop->inner  = NULL ;
   loop->next   = NULL ;
   cloog_loop_init_stride (loop);
@@ -444,7 +444,7 @@ CloogLoop * cloog_loop_copy(CloogLoop * source)
       domain = cloog_domain_copy (cloog_loop_domain (source));
       block  = cloog_block_copy (cloog_loop_block (source));
       loop   = cloog_loop_alloc(domain,cloog_loop_stride (source),block,NULL,NULL) ;
-      loop->usr = source->usr;
+      cloog_loop_set_usr (loop, cloog_loop_usr (source));
       loop->inner = cloog_loop_copy(source->inner) ;
       loop->next = cloog_loop_copy(source->next) ;
     }

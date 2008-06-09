@@ -64,7 +64,7 @@ struct cloogloop
                                *   (filled only after loop generation).
                                */
   CloogBlock * _block ;        /**< The included statement block, NULL if none.*/
-  void * usr;		      /**< User field, for library user convenience.
+  void * _usr;		      /**< User field, for library user convenience.
 			       *   This pointer is not freed when the
 			       *   CloogLoop structure is freed.
 			       */
@@ -117,6 +117,16 @@ static inline CloogBlock *cloog_loop_block (CloogLoop *l)
 static inline void cloog_loop_set_block (CloogLoop *l, CloogBlock *b)
 {
   l->_block = b;
+}
+
+static inline void *cloog_loop_usr (CloogLoop *l)
+{
+  return l->_usr;
+}
+
+static inline void cloog_loop_set_usr (CloogLoop *l, void *u)
+{
+  l->_usr = u;
 }
 
 
