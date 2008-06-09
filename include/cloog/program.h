@@ -53,9 +53,9 @@ extern "C"
  */
 struct cloogprogram
 { /* Basic program description fields. */
-  char language ;              /**< The language of the program. */
-  int  nb_scattdims ;          /**< Scattering dimension number. */
-  CloogDomain    * context ;   /**< The context of the program. */
+  char _language ;              /**< The language of the program. */
+  int nb_scattdims ;          /**< Scattering dimension number. */
+  CloogDomain    * _context ;   /**< The context of the program. */
   CloogLoop      * loop ;      /**< The loops of the program. */
   CloogNames     * names ;     /**< Iterators and parameters names. */
   CloogBlockList * blocklist ; /**< The statement block list. */
@@ -85,12 +85,12 @@ static inline void cloog_program_set_loop (CloogProgram *p, CloogLoop *l)
 
 static inline char cloog_program_language (CloogProgram *p)
 {
-  return p->language;
+  return p->_language;
 }
 
 static inline void cloog_program_set_language (CloogProgram *p, char c)
 {
-  p->language = c;
+  p->_language = c;
 }
 
 static inline int cloog_program_nb_scattdims (CloogProgram *p)
@@ -102,6 +102,17 @@ static inline void cloog_program_set_nb_scattdims (CloogProgram *p, int n)
 {
   p->nb_scattdims = n;
 }
+
+static inline CloogDomain *cloog_program_context (CloogProgram *p)
+{
+  return p->_context;
+}
+
+static inline void cloog_program_set_context (CloogProgram *p, CloogDomain *c)
+{
+  p->_context = c;
+}
+
 
 
 /******************************************************************************

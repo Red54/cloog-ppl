@@ -142,7 +142,7 @@ int level ;
   fprintf(file,"\n") ;
   
   /* Print the context. */
-  cloog_domain_print_structure(file, program->context, level+1);
+  cloog_domain_print_structure(file, cloog_program_context (program), level+1);
     
   /* Print the loop. */
   cloog_loop_print_structure (file,cloog_program_loop (program), level + 1);
@@ -191,9 +191,9 @@ void cloog_program_dump_cloog(FILE * foo, CloogProgram * program)
   fprintf(foo,"%c\n\n", cloog_program_language (program)) ;
 
   /* Context. */
-  fprintf(foo,"# Context (%d parameter(s)):\n",
-           cloog_domain_dim(program->context)) ;
-  cloog_domain_print_structure (foo, program->context, 0);
+  fprintf (foo,"# Context (%d parameter(s)):\n",
+	   cloog_domain_dim (cloog_program_context (program)));
+  cloog_domain_print_structure (foo, cloog_program_context (program), 0);
   fprintf(foo,"1 # Parameter name(s)\n") ;
   for (i=0;i<program->names->nb_parameters;i++)
   fprintf(foo,"%s ",program->names->parameters[i]) ;
@@ -429,7 +429,7 @@ CloogOptions * options ;
 void cloog_program_free(CloogProgram * program)
 { cloog_names_free(program->names) ;
   cloog_loop_free(cloog_program_loop (program)) ;
-  cloog_domain_free(program->context) ;
+  cloog_domain_free (cloog_program_context (program)) ;
   cloog_block_list_free(program->blocklist) ;
   if (program->scaldims != NULL)
   free(program->scaldims) ;
@@ -475,8 +475,8 @@ CloogProgram * cloog_program_read(FILE * file, CloogOptions * options)
   cloog_program_set_language (p, language);
 
   /* We then read the context data. */
-  p->context = cloog_domain_read(file) ;
-  nb_parameters = cloog_domain_dim(p->context) ;
+  cloog_program_set_context (p, cloog_domain_read (file));
+  nb_parameters = cloog_domain_dim (cloog_program_context (p)) ;
   
   /* First part of the CloogNames structure: reading of the parameter names. */
   parameters=cloog_names_read_strings(file,nb_parameters,NULL,FIRST_PARAMETER) ;
@@ -596,7 +596,7 @@ CloogProgram * cloog_program_malloc()
   /* We set the various fields with default values. */
   cloog_program_set_language (program, 'c');
   cloog_program_set_nb_scattdims (program, 0);
-  program->context      = NULL ;
+  cloog_program_set_context (program, NULL);
   cloog_program_set_loop (program, NULL);
   program->names        = NULL ;
   program->blocklist    = NULL ;
@@ -677,10 +677,10 @@ CloogOptions * options ;
     loop = cloog_program_loop (program) ;
     
     /* Here we go ! */
-    loop = cloog_loop_generate(loop, program->context, 1, 0,
+    loop = cloog_loop_generate(loop, cloog_program_context (program), 1, 0,
                                program->scaldims,
 			       cloog_program_nb_scattdims (program),
-                               cloog_domain_dim(program->context),
+                               cloog_domain_dim (cloog_program_context (program)),
 			       options);
 			          
 #ifdef CLOOG_MEMORY
@@ -693,8 +693,8 @@ CloogOptions * options ;
 #endif
     
     if ((!options->nosimplify) && cloog_program_loop (program))
-    loop = cloog_loop_simplify(loop,program->context,1,
-                               cloog_domain_dim(program->context)) ;
+      loop = cloog_loop_simplify(loop, cloog_program_context (program), 1,
+				 cloog_domain_dim (cloog_program_context (program))) ;
    
     cloog_program_set_loop (program, loop);
   }
