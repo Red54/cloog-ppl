@@ -74,6 +74,17 @@ struct cloogloop
 typedef struct cloogloop CloogLoop ;
 
 
+static inline CloogDomain *cloog_loop_domain (CloogLoop *l)
+{
+  return l->domain;
+}
+
+static inline void cloog_loop_set_domain (CloogLoop *l, CloogDomain *d)
+{
+  l->domain = d;
+}
+
+
 /******************************************************************************
  *                          Structure display function                        *
  ******************************************************************************/
