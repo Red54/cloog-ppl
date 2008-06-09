@@ -87,6 +87,16 @@ struct cloogdomainlist
 } ;
 typedef struct cloogdomainlist CloogDomainList ;
 
+static inline CloogDomain *cloog_domain (CloogDomainList *l)
+{
+  return l->domain;
+}
+
+static inline void cloog_set_domain (CloogDomainList *l, CloogDomain *d)
+{
+  l->domain = d;
+}
+
 static inline CloogDomainList *cloog_next_domain (CloogDomainList *l)
 {
   return l->next;
@@ -188,6 +198,9 @@ static inline void cloog_polyhedron_c_gcd (Polyhedron *p, int i, int j, int k, V
 {
   Vector_Gcd(&(p->Constraint[i][1]), k, gcd);
 }
+
+
+
 /******************************************************************************
  *                              PolyLib interface                             *
  ******************************************************************************/

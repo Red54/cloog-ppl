@@ -620,10 +620,12 @@ void cloog_domain_print_structure(FILE * file, CloogDomain * domain, int level)
  * - November 6th 2001: first version.
  */
 void cloog_domain_list_print(FILE * foo, CloogDomainList * list)
-{ while (list != NULL)
-  { cloog_domain_print(foo,list->domain) ;
-    list = cloog_next_domain (list) ;
-  }
+{
+  while (list != NULL)
+    {
+      cloog_domain_print (foo, cloog_domain (list)) ;
+      list = cloog_next_domain (list) ;
+    }
 }
 
 
@@ -643,7 +645,7 @@ void cloog_domain_list_free(CloogDomainList * list)
   while (list != NULL)
     {
       temp = cloog_next_domain (list) ;
-      cloog_domain_free(list->domain) ;
+      cloog_domain_free (cloog_domain (list)) ;
       free(list) ;
       list = temp ;
     }
@@ -732,12 +734,12 @@ CloogDomainList * cloog_domain_list_read(FILE * foo)
   list = NULL ;
   if (nb_pols > 0)
   { list = (CloogDomainList *)malloc(sizeof(CloogDomainList)) ;
-    list->domain = cloog_domain_read(foo) ;
+    cloog_set_domain (list, cloog_domain_read (foo));
     cloog_set_next_domain (list, NULL);
     now = list ;
     for (i=1;i<nb_pols;i++)
     { next = (CloogDomainList *)malloc(sizeof(CloogDomainList)) ;
-      next->domain = cloog_domain_read(foo) ;
+      cloog_set_domain (next, cloog_domain_read (foo));
       cloog_set_next_domain (next, NULL);
       cloog_set_next_domain (now, next);
       now = cloog_next_domain (now);
@@ -1387,36 +1389,39 @@ int scattdims ;
    * a difference with d1 or d2 on the first different_constraint+1 dimensions.
    */
   while (scattering != NULL)
-  { if ((scattering->domain != d1) && (scattering->domain != d2))
-      { p3 = cloog_domain_polyhedron (scattering->domain) ;
-	value_assign (date3, cloog_polyhedron_cval (p3, different_constraint,
-						    cloog_polyhedron_dim (p3) + 1));
-      difference = 0 ;
+    {
+      if ((cloog_domain (scattering) != d1) && (cloog_domain (scattering) != d2))
+	{ 
+	  p3 = cloog_domain_polyhedron (cloog_domain (scattering)) ;
+	  value_assign (date3, cloog_polyhedron_cval (p3, different_constraint,
+						      cloog_polyhedron_dim (p3) + 1));
+	  difference = 0 ;
 
-      if (value_ne(date3,date2) && value_ne(date3,date1))
-      difference = 1 ;
-      
-      for (i=0;(i<different_constraint)&&(!difference);i++)
-	for (j=0;(j<(cloog_polyhedron_dim (p3) + 2))&&(!difference);j++)
-	  if (value_ne (cloog_polyhedron_cval (p1, i, j), 
-			cloog_polyhedron_cval (p3, i, j)))
+	  if (value_ne(date3,date2) && value_ne(date3,date1))
 	    difference = 1 ;
-
-      for (j=0;(j<(cloog_polyhedron_dim (p3) + 1))&&(!difference);j++)
-	if (value_ne (cloog_polyhedron_cval (p1, different_constraint, j),
-		      cloog_polyhedron_cval (p3, different_constraint, j)))
-      difference = 1 ;
       
-      if (!difference)
-      { value_clear_c(date1) ;
-        value_clear_c(date2) ;
-        value_clear_c(date3) ;
-        return 0 ;
-      }
-    }
+	  for (i=0;(i<different_constraint)&&(!difference);i++)
+	    for (j=0;(j<(cloog_polyhedron_dim (p3) + 2))&&(!difference);j++)
+	      if (value_ne (cloog_polyhedron_cval (p1, i, j), 
+			    cloog_polyhedron_cval (p3, i, j)))
+		difference = 1 ;
+
+	  for (j=0;(j<(cloog_polyhedron_dim (p3) + 1))&&(!difference);j++)
+	    if (value_ne (cloog_polyhedron_cval (p1, different_constraint, j),
+			  cloog_polyhedron_cval (p3, different_constraint, j)))
+	      difference = 1 ;
+      
+	  if (!difference)
+	    {
+	      value_clear_c(date1) ;
+	      value_clear_c(date2) ;
+	      value_clear_c(date3) ;
+	      return 0 ;
+	    }
+	}
   
-    scattering = cloog_next_domain (scattering);
-  }
+      scattering = cloog_next_domain (scattering);
+    }
    
   value_clear_c(date1) ;
   value_clear_c(date2) ;
@@ -1527,7 +1532,8 @@ int cloog_domain_list_lazy_same(CloogDomainList * list)
       /*j=i+1;*/
       while (next != NULL)
 	{
-	  if (cloog_domain_lazy_equal(current->domain,next->domain))
+	  if (cloog_domain_lazy_equal (cloog_domain (current),
+				       cloog_domain (next)))
 	    { /*printf("Same domains: %d and %d\n",i,j) ;*/
 	      return 1 ;
 	    }
