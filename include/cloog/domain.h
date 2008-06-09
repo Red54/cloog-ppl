@@ -118,6 +118,16 @@ static inline Polyhedron * cloog_domain_polyhedron_set (CloogDomain *d,
   return d->polyhedron = p ;
 }
 
+static inline int cloog_domain_references (CloogDomain *d)
+{
+  return d->references;
+}
+
+static inline void cloog_domain_set_references (CloogDomain *d, int i)
+{
+  d->references = i;
+}
+
 static inline Polyhedron * cloog_polyhedron_next (Polyhedron *p)
 { 
   return p->next ;

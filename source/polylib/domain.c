@@ -159,7 +159,7 @@ static CloogMatrix * cloog_domain_domain2matrix(CloogDomain * domain)
  */
 void cloog_domain_print(FILE * foo, CloogDomain * domain)
 { Polyhedron_Print(foo,P_VALUE_FMT,cloog_domain_polyhedron (domain)) ;
-  fprintf(foo,"Number of active references: %d\n",domain->references) ;
+  fprintf (foo, "Number of active references: %d\n", cloog_domain_references (domain));
 }
 
 
@@ -182,16 +182,20 @@ void cloog_polyhedron_print(FILE * foo, Polyhedron * polyhedron)
  */
 void cloog_domain_free(CloogDomain * domain)
 { if (domain != NULL)
-  { domain->references -- ;
+    {
+      cloog_domain_set_references (domain, cloog_domain_references (domain) - 1);
     
-    if (domain->references == 0)
-      { if (cloog_domain_polyhedron (domain) != NULL)
-      { cloog_domain_leak_down() ;
-        Domain_Free(cloog_domain_polyhedron (domain)) ;
-      }
-      free(domain) ;
+      if (cloog_domain_references (domain) == 0)
+	{ 
+	  if (cloog_domain_polyhedron (domain) != NULL)
+	    {
+	      cloog_domain_leak_down ();
+	      Domain_Free(cloog_domain_polyhedron (domain)) ;
+	    }
+
+	  free(domain) ;
+	}
     }
-  }
 }
 
 
@@ -202,7 +206,8 @@ void cloog_domain_free(CloogDomain * domain)
  * references inside the structure, then return a pointer to that structure.
  */ 
 CloogDomain * cloog_domain_copy(CloogDomain * domain)
-{ domain->references ++ ;
+{ 
+  cloog_domain_set_references (domain, cloog_domain_references (domain) + 1);
   return domain ;
 }
 
@@ -773,7 +778,7 @@ static CloogDomain * cloog_domain_malloc()
   
   /* We set the various fields with default values. */
   cloog_domain_polyhedron_set (domain, NULL) ;
-  domain->references = 1 ;
+  cloog_domain_set_references (domain, 1);
   
   return domain ;
 }
