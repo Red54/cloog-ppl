@@ -71,7 +71,7 @@ extern "C"
  * and actually free it if its value is zero.
  */
 struct cloogdomain
-{ Polyhedron * polyhedron ;      /**< The polyhedral domain. */
+{ Polyhedron * _polyhedron ;      /**< The polyhedral domain. */
   int _references ;               /**< Number of references to this structure. */
 } ;
 typedef struct cloogdomain CloogDomain ;
@@ -109,13 +109,13 @@ static inline CloogDomainList *cloog_set_next_domain (CloogDomainList *l, CloogD
 
 static inline Polyhedron * cloog_domain_polyhedron (CloogDomain * domain)
 {
-  return domain->polyhedron ;
+  return domain->_polyhedron ;
 }
 
 static inline Polyhedron * cloog_domain_polyhedron_set (CloogDomain *d,
 							Polyhedron *p)
 {
-  return d->polyhedron = p ;
+  return d->_polyhedron = p ;
 }
 
 static inline Polyhedron * cloog_polyhedron_next (Polyhedron *p)
@@ -141,7 +141,7 @@ static inline void cloog_domain_polyhedron_set_next (CloogDomain *d,
 
 static inline int cloog_domain_nbconstraints (CloogDomain * domain)
 {
-  return domain->polyhedron->NbConstraints ;
+  return cloog_domain_polyhedron (domain)->NbConstraints ;
 }
 
 static inline int cloog_domain_isconvex (CloogDomain * domain)
