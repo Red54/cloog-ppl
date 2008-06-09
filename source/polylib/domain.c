@@ -933,7 +933,7 @@ int cloog_domain_never_integral(CloogDomain * domain)
        * unknown vector (including iterators and parameters) or not. If not,
        * there is no integer point in the polyhedron and we return 1.
        */
-      Vector_Gcd(&(polyhedron->Constraint[i][1]),dimension-2,&gcd) ;
+      cloog_polyhedron_c_gcd (polyhedron, i, 1, dimension-2, &gcd) ;
       value_modulus(modulo,cloog_polyhedron_cval (polyhedron, i, dimension - 1), gcd) ;
       
       if (value_notzero_p(modulo))

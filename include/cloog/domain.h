@@ -158,8 +158,10 @@ static inline void cloog_polyhedron_cval_oppose (Polyhedron *p, int i, int j, in
   value_oppose (p->Constraint[i][j], k);
 }
 
-
-
+static inline void cloog_polyhedron_c_gcd (Polyhedron *p, int i, int j, int k, Value *gcd)
+{
+  Vector_Gcd(&(p->Constraint[i][1]), k, gcd);
+}
 /******************************************************************************
  *                              PolyLib interface                             *
  ******************************************************************************/
