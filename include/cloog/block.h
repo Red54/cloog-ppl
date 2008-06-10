@@ -59,7 +59,7 @@ extern "C"
 struct cloogblock
 { CloogStatement * _statement ;  /**< The list of statements in the block. */
   CloogMatrix * _scattering ;    /**< The scattering function for the block. */
-  int  nb_scaldims ;            /**< Number of scalar dimensions. */
+  int  _nb_scaldims ;            /**< Number of scalar dimensions. */
   Value * scaldims ;            /**< Scalar dimension values. */
   int depth ;                   /**< Original block depth (outer loop number).*/
   int references ;              /**< Number of references to this structure. */
@@ -88,6 +88,16 @@ static inline CloogMatrix *cloog_block_scattering (CloogBlock *b)
 static inline void cloog_block_set_scattering (CloogBlock *b, CloogMatrix *s)
 {
   b->_scattering = s;
+}
+
+static inline int cloog_block_nb_scaldims (CloogBlock *b)
+{
+  return b->_nb_scaldims;
+}
+
+static inline void cloog_block_set_nb_scaldims (CloogBlock *b, int n)
+{
+  b->_nb_scaldims = n;
 }
 
 

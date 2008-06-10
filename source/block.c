@@ -132,14 +132,15 @@ void cloog_block_print_structure(FILE * file, CloogBlock * block, int level)
     for (i=0; i<level+1; i++)
     fprintf(file,"|\t") ;
     
-    if (block->nb_scaldims == 0)
+    if (cloog_block_nb_scaldims (block) == 0)
     fprintf(file,"No scalar dimensions\n") ;
     else
-    { fprintf(file,"Scalar dimensions (%d):",block->nb_scaldims) ;
-      for (i=0; i<block->nb_scaldims; i++)
-      value_print(file," "VALUE_FMT,block->scaldims[i]) ;
-      fprintf(file,"\n") ;
-    }
+      {
+	fprintf (file, "Scalar dimensions (%d):", cloog_block_nb_scaldims (block));
+	for (i = 0; i < cloog_block_nb_scaldims (block); i++)
+	  value_print (file, " "VALUE_FMT, block->scaldims[i]);
+	fprintf (file, "\n");
+      }
     
     /* A blank line. */
     for (i=0; i<level+2; i++)
@@ -211,11 +212,12 @@ void cloog_block_free(CloogBlock * block)
     if (block->references == 0)
     { cloog_block_leak_down() ;
       if (block->scaldims != NULL)
-      { for (i=0;i<block->nb_scaldims;i++)
-        value_clear_c(block->scaldims[i]) ;
+	{
+	  for (i = 0; i < cloog_block_nb_scaldims (block); i++)
+	    value_clear_c (block->scaldims[i]) ;
       
-        free(block->scaldims) ;
-      }
+	  free (block->scaldims) ;
+	}
       cloog_statement_free(cloog_block_stmt (block)) ;
       free(block) ;
     }
@@ -265,7 +267,7 @@ CloogBlock * cloog_block_malloc()
   /* We set the various fields with default values. */
   cloog_block_set_stmt (block, NULL);
   cloog_block_set_scattering (block, NULL);
-  block->nb_scaldims = 0 ;
+  cloog_block_set_nb_scaldims (block, 0);
   block->scaldims = NULL ;
   block->depth = 0 ;
   block->references = 1 ;
@@ -304,7 +306,7 @@ Value * scaldims ;
 
   cloog_block_set_stmt (block, statement);
   cloog_block_set_scattering (block, scattering);
-  block->nb_scaldims = nb_scaldims ;
+  cloog_block_set_nb_scaldims (block, nb_scaldims);
   block->scaldims = scaldims ;
   block->depth = depth ;
   block->references = 1 ;
