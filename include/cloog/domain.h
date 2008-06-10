@@ -118,35 +118,9 @@ static inline Polyhedron * cloog_domain_polyhedron_set (CloogDomain *d,
   return d->_polyhedron = p ;
 }
 
-static inline Polyhedron * cloog_polyhedron_next (Polyhedron *p)
-{ 
-  return p->next ;
-}
-
-static inline void cloog_polyhedron_set_next (Polyhedron *p, Polyhedron *n)
-{
-  p->next = n;
-}
-
-static inline Polyhedron * cloog_domain_polyhedron_next (CloogDomain * domain)
-{
-  return cloog_polyhedron_next (cloog_domain_polyhedron (domain));
-}
-
-static inline void cloog_domain_polyhedron_set_next (CloogDomain *d,
-						     Polyhedron *n)
-{
-  cloog_polyhedron_set_next (cloog_domain_polyhedron (d), n) ;
-}
-
 static inline int cloog_domain_nbconstraints (CloogDomain * domain)
 {
   return cloog_domain_polyhedron (domain)->NbConstraints ;
-}
-
-static inline int cloog_domain_isconvex (CloogDomain * domain)
-{
-  return !cloog_domain_polyhedron_next (domain);
 }
 
 static inline unsigned cloog_polyhedron_nbeq (Polyhedron *p)
@@ -219,6 +193,7 @@ CloogDomain * cloog_domain_difference(CloogDomain *, CloogDomain *) ;
 CloogDomain * cloog_domain_addconstraints(CloogDomain *, CloogDomain *) ;
 void          cloog_domain_sort(Polyhedron**,unsigned,unsigned,unsigned,int *);
 CloogDomain * cloog_domain_empty(int) ;
+int cloog_domain_isconvex (CloogDomain *);
 
 
 /******************************************************************************

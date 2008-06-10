@@ -256,6 +256,31 @@ CloogDomain * cloog_domain_convex(CloogDomain * domain)
 { return (cloog_domain_alloc(DomainConvex(cloog_domain_polyhedron (domain),MAX_RAYS)));
 }
 
+static inline Polyhedron * cloog_polyhedron_next (Polyhedron *p)
+{ 
+  return p->next ;
+}
+
+static inline void cloog_polyhedron_set_next (Polyhedron *p, Polyhedron *n)
+{
+  p->next = n;
+}
+
+static inline Polyhedron * cloog_domain_polyhedron_next (CloogDomain * domain)
+{
+  return cloog_polyhedron_next (cloog_domain_polyhedron (domain));
+}
+
+static inline void cloog_domain_polyhedron_set_next (CloogDomain *d,
+						     Polyhedron *n)
+{
+  cloog_polyhedron_set_next (cloog_domain_polyhedron (d), n) ;
+}
+
+int cloog_domain_isconvex (CloogDomain *domain)
+{
+  return !cloog_domain_polyhedron_next (domain);
+}
 
 /**
  * cloog_domain_simplified_hull:
