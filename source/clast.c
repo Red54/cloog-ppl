@@ -940,7 +940,7 @@ static void insert_guard(CloogMatrix *matrix, int level,
 	  name = cloog_names_iterator_elt (infos->names, i - cloog_names_nb_scattering (infos->names) - 1);
       }
       else
-	name = cloog_names_parameter_elt (infos->names, i - nb_iter + 1);
+	name = cloog_names_parameter_elt (infos->names, i - nb_iter - 1);
       
       g->eq[nb_and].LHS = &(t = new_clast_term(one, name))->expr;
       if (value_zero_p(cloog_matrix_element(copy, j, 0))) {
