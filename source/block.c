@@ -104,7 +104,7 @@ void cloog_block_print_structure(FILE * file, CloogBlock * block, int level)
     fprintf(file,"\n") ;    
 
     /* Print statement list. */
-    cloog_statement_print_structure(file,block->statement,level+1) ;
+    cloog_statement_print_structure(file,cloog_block_stmt (block),level+1) ;
     
     /* A blank line. */
     for (i=0; i<level+2; i++)
@@ -216,7 +216,7 @@ void cloog_block_free(CloogBlock * block)
       
         free(block->scaldims) ;
       }
-      cloog_statement_free(block->statement) ;
+      cloog_statement_free(cloog_block_stmt (block)) ;
       free(block) ;
     }
   }
@@ -263,7 +263,7 @@ CloogBlock * cloog_block_malloc()
   cloog_block_leak_up() ;
   
   /* We set the various fields with default values. */
-  block->statement = NULL ;
+  cloog_block_set_stmt (block, NULL);
   block->scattering = NULL ;
   block->nb_scaldims = 0 ;
   block->scaldims = NULL ;
@@ -302,7 +302,7 @@ Value * scaldims ;
   /* Block allocation. */
   block = cloog_block_malloc() ;
 
-  block->statement = statement ;
+  cloog_block_set_stmt (block, statement);
   block->scattering = scattering ;
   block->nb_scaldims = nb_scaldims ;
   block->scaldims = scaldims ;
@@ -391,16 +391,17 @@ void cloog_block_merge(CloogBlock * block, CloogBlock * merged)
   if ((block == NULL) || (merged == NULL))
   return ;
   
-  if (block->statement != NULL)
-  { statement = block->statement ;
+  if (cloog_block_stmt (block))
+    {
+      statement = cloog_block_stmt (block) ;
     
-    while (statement->next != NULL)
-    statement = statement->next ;
+      while (statement->next != NULL)
+	statement = statement->next ;
     
-    statement->next = merged->statement ;
-  }
+      statement->next = cloog_block_stmt (merged) ;
+    }
   else
-  block->statement = merged->statement ;
+    cloog_block_set_stmt (block, cloog_block_stmt (merged));
 
   cloog_block_leak_down() ;
   free(merged) ;

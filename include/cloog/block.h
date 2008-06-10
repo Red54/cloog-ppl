@@ -57,7 +57,7 @@ extern "C"
  * the active reference counter and actually free it if its value is zero.
  */
 struct cloogblock
-{ CloogStatement * statement ;  /**< The list of statements in the block. */
+{ CloogStatement * _statement ;  /**< The list of statements in the block. */
   CloogMatrix * scattering ;    /**< The scattering function for the block. */
   int  nb_scaldims ;            /**< Number of scalar dimensions. */
   Value * scaldims ;            /**< Scalar dimension values. */
@@ -69,6 +69,16 @@ struct cloogblock
 			         */
 } ;
 typedef struct cloogblock CloogBlock ;
+
+static inline CloogStatement *cloog_block_stmt (CloogBlock *b)
+{
+  return b->_statement;
+}
+
+static inline void cloog_block_set_stmt (CloogBlock *b, CloogStatement *s)
+{
+  b->_statement = s;
+}
 
 
 /**

@@ -102,9 +102,9 @@ static inline CloogDomainList *cloog_next_domain (CloogDomainList *l)
   return l->_next;
 }
 
-static inline CloogDomainList *cloog_set_next_domain (CloogDomainList *l, CloogDomainList *n)
+static inline void cloog_set_next_domain (CloogDomainList *l, CloogDomainList *n)
 {
-  return l->_next = n;
+  l->_next = n;
 }
 
 

@@ -325,7 +325,7 @@ CloogOptions * options ;
     blocklist = cloog_program_blocklist (program) ;
     while (blocklist != NULL)
     { block = blocklist->block ;
-      statement = block->statement ;
+      statement = cloog_block_stmt (block) ;
       while (statement != NULL)
       { fprintf(file,"#define S%d(",statement->number) ;
         if (block->depth > 0)

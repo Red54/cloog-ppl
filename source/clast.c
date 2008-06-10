@@ -1400,7 +1400,7 @@ static void insert_block(CloogBlock *block, int level,
     if (!block)
 	return;
 
-    for (statement = block->statement; statement; statement = statement->next) {
+    for (statement = cloog_block_stmt (block); statement; statement = statement->next) {
 	if (infos->options->cpp == 0)
 	    subs = clast_equal(infos);
 	else
