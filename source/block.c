@@ -132,10 +132,6 @@ void cloog_block_print_structure(FILE * file, CloogBlock * block, int level)
     for (i=0; i<level+2; i++)
     fprintf(file,"|\t") ;    
     fprintf(file,"\n") ;    
-
-    /* Print scattering function. */
-    for(i=0; i<level+1; i++)
-    fprintf(file,"|\t") ;
   
     /* A blank line. */
     for (i=0; i<level+2; i++)
@@ -301,7 +297,6 @@ CloogBlock * cloog_block_malloc()
  * service, put to respectively 0 and NULL if you don't know what they are
  * useful for !
  * - statement is the statement list of the block,
- * - scattering is the scattering function for the block (NULL if unsure !),
  * - nb_scaldims is the number of scalar dimensions (0 if unsure !),
  * - scaldims is the array with the scalar dimensions values (NULL if unsure !),
  * - depth is the original block depth (the number of outer loops).

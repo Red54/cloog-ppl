@@ -45,10 +45,10 @@ INCLUDES = -I$(top_builddir)/include -I$(top_srcdir)/include
 AM_CFLAGS = -Wall -fomit-frame-pointer
 libcloog_la_SOURCES = \
 	source/block.c \
-	source/clast.c \
 	source/loop.c \
 	source/names.c \
 	source/options.c \
+	source/polylib/clast.c \
 	source/polylib/domain.c \
 	source/polylib/matrix.c \
 	source/pprint.c \
