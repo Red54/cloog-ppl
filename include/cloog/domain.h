@@ -111,8 +111,6 @@ static inline void cloog_set_next_domain (CloogDomainList *l, CloogDomainList *n
 /******************************************************************************
  *                         Polyhedral Library interface                       *
  ******************************************************************************/
-CloogMatrix * cloog_simplify_domain_matrix_with_equalities (CloogDomain *, int,
-							    CloogMatrix *, int);
 void          cloog_domain_print(FILE *, CloogDomain *) ;
 void          cloog_domain_free(CloogDomain *) ;
 CloogDomain * cloog_domain_copy(CloogDomain *) ;

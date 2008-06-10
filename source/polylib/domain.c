@@ -1778,20 +1778,6 @@ CloogDomain * cloog_domain_erase_dimension(CloogDomain * domain, int dimension)
   return erased ;
 }
 
-CloogMatrix *
-cloog_simplify_domain_matrix_with_equalities (CloogDomain *domain, int level,
-					      CloogMatrix *equal, int nb_parameters)
-{
-  CloogMatrix *temp, *res;
-
-  temp = cloog_domain_domain2matrix (domain);
-  cloog_matrix_normalize (temp, level);
-  res = cloog_matrix_simplify (temp, equal, level, nb_parameters);
-  cloog_matrix_free(temp);
-
-  return res;
-}
-
 /* Number of polyhedra inside the union of disjoint polyhedra.  */
 
 unsigned cloog_domain_nb_polyhedra (CloogDomain *domain)
