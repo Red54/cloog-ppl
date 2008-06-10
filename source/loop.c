@@ -300,7 +300,7 @@ CloogLoop * cloog_loop_read(FILE * foo, int number, int nb_parameters)
   cloog_loop_set_si_stride (loop, 1);
   /* included statement block. */
   statement = cloog_statement_alloc(number+1);
-  cloog_loop_set_block (loop, cloog_block_alloc (statement, NULL, 0, NULL, nb_iterators));
+  cloog_loop_set_block (loop, cloog_block_alloc (statement, 0, NULL, nb_iterators));
   cloog_loop_set_usr (loop, NULL);
   /* inner is NULL at beginning. */
   cloog_loop_set_inner (loop, NULL);

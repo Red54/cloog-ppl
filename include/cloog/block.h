@@ -58,7 +58,6 @@ extern "C"
  */
 struct cloogblock
 { CloogStatement * _statement ;  /**< The list of statements in the block. */
-  CloogMatrix * _scattering ;    /**< The scattering function for the block. */
   int  _nb_scaldims ;            /**< Number of scalar dimensions. */
   Value * _scaldims ;            /**< Scalar dimension values. */
   int _depth ;                   /**< Original block depth (outer loop number).*/
@@ -78,16 +77,6 @@ static inline CloogStatement *cloog_block_stmt (CloogBlock *b)
 static inline void cloog_block_set_stmt (CloogBlock *b, CloogStatement *s)
 {
   b->_statement = s;
-}
-
-static inline CloogMatrix *cloog_block_scattering (CloogBlock *b)
-{
-  return b->_scattering;
-}
-
-static inline void cloog_block_set_scattering (CloogBlock *b, CloogMatrix *s)
-{
-  b->_scattering = s;
 }
 
 static inline int cloog_block_nb_scaldims (CloogBlock *b)
@@ -206,7 +195,7 @@ void cloog_block_list_free(CloogBlockList *) ;
  *                            Processing functions                            *
  ******************************************************************************/
 CloogBlock     * cloog_block_malloc(void);
-CloogBlock     * cloog_block_alloc(CloogStatement*,CloogMatrix*,int,Value*,int);
+CloogBlock     * cloog_block_alloc(CloogStatement*,int,Value*,int);
 CloogBlockList * cloog_block_list_malloc(void);
 CloogBlockList * cloog_block_list_alloc(CloogBlock *) ;
 CloogBlock     * cloog_block_copy(CloogBlock * block) ;
