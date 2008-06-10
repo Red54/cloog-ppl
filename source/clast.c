@@ -1368,7 +1368,7 @@ static void insert_scalar(CloogLoop *loop, int level, int *scalar,
 	}
       
 	t = new_clast_term (cloog_block_scaldims_elt (cloog_loop_block (loop), *scalar), NULL);
-	**next = &new_clast_assignment(infos->names->scalars[(*scalar)],
+	**next = &new_clast_assignment(cloog_names_scalar_elt (infos->names, *scalar),
 				       &t->expr)->stmt;
 	*next = &(**next)->next;
 	(*scalar) ++ ;

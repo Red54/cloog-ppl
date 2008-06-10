@@ -57,7 +57,7 @@ struct cloognames
   int _nb_scattering ;      /**< Scattering iterator number. */
   int _nb_iterators ;       /**< Iterator number. */
   int _nb_parameters ;      /**< Parameter number. */
-  char ** scalars ;        /**< The scalar names     (an array of strings). */
+  char ** _scalars ;        /**< The scalar names     (an array of strings). */
   char ** _scattering ;     /**< The scattering names (an array of strings). */
   char ** iterators ;      /**< The iterator names   (an array of strings). */
   char ** parameters ;     /**< The parameter names  (an array of strings). */
@@ -104,6 +104,26 @@ static inline int cloog_names_nb_parameters (CloogNames *n)
 static inline void cloog_names_set_nb_parameters (CloogNames *n, int nb)
 {
   n->_nb_parameters = nb;
+}
+
+static inline char **cloog_names_scalars (CloogNames *n)
+{
+  return n->_scalars;
+}
+
+static inline void cloog_names_set_scalars (CloogNames *n, char **s)
+{
+  n->_scalars = s;
+}
+
+static inline char *cloog_names_scalar_elt (CloogNames *n, int i)
+{
+  return n->_scalars[i];
+}
+
+static inline void cloog_names_set_scalar_elt (CloogNames *n, int i, char *s)
+{
+  n->_scalars[i] = s;
 }
 
 static inline char **cloog_names_scattering (CloogNames *n)
