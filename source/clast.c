@@ -1529,7 +1529,8 @@ struct clast_stmt *cloog_clast_create(CloogProgram *program,
     /* Allocation for the array of strides, there is a +1 since the statement can
     * be included inside an external loop without iteration domain.
     */ 
-    nb_levels = cloog_names_nb_scattering (cloog_program_names (program)) + cloog_program_names (program)->nb_iterators + 1;
+    nb_levels = cloog_names_nb_scattering (cloog_program_names (program)) 
+      + cloog_names_nb_iterators (cloog_program_names (program)) + 1;
     infos->stride = ALLOCN(Value, nb_levels);
     for (i = 0; i < nb_levels; ++i)
 	value_init_c(infos->stride[i]);
