@@ -138,7 +138,7 @@ void cloog_block_print_structure(FILE * file, CloogBlock * block, int level)
       {
 	fprintf (file, "Scalar dimensions (%d):", cloog_block_nb_scaldims (block));
 	for (i = 0; i < cloog_block_nb_scaldims (block); i++)
-	  value_print (file, " "VALUE_FMT, block->scaldims[i]);
+	  value_print (file, " "VALUE_FMT, cloog_block_scaldims_elt (block, i));
 	fprintf (file, "\n");
       }
     
@@ -211,12 +211,12 @@ void cloog_block_free(CloogBlock * block)
     
     if (block->references == 0)
     { cloog_block_leak_down() ;
-      if (block->scaldims != NULL)
+      if (cloog_block_scaldims (block))
 	{
 	  for (i = 0; i < cloog_block_nb_scaldims (block); i++)
-	    value_clear_c (block->scaldims[i]) ;
+	    cloog_block_scaldims_clear (block, i);
       
-	  free (block->scaldims) ;
+	  free (cloog_block_scaldims (block)) ;
 	}
       cloog_statement_free(cloog_block_stmt (block)) ;
       free(block) ;
@@ -268,7 +268,7 @@ CloogBlock * cloog_block_malloc()
   cloog_block_set_stmt (block, NULL);
   cloog_block_set_scattering (block, NULL);
   cloog_block_set_nb_scaldims (block, 0);
-  block->scaldims = NULL ;
+  cloog_block_set_scaldims (block, NULL);
   block->depth = 0 ;
   block->references = 1 ;
   block->usr = NULL;
@@ -307,7 +307,7 @@ Value * scaldims ;
   cloog_block_set_stmt (block, statement);
   cloog_block_set_scattering (block, scattering);
   cloog_block_set_nb_scaldims (block, nb_scaldims);
-  block->scaldims = scaldims ;
+  cloog_block_set_scaldims (block, scaldims);
   block->depth = depth ;
   block->references = 1 ;
   

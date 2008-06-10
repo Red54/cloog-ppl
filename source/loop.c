@@ -1170,14 +1170,16 @@ CloogLoop * cloog_loop_stop(CloogLoop * loop, CloogDomain * context)
 int cloog_loop_scalar_gt(l1, l2, level, scaldims, nb_scattdims, scalar)
 CloogLoop * l1, * l2 ;
 int level, * scaldims, nb_scattdims, scalar ;
-{ while ((scalar < cloog_block_nb_scaldims (cloog_loop_block (cloog_loop_inner (l1))))
+{
+  while ((scalar < cloog_block_nb_scaldims (cloog_loop_block (cloog_loop_inner (l1))))
 	 && scaldims[level+scalar-1])
-    { if (value_gt(cloog_loop_block (cloog_loop_inner (l1))->scaldims[scalar],
-		   cloog_loop_block (cloog_loop_inner (l2))->scaldims[scalar]))
-    scalar ++ ;
-    else
-    return 0 ;
-  }
+    {
+      if (value_gt (cloog_block_scaldims_elt (cloog_loop_block (cloog_loop_inner (l1)), scalar),
+		    cloog_block_scaldims_elt (cloog_loop_block (cloog_loop_inner (l2)), scalar)))
+	scalar ++ ;
+      else
+	return 0 ;
+    }
   return 1 ;
 }
 
@@ -1202,14 +1204,16 @@ int level, * scaldims, nb_scattdims, scalar ;
 int cloog_loop_scalar_eq(l1, l2, level, scaldims, nb_scattdims, scalar)
 CloogLoop * l1, * l2 ;
 int level, * scaldims, nb_scattdims, scalar ;
-{ while ((scalar < cloog_block_nb_scaldims (cloog_loop_block (cloog_loop_inner (l1))))
+{
+  while ((scalar < cloog_block_nb_scaldims (cloog_loop_block (cloog_loop_inner (l1))))
 	 && scaldims[level+scalar-1])
-    { if (value_eq(cloog_loop_block (cloog_loop_inner (l1))->scaldims[scalar],
-		   cloog_loop_block (cloog_loop_inner (l2))->scaldims[scalar]))
-    scalar ++ ;
-    else
-    return 0 ;
-  }
+    {
+      if (value_eq (cloog_block_scaldims_elt (cloog_loop_block (cloog_loop_inner (l1)), scalar),
+		    cloog_block_scaldims_elt (cloog_loop_block (cloog_loop_inner (l2)), scalar)))
+	scalar ++ ;
+      else
+	return 0 ;
+    }
   return 1 ;
 }
 
