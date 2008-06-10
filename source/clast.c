@@ -26,37 +26,6 @@ struct clooginfos
 
 typedef struct clooginfos CloogInfos ;
 
-static int clast_term_equal(struct clast_term *t1, struct clast_term *t2);
-static int clast_binary_equal(struct clast_binary *b1, struct clast_binary *b2);
-static int clast_reduction_equal(struct clast_reduction *r1, 
-				 struct clast_reduction *r2);
-
-static int clast_equal_type(CloogMatrix *equal, int level, int line);
-static int clast_equal_add(CloogMatrix *equal, CloogMatrix *matrix, int level, 
-			    int line, CloogInfos *infos);
-static void clast_equal_del(CloogMatrix * equal, int level);
-
-static struct clast_stmt * clast_equal(CloogInfos *infos);
-static struct clast_stmt * clast_equal_cpp(int level, CloogInfos *infos);
-static struct clast_expr *clast_minmax(CloogMatrix *matrix,
-					int level, int max, int guard, 
-					CloogInfos *infos);
-static void insert_guard(CloogMatrix *matrix, int level,
-			  struct clast_stmt ***next, CloogInfos *infos);
-static void insert_modulo_guard(CloogMatrix *matrix, int num, int level,
-			        struct clast_stmt ***next, CloogInfos *infos);
-static void insert_equality(CloogMatrix *matrix, int num,
-			 int level, struct clast_stmt ***next, CloogInfos *infos);
-static void insert_for(CloogMatrix *matrix, int level,
-			struct clast_stmt ***next, CloogInfos *infos);
-static void insert_scalar(CloogLoop *loop, int level, int *scalar, 
-			   struct clast_stmt ***next, CloogInfos *infos);
-static void insert_block(CloogBlock *block, int level,
-			  struct clast_stmt ***next, CloogInfos *infos);
-static void insert_loop(CloogLoop * loop, int level, int scalar,
-			struct clast_stmt ***next, CloogInfos *infos);
-
-
 struct clast_term *new_clast_term(Value c, const char *v)
 {
     struct clast_term *t = malloc(sizeof(struct clast_term));
@@ -92,10 +61,6 @@ struct clast_reduction *new_clast_reduction(enum clast_red_type t, int n)
     return r;
 }
 
-static void free_clast_root(struct clast_stmt *s);
-
-struct clast_stmt_op stmt_root = { free_clast_root };
-
 static void free_clast_root(struct clast_stmt *s)
 {
     struct clast_root *r = (struct clast_root *)s;
@@ -103,6 +68,8 @@ static void free_clast_root(struct clast_stmt *s)
     cloog_names_free(r->names);
     free(r);
 }
+
+struct clast_stmt_op stmt_root = { free_clast_root };
 
 struct clast_root *new_clast_root(CloogNames *names)
 {
@@ -159,10 +126,6 @@ struct clast_user_stmt *new_clast_user_stmt(CloogStatement *stmt,
     return u;
 }
 
-static void free_clast_block(struct clast_stmt *b);
-
-struct clast_stmt_op stmt_block = { free_clast_block };
-
 static void free_clast_block(struct clast_stmt *s)
 {
     struct clast_block *b = (struct clast_block *)s;
@@ -170,6 +133,8 @@ static void free_clast_block(struct clast_stmt *s)
     cloog_clast_free(b->body);
     free(b);
 }
+
+struct clast_stmt_op stmt_block = { free_clast_block };
 
 struct clast_block *new_clast_block()
 {
@@ -179,10 +144,6 @@ struct clast_block *new_clast_block()
     b->body = NULL;
     return b;
 }
-
-static void free_clast_for(struct clast_stmt *s);
-
-struct clast_stmt_op stmt_for = { free_clast_for };
 
 static void free_clast_for(struct clast_stmt *s)
 {
@@ -194,6 +155,8 @@ static void free_clast_for(struct clast_stmt *s)
     cloog_clast_free(f->body);
     free(f);
 }
+
+struct clast_stmt_op stmt_for = { free_clast_for };
 
 struct clast_for *new_clast_for(const char *it, struct clast_expr *LB, 
 				struct clast_expr *UB, Value stride)
@@ -210,10 +173,6 @@ struct clast_for *new_clast_for(const char *it, struct clast_expr *LB,
     return f;
 }
 
-static void free_clast_guard(struct clast_stmt *s);
-
-struct clast_stmt_op stmt_guard = { free_clast_guard };
-
 static void free_clast_guard(struct clast_stmt *s)
 {
     int i;
@@ -226,6 +185,8 @@ static void free_clast_guard(struct clast_stmt *s)
     }
     free(g);
 }
+
+struct clast_stmt_op stmt_guard = { free_clast_guard };
 
 struct clast_guard *new_clast_guard(int n)
 {
