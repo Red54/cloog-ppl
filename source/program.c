@@ -225,7 +225,7 @@ void cloog_program_dump_cloog(FILE * foo, CloogProgram * program)
     loop = cloog_loop_next (loop) ;
   }
   fprintf(foo,"\n1 # Iterator name(s)\n") ;
-  for (i = 0; i < cloog_program_names (program)->nb_scattering; i++)
+  for (i = 0; i < cloog_names_nb_scattering (cloog_program_names (program)); i++)
     fprintf (foo, "%s ", cloog_names_scattering_elt (cloog_program_names (program), i));
   for (i = 0; i < cloog_program_names (program)->nb_iterators; i++)
     fprintf (foo, "%s ", cloog_program_names (program)->iterators[i]);
@@ -365,10 +365,10 @@ CloogOptions * options ;
       
       fprintf(file," ;\n") ;
     }
-    if (cloog_program_names (program)->nb_scattering > 0)
+    if (cloog_names_nb_scattering (cloog_program_names (program)) > 0)
     { fprintf(file,"  /* Scattering iterators. */\n") ;
       fprintf (file, "  int %s", cloog_names_scattering_elt (cloog_program_names (program), 0));
-      for(i=2;i<=cloog_program_names (program)->nb_scattering;i++)
+      for(i=2;i<=cloog_names_nb_scattering (cloog_program_names (program));i++)
 	fprintf (file, ", %s", cloog_names_scattering_elt (cloog_program_names (program), i - 1)); 
       
       fprintf(file," ;\n") ;

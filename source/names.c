@@ -122,7 +122,7 @@ void cloog_names_print_structure(FILE * file, CloogNames * names, int level)
     /* Print the scattering dimension number. */
     for (i=0; i<=level; i++)
     fprintf(file,"|\t") ;
-    fprintf(file,"Scattering dimension number: %d\n",names->nb_scattering) ;
+    fprintf(file,"Scattering dimension number: %d\n",cloog_names_nb_scattering (names)) ;
 
     /* A blank line. */
     for (i=0; i<=level+1; i++)
@@ -132,9 +132,9 @@ void cloog_names_print_structure(FILE * file, CloogNames * names, int level)
     /* Print the scattering iterators. */
     for (i=0; i<=level; i++)
     fprintf(file,"|\t") ;
-    if (names->nb_scattering > 0)
+    if (cloog_names_nb_scattering (names) > 0)
     { fprintf(file,"+-- Scattering strings ----:") ;
-      for (i=0;i<names->nb_scattering;i++)
+      for (i=0;i<cloog_names_nb_scattering (names);i++)
 	fprintf (file, " %s", cloog_names_scattering_elt (names, i));
       fprintf(file,"\n") ;
     }
@@ -241,7 +241,7 @@ void cloog_names_free(CloogNames * names)
    
   if (cloog_names_scattering (names))
     {
-      for (i=0;i<names->nb_scattering;i++)
+      for (i=0;i<cloog_names_nb_scattering (names);i++)
 	free (cloog_names_scattering_elt (names, i));
       free (cloog_names_scattering (names));
     }
@@ -384,7 +384,7 @@ CloogNames * cloog_names_malloc()
   
   /* We set the various fields with default values. */
   cloog_names_set_nb_scalars (names, 0);
-  names->nb_scattering = 0 ;
+  cloog_names_set_nb_scattering (names, 0);
   names->nb_iterators  = 0 ;
   names->nb_parameters = 0 ;
   names->scalars       = NULL ;
@@ -417,7 +417,7 @@ char ** scalars, ** scattering, ** iterators, ** parameters ;
   names = cloog_names_malloc() ;
   
   cloog_names_set_nb_scalars (names, nb_scalars);
-  names->nb_scattering = nb_scattering ;
+  cloog_names_set_nb_scattering (names, nb_scattering);
   names->nb_iterators  = nb_iterators ;
   names->nb_parameters = nb_parameters ;
   names->scalars       = scalars ;
@@ -508,7 +508,7 @@ char first_s,    first_t,       first_i,      first_p ;
   }
   
   cloog_names_set_nb_scalars (names, nb_scalars);
-  names->nb_scattering = nb_scattering ;
+  cloog_names_set_nb_scattering (names, nb_scattering);
   names->nb_parameters = nb_parameters ;
   names->nb_iterators  = nb_iterators ;
   names->scalars       = cloog_names_generate_items(nb_scalars,   NULL,first_s);
@@ -542,7 +542,7 @@ void cloog_names_scalarize(CloogNames * names, int nb_scattdims, int * scaldims)
   if (!nb_scalars)
   return ;
   
-  nb_scattering = names->nb_scattering - nb_scalars ;
+  nb_scattering = cloog_names_nb_scattering (names) - nb_scalars ;
   scattering = (char **)malloc(nb_scattering * sizeof(char *)) ;
   if (scattering == NULL) 
   { fprintf(stderr, "[CLooG]ERROR: memory overflow.\n") ;
@@ -570,6 +570,6 @@ void cloog_names_scalarize(CloogNames * names, int nb_scattdims, int * scaldims)
   free(cloog_names_scattering (names)) ;
   cloog_names_set_scattering (names, scattering);
   names->scalars       = scalars ;
-  names->nb_scattering = nb_scattering ;
+  cloog_names_set_nb_scattering (names, nb_scattering);
   cloog_names_set_nb_scalars (names, nb_scalars);
 }
