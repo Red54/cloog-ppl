@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <assert.h>
-#include "../include/cloog/cloog.h"
+#include "../../include/cloog/cloog.h"
+#include "matrix.h"
 
 #define ALLOC(type) (type*)malloc(sizeof(type))
 #define ALLOCN(type,n) (type*)malloc((n)*sizeof(type))

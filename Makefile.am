@@ -64,7 +64,6 @@ pkginclude_HEADERS = \
 	include/cloog/cloog.h \
 	include/cloog/domain.h \
 	include/cloog/loop.h \
-	include/cloog/matrix.h \
 	include/cloog/names.h \
 	include/cloog/options.h \
 	include/cloog/pprint.h \
