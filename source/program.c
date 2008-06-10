@@ -327,28 +327,30 @@ CloogOptions * options ;
     { block = blocklist->block ;
       statement = cloog_block_stmt (block) ;
       while (statement != NULL)
-      { fprintf(file,"#define S%d(",statement->number) ;
-        if (cloog_block_depth (block) > 0)
-	  { 
-	    fprintf (file, "%s", cloog_program_names (program)->iterators[0]);
-	    for (j = 1; j < cloog_block_depth (block); j++)
-	      fprintf (file, ",%s", cloog_program_names (program)->iterators[j]) ;
-	  }
-        fprintf(file,") {total++;") ;
-	if (cloog_block_depth (block) > 0)
-        { fprintf(file," printf(\"S%d \%%d",statement->number) ;
-          for (j = 1; j < cloog_block_depth (block); j++)
-	    fprintf (file, " \%%d");
+	{
+	  fprintf (file, "#define S%d(", cloog_statement_number (statement));
+	  if (cloog_block_depth (block) > 0)
+	    { 
+	      fprintf (file, "%s", cloog_program_names (program)->iterators[0]);
+	      for (j = 1; j < cloog_block_depth (block); j++)
+		fprintf (file, ",%s", cloog_program_names (program)->iterators[j]) ;
+	    }
+	  fprintf(file,") {total++;") ;
+	  if (cloog_block_depth (block) > 0)
+	    {
+	      fprintf (file, " printf(\"S%d \%%d", cloog_statement_number (statement));
+	      for (j = 1; j < cloog_block_depth (block); j++)
+		fprintf (file, " \%%d");
           
-          fprintf(file,"\\n\",%s", cloog_program_names (program)->iterators[0]) ;
-	  for (j = 1;j < cloog_block_depth (block); j++)
-	    fprintf (file, ",%s", cloog_program_names (program)->iterators[j]) ;
-          fprintf (file, ");");
-        }
-        fprintf(file,"}\n") ;
+	      fprintf(file,"\\n\",%s", cloog_program_names (program)->iterators[0]) ;
+	      for (j = 1;j < cloog_block_depth (block); j++)
+		fprintf (file, ",%s", cloog_program_names (program)->iterators[j]) ;
+	      fprintf (file, ");");
+	    }
+	  fprintf(file,"}\n") ;
         
-	statement = statement->next ;
-      }
+	  statement = statement->next ;
+	}
       blocklist = blocklist->next ;
     }
     

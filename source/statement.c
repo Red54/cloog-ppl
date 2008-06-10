@@ -100,7 +100,7 @@ int level ;
   { /* Go to the right level. */
     for (i=0; i<level; i++)
     fprintf(file,"|\t") ;
-    fprintf(file,"+-- CloogStatement %d \n",statement->number) ;
+    fprintf (file, "+-- CloogStatement %d \n", cloog_statement_number (statement));
     
     statement = statement->next ;
  
@@ -114,7 +114,7 @@ int level ;
       
       for (i=0; i<level; i++)
       fprintf(file,"|\t") ;
-      fprintf(file,"|   CloogStatement %d \n",statement->number) ;
+      fprintf (file, "|   CloogStatement %d \n", cloog_statement_number (statement));
       statement = statement->next ;
     }
   }
@@ -183,7 +183,7 @@ CloogStatement * cloog_statement_malloc()
   cloog_statement_leak_up() ;
   
   /* We set the various fields with default values. */
-  statement->number = 0;
+  cloog_statement_set_number (statement, 0);
   cloog_statement_set_usr (statement, NULL);
   statement->next = NULL ;
   
@@ -212,7 +212,7 @@ CloogStatement * cloog_statement_alloc(int number)
   /* Memory allocation and initialization of the structure. */
   statement = cloog_statement_malloc() ;
 
-  statement->number = number ;
+  cloog_statement_set_number (statement, number);
   
   return statement ;
 }
@@ -239,7 +239,7 @@ CloogStatement * cloog_statement_copy(CloogStatement * source)
       exit(1) ;
     }
     
-    temp->number = source->number ;
+    cloog_statement_set_number (temp, cloog_statement_number (source));
     cloog_statement_set_usr (temp, cloog_statement_usr (source));
     temp->next   = NULL ;
     

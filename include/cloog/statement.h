@@ -43,7 +43,7 @@ extern "C"
 
 
 struct cloogstatement
-{ int number ;                   /* The statement unique number. */
+{ int _number ;                   /* The statement unique number. */
   void *_usr ;                   /* A pointer for library users convenience. */
   struct cloogstatement * next ; /* Pointer to the next statement with the
                                   * same original domain and the same
@@ -52,6 +52,16 @@ struct cloogstatement
 } ;
 typedef struct cloogstatement CloogStatement ;
 
+
+static inline int cloog_statement_number (CloogStatement *s)
+{
+  return s->_number;
+}
+
+static inline void cloog_statement_set_number (CloogStatement *s, int n)
+{
+  s->_number = n;
+}
 
 static inline void *cloog_statement_usr (CloogStatement *s)
 {
