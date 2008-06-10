@@ -349,7 +349,7 @@ CloogOptions * options ;
 	    }
 	  fprintf(file,"}\n") ;
         
-	  statement = statement->next ;
+	  statement = cloog_statement_next (statement);
 	}
       blocklist = blocklist->next ;
     }

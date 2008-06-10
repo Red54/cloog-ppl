@@ -420,10 +420,10 @@ void cloog_block_merge(CloogBlock * block, CloogBlock * merged)
     {
       statement = cloog_block_stmt (block) ;
     
-      while (statement->next != NULL)
-	statement = statement->next ;
+      while (cloog_statement_next (statement))
+	statement = cloog_statement_next (statement) ;
     
-      statement->next = cloog_block_stmt (merged) ;
+      cloog_statement_set_next (statement, cloog_block_stmt (merged));
     }
   else
     cloog_block_set_stmt (block, cloog_block_stmt (merged));

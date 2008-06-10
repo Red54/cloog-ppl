@@ -1400,14 +1400,15 @@ static void insert_block(CloogBlock *block, int level,
     if (!block)
 	return;
 
-    for (statement = cloog_block_stmt (block); statement; statement = statement->next) {
-	if (infos->options->cpp == 0)
-	    subs = clast_equal(infos);
-	else
-	    subs = clast_equal_cpp(level,infos);
+    for (statement = cloog_block_stmt (block); statement;
+	 statement = cloog_statement_next (statement)) {
+      if (infos->options->cpp == 0)
+	subs = clast_equal(infos);
+      else
+	subs = clast_equal_cpp(level,infos);
 
-	**next = &new_clast_user_stmt(statement, subs)->stmt;
-	*next = &(**next)->next;
+      **next = &new_clast_user_stmt(statement, subs)->stmt;
+      *next = &(**next)->next;
     }
 }
 

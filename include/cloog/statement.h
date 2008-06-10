@@ -45,7 +45,7 @@ extern "C"
 struct cloogstatement
 { int _number ;                   /* The statement unique number. */
   void *_usr ;                   /* A pointer for library users convenience. */
-  struct cloogstatement * next ; /* Pointer to the next statement with the
+  struct cloogstatement *_next ; /* Pointer to the next statement with the
                                   * same original domain and the same
 				  * scattering function.
 				  */
@@ -71,6 +71,16 @@ static inline void *cloog_statement_usr (CloogStatement *s)
 static inline void cloog_statement_set_usr (CloogStatement *s, void *u)
 {
   s->_usr = u;
+}
+
+static inline CloogStatement *cloog_statement_next (CloogStatement *s)
+{
+  return s->_next;
+}
+
+static inline void cloog_statement_set_next (CloogStatement *s, CloogStatement *n)
+{
+  s->_next = n;
 }
 
 

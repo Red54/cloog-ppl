@@ -102,7 +102,7 @@ int level ;
     fprintf(file,"|\t") ;
     fprintf (file, "+-- CloogStatement %d \n", cloog_statement_number (statement));
     
-    statement = statement->next ;
+    statement = cloog_statement_next (statement);
  
     while (statement != NULL)
     { for (i=0; i<level; i++)
@@ -115,7 +115,7 @@ int level ;
       for (i=0; i<level; i++)
       fprintf(file,"|\t") ;
       fprintf (file, "|   CloogStatement %d \n", cloog_statement_number (statement));
-      statement = statement->next ;
+      statement = cloog_statement_next (statement) ;
     }
   }
   else
@@ -152,7 +152,7 @@ void cloog_statement_free(CloogStatement * statement)
   while (statement != NULL)
   { cloog_statement_leak_down() ;
     
-    next = statement->next ;
+    next = cloog_statement_next (statement) ;
     free(statement) ;
     statement = next ;
   }
@@ -185,7 +185,7 @@ CloogStatement * cloog_statement_malloc()
   /* We set the various fields with default values. */
   cloog_statement_set_number (statement, 0);
   cloog_statement_set_usr (statement, NULL);
-  statement->next = NULL ;
+  cloog_statement_set_next (statement, NULL);
   
   return statement ;
 }  
@@ -241,17 +241,17 @@ CloogStatement * cloog_statement_copy(CloogStatement * source)
     
     cloog_statement_set_number (temp, cloog_statement_number (source));
     cloog_statement_set_usr (temp, cloog_statement_usr (source));
-    temp->next   = NULL ;
+    cloog_statement_set_next (temp, NULL);
     
     if (statement == NULL)
     { statement = temp ;
       now = statement ;
     }
     else
-    { now->next = temp ;
-      now = now->next ;
+      { cloog_statement_set_next (now, temp);
+	now = cloog_statement_next (now) ;
     }
-    source = source->next ;
+    source = cloog_statement_next (source) ;
   }
   return(statement) ;
 }
@@ -273,8 +273,8 @@ CloogStatement ** start, ** now, * statement ;
     *now = *start ;
   }
   else
-  { (*now)->next = statement ;
-    *now = (*now)->next ;
+    { cloog_statement_set_next (*now, statement);
+      *now = cloog_statement_next (*now);
   }
 }
 
