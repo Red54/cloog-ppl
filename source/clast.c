@@ -535,102 +535,6 @@ static void clast_equal_del(CloogMatrix * equal, int level)
 }
 
 
-
-
-/**
- * clast_equal function:
- * This function returns the content an equality matrix (equal) into a clast_stmt.
- * - the infos structure gives the user all options on code printing and more. 
- **
- * - July   2nd 2002: first version. 
- * - March 16th 2003: return now a string instead of printing directly and do
- *                    not write 'Sx()' if there is no spreading, but only 'Sx'. 
- */
-static struct clast_stmt * clast_equal(CloogInfos *infos)
-{ 
-  int i, iterator ;
-  Value type ;
-  struct clast_expr *e;
-  struct clast_stmt *a = NULL;
-  struct clast_stmt **next = &a;
-  CloogMatrix *equal = infos->equal;
-
-  value_init_c(type) ;
-  
-  /* It is not necessary to print here the scattering iterators since they
-   * never appear in the statement bodies.
-   */
-  for (i = cloog_names_nb_scattering (infos->names); i < equal->NbRows; i++)
-  { if (value_notzero_p(cloog_matrix_element(equal, i, 0))&&clast_equal_allow(equal,i+1,i,infos)) {
-      iterator = i - cloog_names_nb_scattering (infos->names) ;
-    
-      /* pprint_line needs to know that the current line is an equality, so
-       * we temporary remove the equality type and set it to zero (the equality
-       * tag in PolyLib.
-       */
-      value_assign(type,cloog_matrix_element(equal, i, 0)) ;
-      cloog_matrix_element_set_si(equal, i, 0, 0) ;
-      e = clast_bound_from_constraint(equal, i, i+1, infos->names);
-      cloog_matrix_element_assign(equal, i, 0, type) ;
-      *next = &new_clast_assignment(cloog_names_iterators (infos->names)[iterator], e)->stmt;
-      next = &(*next)->next;
-    }
-  }
-  value_clear_c(type) ;
-
-  return a;
-}
-
-
-/**
- * clast_equal_cpp function:
- * This function prints the substitution data of a statement into a clast_stmt.
- * Using this function instead of pprint_equal is useful for generating
- * a compilable pseudo-code by using preprocessor macro for each statement.
- * By opposition to pprint_equal, the result is less human-readable. For
- * instance this function will print (i,i+3,k,3) where pprint_equal would
- * return (j=i+3,l=3).
- * - level is the number of loops enclosing the statement,
- * - the infos structure gives the user all options on code printing and more.
- **
- * - March    12th 2004: first version. 
- * - November 21th 2005: (debug) now works well with GMP version. 
- */
-static struct clast_stmt * clast_equal_cpp(int level, CloogInfos *infos)
-{ 
-  int i ;
-  Value type ;
-  struct clast_expr *e;
-  struct clast_stmt *a = NULL;
-  struct clast_stmt **next = &a;
-  CloogMatrix *equal = infos->equal;
-
-  value_init_c(type) ;
-  
-  for (i=cloog_names_nb_scattering (infos->names);i<level-1;i++)
-    { if (value_notzero_p(cloog_matrix_element(equal, i, 0)))
-    { /* pprint_line needs to know that the current line is an equality, so
-       * we temporary remove the equality type and set it to zero (the equality
-       * tag in PolyLib.
-       */
-      value_assign(type,cloog_matrix_element(equal, i, 0)) ;
-      cloog_matrix_element_set_si(equal, i, 0, 0) ;
-      e = clast_bound_from_constraint(equal, i, i+1, infos->names);
-      cloog_matrix_element_assign(equal, i, 0, type) ;
-    } else {
-      value_set_si(type, 1);
-      e = &new_clast_term
-	(type, cloog_names_iterator_elt (infos->names, i - cloog_names_nb_scattering (infos->names)))->expr;
-    }
-    *next = &new_clast_assignment(NULL, e)->stmt;
-    next = &(*next)->next;
-  }
-  value_clear_c(type) ;
-
-  return a;
-}
-
- 
 /**
  * clast_bound_from_constraint function:
  * This function returns a clast_expr containing the printing of the
@@ -648,9 +552,9 @@ static struct clast_stmt * clast_equal_cpp(int level, CloogInfos *infos)
  * - November 2nd 2001: first version. 
  * - June    27th 2003: 64 bits version ready.
  */
-struct clast_expr *clast_bound_from_constraint(CloogMatrix *matrix,
-					       int line_num, int level,
-					       CloogNames *names)
+static struct clast_expr *clast_bound_from_constraint(CloogMatrix *matrix,
+						      int line_num, int level,
+						      CloogNames *names)
 { 
   int i, nb_iter, sign, nb_elts=0 ;
   char * name;
@@ -784,6 +688,100 @@ struct clast_expr *clast_bound_from_constraint(CloogMatrix *matrix,
   value_clear_c(denominator) ;
     
   return e;
+}
+
+
+/**
+ * clast_equal function:
+ * This function returns the content an equality matrix (equal) into a clast_stmt.
+ * - the infos structure gives the user all options on code printing and more. 
+ **
+ * - July   2nd 2002: first version. 
+ * - March 16th 2003: return now a string instead of printing directly and do
+ *                    not write 'Sx()' if there is no spreading, but only 'Sx'. 
+ */
+static struct clast_stmt * clast_equal(CloogInfos *infos)
+{ 
+  int i, iterator ;
+  Value type ;
+  struct clast_expr *e;
+  struct clast_stmt *a = NULL;
+  struct clast_stmt **next = &a;
+  CloogMatrix *equal = infos->equal;
+
+  value_init_c(type) ;
+  
+  /* It is not necessary to print here the scattering iterators since they
+   * never appear in the statement bodies.
+   */
+  for (i = cloog_names_nb_scattering (infos->names); i < equal->NbRows; i++)
+  { if (value_notzero_p(cloog_matrix_element(equal, i, 0))&&clast_equal_allow(equal,i+1,i,infos)) {
+      iterator = i - cloog_names_nb_scattering (infos->names) ;
+    
+      /* pprint_line needs to know that the current line is an equality, so
+       * we temporary remove the equality type and set it to zero (the equality
+       * tag in PolyLib.
+       */
+      value_assign(type,cloog_matrix_element(equal, i, 0)) ;
+      cloog_matrix_element_set_si(equal, i, 0, 0) ;
+      e = clast_bound_from_constraint(equal, i, i+1, infos->names);
+      cloog_matrix_element_assign(equal, i, 0, type) ;
+      *next = &new_clast_assignment(cloog_names_iterators (infos->names)[iterator], e)->stmt;
+      next = &(*next)->next;
+    }
+  }
+  value_clear_c(type) ;
+
+  return a;
+}
+
+
+/**
+ * clast_equal_cpp function:
+ * This function prints the substitution data of a statement into a clast_stmt.
+ * Using this function instead of pprint_equal is useful for generating
+ * a compilable pseudo-code by using preprocessor macro for each statement.
+ * By opposition to pprint_equal, the result is less human-readable. For
+ * instance this function will print (i,i+3,k,3) where pprint_equal would
+ * return (j=i+3,l=3).
+ * - level is the number of loops enclosing the statement,
+ * - the infos structure gives the user all options on code printing and more.
+ **
+ * - March    12th 2004: first version. 
+ * - November 21th 2005: (debug) now works well with GMP version. 
+ */
+static struct clast_stmt * clast_equal_cpp(int level, CloogInfos *infos)
+{ 
+  int i ;
+  Value type ;
+  struct clast_expr *e;
+  struct clast_stmt *a = NULL;
+  struct clast_stmt **next = &a;
+  CloogMatrix *equal = infos->equal;
+
+  value_init_c(type) ;
+  
+  for (i=cloog_names_nb_scattering (infos->names);i<level-1;i++)
+    { if (value_notzero_p(cloog_matrix_element(equal, i, 0)))
+    { /* pprint_line needs to know that the current line is an equality, so
+       * we temporary remove the equality type and set it to zero (the equality
+       * tag in PolyLib.
+       */
+      value_assign(type,cloog_matrix_element(equal, i, 0)) ;
+      cloog_matrix_element_set_si(equal, i, 0, 0) ;
+      e = clast_bound_from_constraint(equal, i, i+1, infos->names);
+      cloog_matrix_element_assign(equal, i, 0, type) ;
+    } else {
+      value_set_si(type, 1);
+      e = &new_clast_term
+	(type, cloog_names_iterator_elt (infos->names, i - cloog_names_nb_scattering (infos->names)))->expr;
+    }
+    *next = &new_clast_assignment(NULL, e)->stmt;
+    next = &(*next)->next;
+  }
+  value_clear_c(type) ;
+
+  return a;
 }
 
 
