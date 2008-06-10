@@ -549,11 +549,11 @@ static int clast_equal_add(CloogMatrix *equal, CloogMatrix *matrix, int level, i
    */
   for (i=1;i<=level;i++)
     cloog_matrix_element_assign(equal, level-1, i, cloog_matrix_element(matrix, line, i)) ;
-  for (i=0;i<infos->names->nb_parameters+1;i++)
+  for (i=0;i<cloog_names_nb_parameters (infos->names)+1;i++)
     cloog_matrix_element_assign(equal, level-1, equal->NbColumns-i-1,
 				cloog_matrix_element(matrix, line, matrix->NbColumns-i-1)) ;
   
-  cloog_matrix_equality_update(equal,level,infos->names->nb_parameters) ;
+  cloog_matrix_equality_update(equal,level,cloog_names_nb_parameters (infos->names)) ;
   
   return (clast_equal_allow(equal,level,level-1,infos)) ;
 }
@@ -712,7 +712,7 @@ struct clast_expr *clast_bound_from_constraint(CloogMatrix *matrix,
     nb_elts = 0;
 
     /* First, we have to print the iterators. */
-    nb_iter = matrix->NbColumns - 2 - names->nb_parameters;
+    nb_iter = matrix->NbColumns - 2 - cloog_names_nb_parameters (names);
     for (i=1;i<=nb_iter;i++)
       if ((i != level) && value_notzero_p(cloog_matrix_element(matrix, line_num, i))) {
 	if (i <= cloog_names_nb_scattering (names))
@@ -924,7 +924,7 @@ static void insert_guard(CloogMatrix *matrix, int level,
      */
     copy = cloog_matrix_copy(matrix) ;
     
-    nb_iter = copy->NbColumns - 2 - infos->names->nb_parameters ;
+    nb_iter = copy->NbColumns - 2 - cloog_names_nb_parameters (infos->names) ;
  
     nb_and = 0 ;
     /* We search for guard parts. */
@@ -1064,7 +1064,7 @@ static void insert_modulo_guard(CloogMatrix *matrix, int num, int level,
   value_init_c(g);
 
   len = matrix->NbColumns;
-  nb_par = infos->names->nb_parameters;
+  nb_par = cloog_names_nb_parameters (infos->names);
   nb_iter = matrix->NbColumns - 2 - nb_par;
 
   line_vector = Vector_Alloc(len);
@@ -1465,7 +1465,7 @@ static void insert_loop(CloogLoop * loop, int level, int scalar,
     * thus we normalize it, we also simplify it with the matrix of equalities.
     */ 
     matrix = cloog_simplify_domain_matrix_with_equalities
-      (cloog_loop_domain (loop), level, infos->equal, infos->names->nb_parameters);
+      (cloog_loop_domain (loop), level, infos->equal, cloog_names_nb_parameters (infos->names));
     value_assign(infos->stride[level-1], cloog_loop_stride (loop));
 
     /* First of all we have to print the guard. */
@@ -1475,7 +1475,7 @@ static void insert_loop(CloogLoop * loop, int level, int scalar,
     scalar_level = scalar ;
     insert_scalar(loop,level,&scalar, next, infos);
 
-    if ((matrix->NbColumns - 2 - infos->names->nb_parameters >= level)) {
+    if ((matrix->NbColumns - 2 - cloog_names_nb_parameters (infos->names) >= level)) {
 	/* We scan all the constraints to know in which case we are :
 	 * [[if] equality] or [for].
 	 */
@@ -1536,7 +1536,7 @@ struct clast_stmt *cloog_clast_create(CloogProgram *program,
 	value_init_c(infos->stride[i]);
 
     infos->equal = 
-      cloog_matrix_alloc (nb_levels, nb_levels + cloog_program_names (program)->nb_parameters + 1);
+      cloog_matrix_alloc (nb_levels, nb_levels + cloog_names_nb_parameters (cloog_program_names (program)) + 1);
 	
     insert_loop (cloog_program_loop (program), 1, 0, &next, infos);
 
