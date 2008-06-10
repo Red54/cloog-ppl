@@ -115,10 +115,10 @@ void cloog_block_print_structure(FILE * file, CloogBlock * block, int level)
     for(i=0; i<level+1; i++)
     fprintf(file,"|\t") ;
   
-    if (block->scattering != NULL)
+    if (cloog_block_scattering (block) != NULL)
     { fprintf(file,"+-- Scattering function\n") ;
       /* Print the matrix. */
-      cloog_matrix_print_structure(file,block->scattering,level+1) ;
+      cloog_matrix_print_structure (file, cloog_block_scattering (block), level + 1);
     }
     else
     fprintf(file,"+-- Null scattering function\n") ;
@@ -264,7 +264,7 @@ CloogBlock * cloog_block_malloc()
   
   /* We set the various fields with default values. */
   cloog_block_set_stmt (block, NULL);
-  block->scattering = NULL ;
+  cloog_block_set_scattering (block, NULL);
   block->nb_scaldims = 0 ;
   block->scaldims = NULL ;
   block->depth = 0 ;
@@ -303,7 +303,7 @@ Value * scaldims ;
   block = cloog_block_malloc() ;
 
   cloog_block_set_stmt (block, statement);
-  block->scattering = scattering ;
+  cloog_block_set_scattering (block, scattering);
   block->nb_scaldims = nb_scaldims ;
   block->scaldims = scaldims ;
   block->depth = depth ;
