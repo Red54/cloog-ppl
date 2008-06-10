@@ -62,7 +62,7 @@ struct cloogblock
   int  _nb_scaldims ;            /**< Number of scalar dimensions. */
   Value * _scaldims ;            /**< Scalar dimension values. */
   int _depth ;                   /**< Original block depth (outer loop number).*/
-  int references ;              /**< Number of references to this structure. */
+  int _references ;              /**< Number of references to this structure. */
   void * usr;		        /**< User field, for library user convenience.
 				 *   This pointer is not freed when the
 				 *   CloogBlock structure is freed.
@@ -144,7 +144,6 @@ static inline void cloog_block_set_depth (CloogBlock *b, int n)
 {
   b->_depth = n;
 }
-
 
 
 /**

@@ -75,6 +75,28 @@ static void cloog_block_leak_down()
 { cloog_block_freed ++ ;
 }
 
+static inline int cloog_block_references (CloogBlock *b)
+{
+  return b->_references;
+}
+
+static inline void cloog_block_init_references (CloogBlock *b)
+{
+  b->_references = 1;
+}
+
+static inline void cloog_block_inc_references (CloogBlock *b)
+{
+  b->_references++;
+}
+
+static inline void cloog_block_dec_references (CloogBlock *b)
+{
+  b->_references--;
+}
+
+
+
 
 /******************************************************************************
  *                          Structure display function                        *
@@ -207,21 +229,22 @@ void cloog_block_free(CloogBlock * block)
 { int i ;
 
   if (block != NULL)
-  { block->references -- ;
+    {
+      cloog_block_dec_references (block);
     
-    if (block->references == 0)
-    { cloog_block_leak_down() ;
-      if (cloog_block_scaldims (block))
-	{
-	  for (i = 0; i < cloog_block_nb_scaldims (block); i++)
-	    cloog_block_scaldims_clear (block, i);
+      if (cloog_block_references (block) == 0)
+	{ cloog_block_leak_down() ;
+	  if (cloog_block_scaldims (block))
+	    {
+	      for (i = 0; i < cloog_block_nb_scaldims (block); i++)
+		cloog_block_scaldims_clear (block, i);
       
-	  free (cloog_block_scaldims (block)) ;
+	      free (cloog_block_scaldims (block)) ;
+	    }
+	  cloog_statement_free(cloog_block_stmt (block)) ;
+	  free(block) ;
 	}
-      cloog_statement_free(cloog_block_stmt (block)) ;
-      free(block) ;
     }
-  }
 }
 
 
@@ -270,7 +293,7 @@ CloogBlock * cloog_block_malloc()
   cloog_block_set_nb_scaldims (block, 0);
   cloog_block_set_scaldims (block, NULL);
   cloog_block_set_depth (block, 0);
-  block->references = 1 ;
+  cloog_block_init_references (block);
   block->usr = NULL;
   
   return block ;
@@ -309,7 +332,7 @@ Value * scaldims ;
   cloog_block_set_nb_scaldims (block, nb_scaldims);
   cloog_block_set_scaldims (block, scaldims);
   cloog_block_set_depth (block, depth);
-  block->references = 1 ;
+  cloog_block_init_references (block);
   
   return block ;
 }
@@ -357,7 +380,7 @@ CloogBlockList * cloog_block_list_alloc(CloogBlock * block)
   blocklist = cloog_block_list_malloc() ;
 
   blocklist->block = block ;
-  blocklist->block->references ++ ; /* The block has a new reference to it. */
+  cloog_block_inc_references (blocklist->block); /* The block has a new reference to it. */
   blocklist->next = NULL ;
   
   return blocklist ;
@@ -374,7 +397,7 @@ CloogBlock * cloog_block_copy(CloogBlock * block)
 { if (block == NULL)
   return NULL ;
 
-  block->references ++ ;
+  cloog_block_inc_references (block);
   return block ;
 }
 
