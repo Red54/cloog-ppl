@@ -114,7 +114,6 @@ static inline CloogDomainList *cloog_set_next_domain (CloogDomainList *l, CloogD
 CloogMatrix * cloog_simplify_domain_matrix_with_equalities (CloogDomain *, int,
 							    CloogMatrix *, int);
 void          cloog_domain_print(FILE *, CloogDomain *) ;
-void          cloog_polyhedron_print(FILE *, Polyhedron *) ;
 void          cloog_domain_free(CloogDomain *) ;
 CloogDomain * cloog_domain_copy(CloogDomain *) ;
 CloogDomain * cloog_domain_convex(CloogDomain * Pol) ;
@@ -156,7 +155,6 @@ CloogDomainList * cloog_domain_list_read(FILE *) ;
 /******************************************************************************
  *                            Processing functions                            *
  ******************************************************************************/
-CloogDomain * cloog_domain_alloc(Polyhedron *) ;
 int           cloog_domain_isempty(CloogDomain *) ;
 CloogDomain * cloog_domain_project(CloogDomain *, int, int) ;
 CloogDomain * cloog_domain_extend(CloogDomain *, int, int) ;

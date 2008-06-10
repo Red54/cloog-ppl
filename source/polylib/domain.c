@@ -106,6 +106,64 @@ void cloog_value_leak_down()
 { cloog_value_freed ++ ;
 }
 
+static inline Polyhedron * cloog_domain_polyhedron_set (CloogDomain *d,
+							Polyhedron *p)
+{
+  return d->_polyhedron = p ;
+}
+
+static inline void cloog_domain_set_references (CloogDomain *d, int i)
+{
+  d->_references = i;
+}
+
+/**
+ * cloog_domain_malloc function:
+ * This function allocates the memory space for a CloogDomain structure and
+ * sets its fields with default values. Then it returns a pointer to the
+ * allocated space.
+ * - November 21th 2005: first version.
+ */
+static CloogDomain * cloog_domain_malloc()
+{ CloogDomain * domain ;
+  
+  domain = (CloogDomain *)malloc(sizeof(CloogDomain)) ;
+  if (domain == NULL) 
+  { fprintf(stderr, "[CLooG]ERROR: memory overflow.\n") ;
+    exit(1) ;
+  }
+  cloog_domain_leak_up() ;
+  
+  /* We set the various fields with default values. */
+  cloog_domain_polyhedron_set (domain, NULL) ;
+  cloog_domain_set_references (domain, 1);
+  
+  return domain ;
+}
+
+
+/**
+ * cloog_domain_alloc function:
+ * This function allocates the memory space for a CloogDomain structure and
+ * sets its fields with those given as input. Then it returns a pointer to the
+ * allocated space.
+ * - April    19th 2005: first version.
+ * - November 21th 2005: cloog_domain_malloc use.
+ */
+static CloogDomain * cloog_domain_alloc(Polyhedron * polyhedron)
+{ CloogDomain * domain ;
+  
+  if (polyhedron == NULL)
+  return NULL ;
+  else
+  { domain = cloog_domain_malloc() ;
+    cloog_domain_polyhedron_set (domain, polyhedron) ;
+    
+    return domain ;
+  }
+}
+
+
 
 /******************************************************************************
  *                              PolyLib interface                             *
@@ -146,12 +204,6 @@ static inline Polyhedron * cloog_domain_polyhedron (CloogDomain * domain)
   return domain->_polyhedron ;
 }
 
-static inline Polyhedron * cloog_domain_polyhedron_set (CloogDomain *d,
-							Polyhedron *p)
-{
-  return d->_polyhedron = p ;
-}
-
 /**
  * cloog_domain_domain2matrix function:
  * Given a polyhedron (in domain), this function returns its corresponding
@@ -165,11 +217,6 @@ static CloogMatrix * cloog_domain_domain2matrix(CloogDomain * domain)
 static inline int cloog_domain_references (CloogDomain *d)
 {
   return d->_references;
-}
-
-static inline void cloog_domain_set_references (CloogDomain *d, int i)
-{
-  d->_references = i;
 }
 
 /**
@@ -854,54 +901,6 @@ CloogDomainList * cloog_domain_list_read(FILE * foo)
 /******************************************************************************
  *                            Processing functions                            *
  ******************************************************************************/
-
-
-/**
- * cloog_domain_malloc function:
- * This function allocates the memory space for a CloogDomain structure and
- * sets its fields with default values. Then it returns a pointer to the
- * allocated space.
- * - November 21th 2005: first version.
- */
-static CloogDomain * cloog_domain_malloc()
-{ CloogDomain * domain ;
-  
-  domain = (CloogDomain *)malloc(sizeof(CloogDomain)) ;
-  if (domain == NULL) 
-  { fprintf(stderr, "[CLooG]ERROR: memory overflow.\n") ;
-    exit(1) ;
-  }
-  cloog_domain_leak_up() ;
-  
-  /* We set the various fields with default values. */
-  cloog_domain_polyhedron_set (domain, NULL) ;
-  cloog_domain_set_references (domain, 1);
-  
-  return domain ;
-}
-
-
-/**
- * cloog_domain_alloc function:
- * This function allocates the memory space for a CloogDomain structure and
- * sets its fields with those given as input. Then it returns a pointer to the
- * allocated space.
- * - April    19th 2005: first version.
- * - November 21th 2005: cloog_domain_malloc use.
- */
-CloogDomain * cloog_domain_alloc(Polyhedron * polyhedron)
-{ CloogDomain * domain ;
-  
-  if (polyhedron == NULL)
-  return NULL ;
-  else
-  { domain = cloog_domain_malloc() ;
-    cloog_domain_polyhedron_set (domain, polyhedron) ;
-    
-    return domain ;
-  }
-}
-
 
 /**
  * cloog_domain_isempty function:
