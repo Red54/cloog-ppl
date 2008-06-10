@@ -161,7 +161,7 @@ static inline void cloog_block_set_usr (CloogBlock *b, void *u)
  * this structure reprensents a node of a linked list of CloogBlock structures.
  */
 struct cloogblocklist
-{ CloogBlock * block ;          /**< An element of the list. */
+{ CloogBlock * _block ;          /**< An element of the list. */
   struct cloogblocklist * _next ;/**< Pointer to the next element of the list.*/
 } ;
 typedef struct cloogblocklist CloogBlockList ;
@@ -174,6 +174,16 @@ static inline CloogBlockList *cloog_block_list_next (CloogBlockList *s)
 static inline void cloog_block_list_set_next (CloogBlockList *s, CloogBlockList *n)
 {
   s->_next = n;
+}
+
+static inline CloogBlock *cloog_block (CloogBlockList *s)
+{
+  return s->_block;
+}
+
+static inline void cloog_block_set (CloogBlockList *s, CloogBlock *n)
+{
+  s->_block = n;
 }
 
 

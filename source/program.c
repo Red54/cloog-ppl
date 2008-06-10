@@ -324,35 +324,36 @@ CloogOptions * options ;
     fprintf(file,"/* Statement macros (please set). */\n") ;
     blocklist = cloog_program_blocklist (program) ;
     while (blocklist != NULL)
-    { block = blocklist->block ;
-      statement = cloog_block_stmt (block) ;
-      while (statement != NULL)
-	{
-	  fprintf (file, "#define S%d(", cloog_statement_number (statement));
-	  if (cloog_block_depth (block) > 0)
-	    { 
-	      fprintf (file, "%s", cloog_program_names (program)->iterators[0]);
-	      for (j = 1; j < cloog_block_depth (block); j++)
-		fprintf (file, ",%s", cloog_program_names (program)->iterators[j]) ;
-	    }
-	  fprintf(file,") {total++;") ;
-	  if (cloog_block_depth (block) > 0)
-	    {
-	      fprintf (file, " printf(\"S%d \%%d", cloog_statement_number (statement));
-	      for (j = 1; j < cloog_block_depth (block); j++)
-		fprintf (file, " \%%d");
+      {
+	block = cloog_block (blocklist) ;
+	statement = cloog_block_stmt (block) ;
+	while (statement != NULL)
+	  {
+	    fprintf (file, "#define S%d(", cloog_statement_number (statement));
+	    if (cloog_block_depth (block) > 0)
+	      { 
+		fprintf (file, "%s", cloog_program_names (program)->iterators[0]);
+		for (j = 1; j < cloog_block_depth (block); j++)
+		  fprintf (file, ",%s", cloog_program_names (program)->iterators[j]) ;
+	      }
+	    fprintf(file,") {total++;") ;
+	    if (cloog_block_depth (block) > 0)
+	      {
+		fprintf (file, " printf(\"S%d \%%d", cloog_statement_number (statement));
+		for (j = 1; j < cloog_block_depth (block); j++)
+		  fprintf (file, " \%%d");
           
-	      fprintf(file,"\\n\",%s", cloog_program_names (program)->iterators[0]) ;
-	      for (j = 1;j < cloog_block_depth (block); j++)
-		fprintf (file, ",%s", cloog_program_names (program)->iterators[j]) ;
-	      fprintf (file, ");");
-	    }
-	  fprintf(file,"}\n") ;
+		fprintf(file,"\\n\",%s", cloog_program_names (program)->iterators[0]) ;
+		for (j = 1;j < cloog_block_depth (block); j++)
+		  fprintf (file, ",%s", cloog_program_names (program)->iterators[j]) ;
+		fprintf (file, ");");
+	      }
+	    fprintf(file,"}\n") ;
         
-	  statement = cloog_statement_next (statement);
-	}
-      blocklist = cloog_block_list_next (blocklist) ;
-    }
+	    statement = cloog_statement_next (statement);
+	  }
+	blocklist = cloog_block_list_next (blocklist) ;
+      }
     
     /* The iterator and parameter declaration. */
     fprintf(file,"\nint main() {\n") ; 
@@ -772,7 +773,7 @@ void cloog_program_block(CloogProgram * program, CloogDomainList * scattering)
        */
       blocked = 1 ;
       nb_blocked ++ ;
-      cloog_block_merge(cloog_loop_block (start), cloog_loop_block (loop)); /* merge frees loop->block */
+      cloog_block_merge(cloog_loop_block (start), cloog_loop_block (loop)); /* merge frees cloog_block (loop) */
       cloog_loop_set_block (loop, NULL);
       cloog_loop_set_next (start, cloog_loop_next (loop));
       cloog_set_next_domain (scatt_start, cloog_next_domain (scatt_loop));
@@ -891,15 +892,16 @@ CloogDomainList * scattering ;
    */
   blocklist = cloog_program_blocklist (program);
   while (blocklist != NULL)
-  { block = blocklist->block ;
-    cloog_block_set_nb_scaldims (block, nb_scaldims);
-    cloog_block_set_scaldims (block, (Value *) malloc (nb_scaldims * sizeof (Value)));
+    {
+      block = cloog_block (blocklist) ;
+      cloog_block_set_nb_scaldims (block, nb_scaldims);
+      cloog_block_set_scaldims (block, (Value *) malloc (nb_scaldims * sizeof (Value)));
 
-    for (i = 0; i < nb_scaldims; i++)
-      cloog_block_scaldims_init (block, i);
+      for (i = 0; i < nb_scaldims; i++)
+	cloog_block_scaldims_init (block, i);
     
-    blocklist = cloog_block_list_next (blocklist);
-  }
+      blocklist = cloog_block_list_next (blocklist);
+    }
   
   /* Then we have to fill these scalar values, so we can erase those dimensions
    * from the scattering functions. It's easier to begin with the last one,
@@ -915,7 +917,7 @@ CloogDomainList * scattering ;
 
       while (blocklist != NULL)
 	{ 
-	  block = blocklist->block ;
+	  block = cloog_block (blocklist) ;
 	  cloog_domain_scalar (cloog_domain (scattering), i,
 			       cloog_block_scaldims_elt_addr (block, current));
 	  blocklist = cloog_block_list_next (blocklist);
