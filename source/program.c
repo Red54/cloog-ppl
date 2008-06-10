@@ -196,7 +196,7 @@ void cloog_program_dump_cloog(FILE * foo, CloogProgram * program)
   cloog_domain_print_structure (foo, cloog_program_context (program), 0);
   fprintf(foo,"1 # Parameter name(s)\n") ;
   for (i = 0; i < cloog_names_nb_parameters (cloog_program_names (program)); i++)
-    fprintf (foo, "%s ", cloog_program_names (program)->parameters[i]) ;
+    fprintf (foo, "%s ", cloog_names_parameter_elt (cloog_program_names (program), i));
 
   /* Statement number. */
   i = 0 ;
@@ -383,9 +383,9 @@ CloogOptions * options ;
     }
     if (cloog_names_nb_parameters (cloog_program_names (program)) > 0)
     { fprintf(file,"  /* Parameters. */\n") ;
-      fprintf(file, "  int %s=PARVAL1",cloog_program_names (program)->parameters[0]);
+      fprintf(file, "  int %s=PARVAL1", cloog_names_parameter_elt (cloog_program_names (program), 0));
       for(i=2;i<=cloog_names_nb_parameters (cloog_program_names (program));i++)
-        fprintf(file, ", %s=PARVAL%d", cloog_program_names (program)->parameters[i-1], i);
+        fprintf(file, ", %s=PARVAL%d", cloog_names_parameter_elt (cloog_program_names (program), i - 1), i);
       
       fprintf(file,";\n");
     }

@@ -731,7 +731,7 @@ struct clast_expr *clast_bound_from_constraint(CloogMatrix *matrix,
     /* Next, the parameters. */
     for (i=nb_iter+1;i<=matrix->NbColumns-2;i++)
       if ((i != level) && value_notzero_p(cloog_matrix_element(matrix, line_num, i))) {
-      name = names->parameters[i-nb_iter-1];
+	name = cloog_names_parameter_elt (names, i - nb_iter - 1);
       
       if (sign == -1)
 	value_oppose(temp,cloog_matrix_element(matrix, line_num, i)) ;
@@ -940,7 +940,7 @@ static void insert_guard(CloogMatrix *matrix, int level,
 	  name = cloog_names_iterator_elt (infos->names, i - cloog_names_nb_scattering (infos->names) - 1);
       }
       else
-      name = infos->names->parameters[i-(nb_iter+1)] ;
+	name = cloog_names_parameter_elt (infos->names, i - nb_iter + 1);
       
       g->eq[nb_and].LHS = &(t = new_clast_term(one, name))->expr;
       if (value_zero_p(cloog_matrix_element(copy, j, 0))) {
@@ -1183,7 +1183,7 @@ static void insert_modulo_guard(CloogMatrix *matrix, int num, int level,
       if (value_zero_p(line[i]))
 	continue;
 
-      name = infos->names->parameters[i-nb_iter-1] ;
+      name = cloog_names_parameter_elt (infos->names, i - nb_iter - 1);
       r->elts[nb_elts++] = &new_clast_term(line[i], name)->expr;
     }
 

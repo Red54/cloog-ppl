@@ -60,7 +60,7 @@ struct cloognames
   char ** _scalars ;        /**< The scalar names     (an array of strings). */
   char ** _scattering ;     /**< The scattering names (an array of strings). */
   char ** _iterators ;      /**< The iterator names   (an array of strings). */
-  char ** parameters ;     /**< The parameter names  (an array of strings). */
+  char ** _parameters ;     /**< The parameter names  (an array of strings). */
   int _references;          /**< Number of references to this structure. */
 } ;
 typedef struct cloognames CloogNames ;
@@ -164,6 +164,26 @@ static inline char *cloog_names_iterator_elt (CloogNames *n, int i)
 static inline void cloog_names_set_iterator_elt (CloogNames *n, int i, char *s)
 {
   n->_iterators[i] = s;
+}
+
+static inline char **cloog_names_parameters (CloogNames *n)
+{
+  return n->_parameters;
+}
+
+static inline void cloog_names_set_parameters (CloogNames *n, char **s)
+{
+  n->_parameters = s;
+}
+
+static inline char *cloog_names_parameter_elt (CloogNames *n, int i)
+{
+  return n->_parameters[i];
+}
+
+static inline void cloog_names_set_parameter_elt (CloogNames *n, int i, char *s)
+{
+  n->_parameters[i] = s;
 }
 
 
