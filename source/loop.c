@@ -921,7 +921,7 @@ CloogLoop * cloog_loop_merge(CloogLoop * loop, int nb_par, CloogOptions * option
  */ 
 CloogLoop * cloog_loop_sort(CloogLoop * loop, int level, int nb_par)
 { CloogLoop * res, * now, * temp, ** loop_array ;
-  Polyhedron ** pols ;
+  CloogDomain ** pols ;
   int i, nb_loops=0, * permut ;
   
   /* We will need to know how many loops are in the list. */
@@ -942,14 +942,14 @@ CloogLoop * cloog_loop_sort(CloogLoop * loop, int level, int nb_par)
    * - permut: will give us a possible sort (maybe not the only one).
    */
   loop_array = (CloogLoop **)malloc(nb_loops*sizeof(CloogLoop *)) ;
-  pols = (Polyhedron **)malloc(nb_loops*sizeof(Polyhedron *)) ;
+  pols = (CloogDomain **) malloc (nb_loops * sizeof (CloogDomain *)) ;
   permut = (int *)malloc(nb_loops*sizeof(int)) ;
 
   /* We fill up the loop and domain arrays. */
   for (i=0;i<nb_loops;i++,loop=cloog_loop_next (loop))
     {
       loop_array[i] = loop ;
-      pols[i] = cloog_domain_polyhedron(cloog_loop_domain (loop_array[i])) ;
+      pols[i] = cloog_loop_domain (loop_array[i]) ;
     }
   
   /* cloog_domain_sort will fill up permut. */

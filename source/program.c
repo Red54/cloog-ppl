@@ -171,8 +171,7 @@ int level ;
  * - November 16th 2005: adaptation for CLooG 0.14.0 structures.
  */
 void cloog_program_dump_cloog(FILE * foo, CloogProgram * program)
-{ int i, j ;
-  Polyhedron * polyhedron ;
+{ int i;
   CloogLoop * loop ;
 
   fprintf(foo,
@@ -215,24 +214,11 @@ void cloog_program_dump_cloog(FILE * foo, CloogProgram * program)
   { /* Name of the domain. */
     fprintf(foo,"# Iteration domain of statement %d.\n",i) ;
 
-    /* Number of polyhedron inside the union of disjoint polyhedra. */
-    j = 0 ;
-    polyhedron = cloog_domain_polyhedron(cloog_loop_domain (loop)) ;
-    while (polyhedron != NULL)
-    { j++ ;
-      polyhedron = polyhedron->next ;
-    }
-    fprintf(foo,"%d\n",j) ;
+    /* Number of polyhedra inside the union of disjoint polyhedra.  */
+    fprintf (foo, "%d\n", cloog_domain_nb_polyhedra (cloog_loop_domain (loop))) ;
 
     /* The polyhedra themselves. */
-    polyhedron = cloog_domain_polyhedron(cloog_loop_domain (loop)) ;
-    while (polyhedron != NULL) {
-      CloogMatrix * matrix ;
-      matrix = cloog_matrix_matrix(Polyhedron2Constraints(polyhedron));
-      cloog_matrix_print(foo,matrix) ;
-      cloog_matrix_free(matrix) ;
-      polyhedron = polyhedron->next ;
-    }
+    cloog_domain_print_polyhedra (foo, cloog_loop_domain (loop));
     fprintf(foo,"0 0 0 # For future options.\n\n") ;
     
     i++ ;

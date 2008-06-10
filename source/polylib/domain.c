@@ -141,6 +141,17 @@ static CloogDomain * cloog_domain_matrix2domain(CloogMatrix * matrix)
 }
 
 
+static inline Polyhedron * cloog_domain_polyhedron (CloogDomain * domain)
+{
+  return domain->_polyhedron ;
+}
+
+static inline Polyhedron * cloog_domain_polyhedron_set (CloogDomain *d,
+							Polyhedron *p)
+{
+  return d->_polyhedron = p ;
+}
+
 /**
  * cloog_domain_domain2matrix function:
  * Given a polyhedron (in domain), this function returns its corresponding
@@ -637,11 +648,16 @@ CloogDomain * domain_source, * domain_target ;
  * integers that contains a permutation specification after call in order to
  * apply the topological sorting. 
  */
-void cloog_domain_sort(pols, nb_pols, level, nb_par, permut)
-Polyhedron ** pols ;
+void cloog_domain_sort(doms, nb_pols, level, nb_par, permut)
+CloogDomain ** doms ;
 unsigned nb_pols, level, nb_par ;
 int * permut ;
-{ int * time ;
+{ 
+  int * time, i;
+  Polyhedron **pols = (Polyhedron **) malloc (nb_pols * sizeof (Polyhedron *));
+
+  for (i = 0; i < nb_pols; i++)
+    pols[i] = cloog_domain_polyhedron (doms[i]);
   
   /* time is an array of (nb_pols) integers to store logical time values. We
    * do not use it, but it is compulsory for PolyhedronTSort.
@@ -651,7 +667,8 @@ int * permut ;
   /* PolyhedronTSort will fill up permut (and time). */
   PolyhedronTSort(pols,nb_pols,level,nb_par,time,permut,MAX_RAYS) ;
     
-  free(time) ;
+  free (pols);
+  free (time);
 }
 
 
@@ -1785,4 +1802,34 @@ cloog_simplify_domain_matrix_with_equalities (CloogDomain *domain, int level,
   cloog_matrix_free(temp);
 
   return res;
+}
+
+/* Number of polyhedra inside the union of disjoint polyhedra.  */
+
+unsigned cloog_domain_nb_polyhedra (CloogDomain *domain)
+{
+  unsigned j = 0 ;
+  Polyhedron *polyhedron = cloog_domain_polyhedron (domain);
+
+  while (polyhedron != NULL)
+    {
+      j++ ;
+      polyhedron = polyhedron->next ;
+    }
+  return j;
+}
+
+
+void cloog_domain_print_polyhedra (FILE *foo, CloogDomain *domain)
+{
+  Polyhedron *polyhedron = cloog_domain_polyhedron (domain);
+ 
+  while (polyhedron != NULL) 
+    {
+      CloogMatrix * matrix ;
+      matrix = cloog_matrix_matrix(Polyhedron2Constraints(polyhedron));
+      cloog_matrix_print(foo,matrix) ;
+      cloog_matrix_free(matrix) ;
+      polyhedron = polyhedron->next ;
+    }
 }

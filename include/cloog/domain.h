@@ -107,17 +107,6 @@ static inline CloogDomainList *cloog_set_next_domain (CloogDomainList *l, CloogD
   return l->_next = n;
 }
 
-static inline Polyhedron * cloog_domain_polyhedron (CloogDomain * domain)
-{
-  return domain->_polyhedron ;
-}
-
-static inline Polyhedron * cloog_domain_polyhedron_set (CloogDomain *d,
-							Polyhedron *p)
-{
-  return d->_polyhedron = p ;
-}
-
 
 /******************************************************************************
  *                              PolyLib interface                             *
@@ -135,10 +124,13 @@ CloogDomain * cloog_domain_union(CloogDomain *, CloogDomain *) ;
 CloogDomain * cloog_domain_intersection(CloogDomain *, CloogDomain *) ;
 CloogDomain * cloog_domain_difference(CloogDomain *, CloogDomain *) ;
 CloogDomain * cloog_domain_addconstraints(CloogDomain *, CloogDomain *) ;
-void          cloog_domain_sort(Polyhedron**,unsigned,unsigned,unsigned,int *);
+void          cloog_domain_sort(CloogDomain **, unsigned, unsigned, unsigned, int *);
 CloogDomain * cloog_domain_empty(int) ;
 int cloog_domain_isconvex (CloogDomain *);
 unsigned cloog_domain_dim (CloogDomain *);
+unsigned cloog_domain_nb_polyhedra (CloogDomain *);
+void cloog_domain_print_polyhedra (FILE *, CloogDomain *);
+
 
 /******************************************************************************
  *                          Structure display function                        *
