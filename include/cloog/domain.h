@@ -123,57 +123,6 @@ static inline int cloog_domain_nbconstraints (CloogDomain * domain)
   return cloog_domain_polyhedron (domain)->NbConstraints ;
 }
 
-static inline unsigned cloog_polyhedron_nbeq (Polyhedron *p)
-{
-  return p->NbEq;
-}
-
-static inline unsigned cloog_domain_nbeq (CloogDomain *d)
-{
-  return cloog_polyhedron_nbeq (cloog_domain_polyhedron (d));
-}
-
-static inline unsigned cloog_polyhedron_dim (Polyhedron *p)
-{
-  return p->Dimension;
-}
-
-static inline unsigned cloog_domain_dim (CloogDomain *d)
-{
-  return cloog_polyhedron_dim (cloog_domain_polyhedron (d));
-}
-
-static inline unsigned cloog_polyhedron_nbc (Polyhedron *p)
-{
-  return p->NbConstraints;
-}
-
-static inline Value *cloog_polyhedron_c (Polyhedron *p, int i)
-{
-  return p->Constraint[i];
-}
-
-static inline Value cloog_polyhedron_cval (Polyhedron *p, int i, int j)
-{
-  return p->Constraint[i][j];
-}
-
-static inline void cloog_polyhedron_cval_set_si (Polyhedron *p, int i, int j, int k)
-{
-  value_set_si (p->Constraint[i][j], k);
-}
-
-static inline void cloog_polyhedron_cval_oppose (Polyhedron *p, int i, int j, int k)
-{
-  value_oppose (p->Constraint[i][j], k);
-}
-
-static inline void cloog_polyhedron_c_gcd (Polyhedron *p, int i, int j, int k, Value *gcd)
-{
-  Vector_Gcd(&(p->Constraint[i][1]), k, gcd);
-}
-
-
 
 /******************************************************************************
  *                              PolyLib interface                             *
@@ -194,7 +143,7 @@ CloogDomain * cloog_domain_addconstraints(CloogDomain *, CloogDomain *) ;
 void          cloog_domain_sort(Polyhedron**,unsigned,unsigned,unsigned,int *);
 CloogDomain * cloog_domain_empty(int) ;
 int cloog_domain_isconvex (CloogDomain *);
-
+unsigned cloog_domain_dim (CloogDomain *);
 
 /******************************************************************************
  *                          Structure display function                        *

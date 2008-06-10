@@ -277,10 +277,62 @@ static inline void cloog_domain_polyhedron_set_next (CloogDomain *d,
   cloog_polyhedron_set_next (cloog_domain_polyhedron (d), n) ;
 }
 
+static inline unsigned cloog_polyhedron_nbc (Polyhedron *p)
+{
+  return p->NbConstraints;
+}
+
+static inline Value *cloog_polyhedron_c (Polyhedron *p, int i)
+{
+  return p->Constraint[i];
+}
+
+static inline Value cloog_polyhedron_cval (Polyhedron *p, int i, int j)
+{
+  return p->Constraint[i][j];
+}
+
+static inline void cloog_polyhedron_cval_set_si (Polyhedron *p, int i, int j, int k)
+{
+  value_set_si (p->Constraint[i][j], k);
+}
+
+static inline void cloog_polyhedron_cval_oppose (Polyhedron *p, int i, int j, int k)
+{
+  value_oppose (p->Constraint[i][j], k);
+}
+
+static inline void cloog_polyhedron_c_gcd (Polyhedron *p, int i, int j, int k, Value *gcd)
+{
+  Vector_Gcd(&(p->Constraint[i][1]), k, gcd);
+}
+
+static inline unsigned cloog_polyhedron_nbeq (Polyhedron *p)
+{
+  return p->NbEq;
+}
+
+static inline unsigned cloog_domain_nbeq (CloogDomain *d)
+{
+  return cloog_polyhedron_nbeq (cloog_domain_polyhedron (d));
+}
+
+static inline unsigned cloog_polyhedron_dim (Polyhedron *p)
+{
+  return p->Dimension;
+}
+
+
 int cloog_domain_isconvex (CloogDomain *domain)
 {
   return !cloog_domain_polyhedron_next (domain);
 }
+
+unsigned cloog_domain_dim (CloogDomain *d)
+{
+  return cloog_polyhedron_dim (cloog_domain_polyhedron (d));
+}
+
 
 /**
  * cloog_domain_simplified_hull:
