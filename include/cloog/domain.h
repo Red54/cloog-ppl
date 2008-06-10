@@ -109,14 +109,14 @@ static inline CloogDomainList *cloog_set_next_domain (CloogDomainList *l, CloogD
 
 
 /******************************************************************************
- *                              PolyLib interface                             *
+ *                         Polyhedral Library interface                       *
  ******************************************************************************/
 CloogMatrix * cloog_simplify_domain_matrix_with_equalities (CloogDomain *, int,
 							    CloogMatrix *, int);
 void          cloog_domain_print(FILE *, CloogDomain *) ;
 void          cloog_domain_free(CloogDomain *) ;
 CloogDomain * cloog_domain_copy(CloogDomain *) ;
-CloogDomain * cloog_domain_convex(CloogDomain * Pol) ;
+CloogDomain * cloog_domain_convex(CloogDomain *) ;
 CloogDomain * cloog_domain_simple_convex(CloogDomain * domain, int nb_par);
 CloogDomain * cloog_domain_simplify(CloogDomain *, CloogDomain *) ;
 CloogDomain * cloog_domain_union(CloogDomain *, CloogDomain *) ;
