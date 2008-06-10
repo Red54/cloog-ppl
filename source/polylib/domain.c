@@ -307,6 +307,11 @@ static inline void cloog_polyhedron_c_gcd (Polyhedron *p, int i, int j, int k, V
   Vector_Gcd(&(p->Constraint[i][1]), k, gcd);
 }
 
+static inline int cloog_domain_nbconstraints (CloogDomain * domain)
+{
+  return cloog_domain_polyhedron (domain)->NbConstraints ;
+}
+
 static inline unsigned cloog_polyhedron_nbeq (Polyhedron *p)
 {
   return p->NbEq;

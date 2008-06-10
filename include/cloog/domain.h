@@ -118,11 +118,6 @@ static inline Polyhedron * cloog_domain_polyhedron_set (CloogDomain *d,
   return d->_polyhedron = p ;
 }
 
-static inline int cloog_domain_nbconstraints (CloogDomain * domain)
-{
-  return cloog_domain_polyhedron (domain)->NbConstraints ;
-}
-
 
 /******************************************************************************
  *                              PolyLib interface                             *

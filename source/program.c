@@ -978,28 +978,12 @@ CloogDomainList * scattering ;
 void cloog_program_scatter(program, scattering)
 CloogProgram * program ;
 CloogDomainList * scattering ;
-{ int scattering_dim, scattering_dim2, not_enough_constraints=0 ;
+{ 
   CloogLoop * loop ;
   
   if ((program != NULL) && (scattering != NULL))
     {
       loop = cloog_program_loop (program) ;
-    
-      /* We compute the scattering dimension and check it is >=0. */
-      scattering_dim = 
-	cloog_domain_dim (cloog_domain (scattering)) -
-	cloog_domain_dim (cloog_loop_domain (loop)) ;
-      if (scattering_dim < 0)
-	{ fprintf(stderr, "[CLooG]ERROR: scattering has not enough dimensions.\n") ;
-	  exit(1) ;
-	}
-      if (scattering_dim >= cloog_domain_nbconstraints (cloog_domain (scattering)))
-	not_enough_constraints ++ ;
-         
-      /* The scattering dimension may have been modified by scalar extraction. */
-      scattering_dim = 
-	cloog_domain_dim (cloog_domain (scattering)) -
-	cloog_domain_dim (cloog_loop_domain (loop));
 
       /* Finally we scatter all loops. */
       cloog_loop_scatter(loop, cloog_domain (scattering)) ;
@@ -1007,28 +991,10 @@ CloogDomainList * scattering ;
       scattering = cloog_next_domain (scattering);    
     
       while ((loop != NULL) && (scattering != NULL))
-	{
-	  scattering_dim2 = 
-	    cloog_domain_dim (cloog_domain (scattering)) - 
-	    cloog_domain_dim (cloog_loop_domain (loop)) ;
-	  if (scattering_dim2 != scattering_dim)
-	    { fprintf(stderr, "[CLooG]ERROR: "
-		      "scattering dimensions are not the same.\n") ;
-	      exit(1) ;
-	    }
-	  if (scattering_dim2 >= cloog_domain_nbconstraints(cloog_domain (scattering)))
-	    not_enough_constraints ++ ;
-      
+	{      
 	  cloog_loop_scatter(loop,cloog_domain (scattering)) ;
 	  loop = cloog_loop_next (loop) ;
 	  scattering = cloog_next_domain (scattering);
 	}
-      if ((loop != NULL) || (scattering != NULL))
-	fprintf(stderr, "[CLooG]WARNING: "
-		"there is not a scattering for each statement.\n");
-    
-      if (not_enough_constraints)
-	fprintf(stderr, "[CLooG]WARNING: not enough constraints for "
-		"%d scattering function(s).\n",not_enough_constraints) ;
     }
 }
