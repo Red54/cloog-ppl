@@ -192,25 +192,32 @@ dnl /**************************************************************************
 dnl  *                     Where is Parma Polyhedral Library?                 *
 dnl  **************************************************************************/
 
+# The default back-end for polyhedral operations is PolyLib, unless
+# -with-ppl is used.
+AC_SUBST(POLYHEDRAL_BACKEND)
+POLYHEDRAL_BACKEND=polylib
+
 dnl Checking for PPL
 AC_SUBST(PPL_CPPFLAGS)
 AC_SUBST(PPL_LDFLAGS)
 AC_SUBST(PPL_LIBS)
 
+
 AC_MSG_CHECKING(for Parma Polyhedral Library (PPL))
 if test "x$with_ppl" != "x"; then
 	AC_MSG_RESULT(installed in $with_ppl)
+	POLYHEDRAL_BACKEND=ppl
 	CPPFLAGS="-I$with_ppl/include $CPPFLAGS"
 	LDFLAGS="-L$with_ppl/lib $LDFLAGS"
 	LD_LIBRARY_PATH="$with_ppl/lib:$LD_LIBRARY_PATH"
 	export LD_LIBRARY_PATH
+	AC_CHECK_HEADER(ppl_c.h,[],
+		        [AC_MSG_ERROR(Can't find PPL headers.)])
 else
 	AC_MSG_RESULT(installed in standard location)
 fi
 
 LIBS="$LIBS -lppl_c -lppl -lgmpxx"
-AC_CHECK_HEADER(ppl_c.h,[],
-                [AC_MSG_ERROR(Can't find PPL headers.)])
 
 dnl /**************************************************************************
 dnl  *                          Where is PolyLib?                             *
@@ -279,10 +286,11 @@ else
 	done
 fi
 if test "$cl_cv_polylib" = "missing"; then
-	AC_MSG_ERROR(Can't find PolyLib.)
+	AC_MSG_RESULT(Can't find PolyLib.)
+else
+	AC_CHECK_HEADER(polylib/$cl_cv_polylib.h,[],
+		        [AC_MSG_ERROR(Can't find PolyLib headers.)])
 fi
-AC_CHECK_HEADER(polylib/$cl_cv_polylib.h,[],
-                [AC_MSG_ERROR(Can't find PolyLib headers.)])
 
 AC_SUBST(GIT_INDEX)
 if test -f $srcdir/.git/HEAD; then

@@ -48,9 +48,9 @@ libcloog_la_SOURCES = \
 	source/loop.c \
 	source/names.c \
 	source/options.c \
-	source/polylib/clast.c \
-	source/polylib/domain.c \
-	source/polylib/matrix.c \
+	source/@POLYHEDRAL_BACKEND@/clast.c \
+	source/@POLYHEDRAL_BACKEND@/domain.c \
+	source/@POLYHEDRAL_BACKEND@/matrix.c \
 	source/pprint.c \
 	source/program.c \
 	source/statement.c \
