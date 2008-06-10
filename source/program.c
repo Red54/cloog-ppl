@@ -357,10 +357,10 @@ CloogOptions * options ;
     
     /* The iterator and parameter declaration. */
     fprintf(file,"\nint main() {\n") ; 
-    if ((cloog_program_names (program)->nb_scalars > 0) && (!options->csp))
+    if ((cloog_names_nb_scalars (cloog_program_names (program)) > 0) && (!options->csp))
     { fprintf(file,"  /* Scalar dimension iterators. */\n") ;
       fprintf (file,"  int %s", cloog_program_names (program)->scalars[0]);
-      for (i = 2; i <= cloog_program_names (program)->nb_scalars; i++)
+      for (i = 2; i <= cloog_names_nb_scalars (cloog_program_names (program)); i++)
 	fprintf (file, ", %s", cloog_program_names (program)->scalars[i-1]);
       
       fprintf(file," ;\n") ;

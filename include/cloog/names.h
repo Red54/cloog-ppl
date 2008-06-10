@@ -53,7 +53,7 @@ extern "C"
  * names (as strings).
  */
 struct cloognames
-{ int nb_scalars ;         /**< Scalar dimension number. */
+{ int _nb_scalars ;         /**< Scalar dimension number. */
   int nb_scattering ;      /**< Scattering iterator number. */
   int nb_iterators ;       /**< Iterator number. */
   int nb_parameters ;      /**< Parameter number. */
@@ -65,6 +65,16 @@ struct cloognames
 } ;
 typedef struct cloognames CloogNames ;
 
+
+static inline int cloog_names_nb_scalars (CloogNames *n)
+{
+  return n->_nb_scalars;
+}
+
+static inline void cloog_names_set_nb_scalars (CloogNames *n, int nb)
+{
+  n->_nb_scalars = nb;
+}
 
 static inline char **cloog_names_scattering (CloogNames *n)
 {
