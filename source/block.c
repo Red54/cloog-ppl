@@ -294,7 +294,7 @@ CloogBlock * cloog_block_malloc()
   cloog_block_set_scaldims (block, NULL);
   cloog_block_set_depth (block, 0);
   cloog_block_init_references (block);
-  block->usr = NULL;
+  cloog_block_set_usr (block, NULL);
   
   return block ;
 }  
