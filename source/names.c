@@ -114,7 +114,7 @@ void cloog_names_print_structure(FILE * file, CloogNames * names, int level)
     if (names->nb_scattering > 0)
     { fprintf(file,"+-- Scattering strings ----:") ;
       for (i=0;i<names->nb_scattering;i++)
-      fprintf(file," %s",names->scattering[i]) ;
+	fprintf (file, " %s", cloog_names_scattering_elt (names, i));
       fprintf(file,"\n") ;
     }
     else
@@ -217,11 +217,12 @@ void cloog_names_free(CloogNames * names)
     free(names->scalars) ;
   }
    
-  if (names->scattering != NULL)
-  { for (i=0;i<names->nb_scattering;i++)
-    free(names->scattering[i]) ;
-    free(names->scattering) ;
-  }
+  if (cloog_names_scattering (names))
+    {
+      for (i=0;i<names->nb_scattering;i++)
+	free (cloog_names_scattering_elt (names, i));
+      free (cloog_names_scattering (names));
+    }
    
   if (names->iterators != NULL)
   { for (i=0;i<names->nb_iterators;i++)
@@ -365,7 +366,7 @@ CloogNames * cloog_names_malloc()
   names->nb_iterators  = 0 ;
   names->nb_parameters = 0 ;
   names->scalars       = NULL ;
-  names->scattering    = NULL ;
+  cloog_names_set_scattering (names, NULL);
   names->iterators     = NULL ;
   names->parameters    = NULL ;
   names->references    = 1;
@@ -398,7 +399,7 @@ char ** scalars, ** scattering, ** iterators, ** parameters ;
   names->nb_iterators  = nb_iterators ;
   names->nb_parameters = nb_parameters ;
   names->scalars       = scalars ;
-  names->scattering    = scattering ;
+  cloog_names_set_scattering (names, scattering);
   names->iterators     = iterators ;
   names->parameters    = parameters ;
   
@@ -489,7 +490,8 @@ char first_s,    first_t,       first_i,      first_p ;
   names->nb_parameters = nb_parameters ;
   names->nb_iterators  = nb_iterators ;
   names->scalars       = cloog_names_generate_items(nb_scalars,   NULL,first_s);
-  names->scattering    = cloog_names_generate_items(nb_scattering,NULL,first_t);
+  cloog_names_set_scattering (names, cloog_names_generate_items (nb_scattering,
+								 NULL, first_t));
   names->parameters    = cloog_names_generate_items(nb_parameters,NULL,first_p);
   names->iterators     = cloog_names_generate_items(nb_iterators, NULL,first_i);
 
@@ -534,17 +536,17 @@ void cloog_names_scalarize(CloogNames * names, int nb_scattdims, int * scaldims)
   current_scattering  = 0 ;
   for (i=0;i<nb_scattdims;i++)
   { if (!scaldims[i])
-    { scattering[current_scattering] = names->scattering[i] ;
+      { scattering[current_scattering] = cloog_names_scattering_elt (names, i);
       current_scattering ++ ;
     }
     else
-    { scalars[current_scalar] = names->scattering[i] ;
+      { scalars[current_scalar] = cloog_names_scattering_elt (names, i);
       current_scalar ++ ;
     }
   }
   
-  free(names->scattering) ;
-  names->scattering    = scattering ;
+  free(cloog_names_scattering (names)) ;
+  cloog_names_set_scattering (names, scattering);
   names->scalars       = scalars ;
   names->nb_scattering = nb_scattering ;
   names->nb_scalars    = nb_scalars ;

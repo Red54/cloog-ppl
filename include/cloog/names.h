@@ -58,12 +58,33 @@ struct cloognames
   int nb_iterators ;       /**< Iterator number. */
   int nb_parameters ;      /**< Parameter number. */
   char ** scalars ;        /**< The scalar names     (an array of strings). */
-  char ** scattering ;     /**< The scattering names (an array of strings). */
+  char ** _scattering ;     /**< The scattering names (an array of strings). */
   char ** iterators ;      /**< The iterator names   (an array of strings). */
   char ** parameters ;     /**< The parameter names  (an array of strings). */
   int references;          /**< Number of references to this structure. */
 } ;
 typedef struct cloognames CloogNames ;
+
+
+static inline char **cloog_names_scattering (CloogNames *n)
+{
+  return n->_scattering;
+}
+
+static inline void cloog_names_set_scattering (CloogNames *n, char **s)
+{
+  n->_scattering = s;
+}
+
+static inline char *cloog_names_scattering_elt (CloogNames *n, int i)
+{
+  return n->_scattering[i];
+}
+
+static inline void cloog_names_set_scattering_elt (CloogNames *n, int i, char *s)
+{
+  n->_scattering[i] = s;
+}
 
 
 /******************************************************************************

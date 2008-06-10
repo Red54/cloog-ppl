@@ -716,7 +716,7 @@ struct clast_expr *clast_bound_from_constraint(CloogMatrix *matrix,
     for (i=1;i<=nb_iter;i++)
       if ((i != level) && value_notzero_p(cloog_matrix_element(matrix, line_num, i))) {
       if (i <= names->nb_scattering)
-        name = names->scattering[i-1];
+        name = cloog_names_scattering_elt (names, i - 1);
       else
         name = names->iterators[i-names->nb_scattering-1];
       
@@ -935,7 +935,7 @@ static void insert_guard(CloogMatrix *matrix, int level,
       struct clast_term *t;
       if (i <= nb_iter)
       { if (i <= infos->names->nb_scattering)
-        name = infos->names->scattering[i-1] ;
+	  name = cloog_names_scattering_elt (infos->names, i - 1);
         else
         name = infos->names->iterators[i-infos->names->nb_scattering-1] ;
       }
@@ -1171,7 +1171,7 @@ static void insert_modulo_guard(CloogMatrix *matrix, int num, int level,
 	continue;
 
       if (i <= infos->names->nb_scattering)
-	name = infos->names->scattering[i-1];
+	name = cloog_names_scattering_elt (infos->names, i - 1);
       else
 	name = infos->names->iterators[i-infos->names->nb_scattering-1];
 
@@ -1259,7 +1259,7 @@ static void insert_equality(CloogMatrix *matrix, int num,
 		
     e = clast_bound_from_constraint(matrix,num,level,infos->names);
     if (level <= infos->names->nb_scattering)
-	ass = new_clast_assignment(infos->names->scattering[level-1], e);
+      ass = new_clast_assignment(cloog_names_scattering_elt (infos->names, level - 1), e);
     else
 	ass = new_clast_assignment(
             infos->names->iterators[level-infos->names->nb_scattering-1], e);
@@ -1301,7 +1301,7 @@ static void insert_for(CloogMatrix *matrix, int level,
   struct clast_assignment *ass;
   
   if (level <= infos->names->nb_scattering)
-  iterator = infos->names->scattering[level-1] ;
+    iterator = cloog_names_scattering_elt (infos->names, level - 1);
   else
   iterator = infos->names->iterators[level-infos->names->nb_scattering-1] ;
   
