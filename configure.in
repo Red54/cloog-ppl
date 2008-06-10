@@ -87,6 +87,11 @@ MP_BITS="MP"
 MP_DFLAGS=-DLINEAR_VALUE_IS_MP
 NEED_MP="no"
 
+dnl --with-ppl=ppl-path
+AC_ARG_WITH(ppl,
+	    [AS_HELP_STRING([--with-ppl=DIR],
+			    [Prefix of Parma Polyhedral Library installation])])
+
 dnl --with-polylib=polylib-path
 AC_ARG_WITH(polylib_prefix,
 	    [AS_HELP_STRING([--with-polylib-prefix=DIR],
@@ -183,6 +188,29 @@ else
   fi
 fi
 
+dnl /**************************************************************************
+dnl  *                     Where is Parma Polyhedral Library?                 *
+dnl  **************************************************************************/
+
+dnl Checking for PPL
+AC_SUBST(PPL_CPPFLAGS)
+AC_SUBST(PPL_LDFLAGS)
+AC_SUBST(PPL_LIBS)
+
+AC_MSG_CHECKING(for Parma Polyhedral Library (PPL))
+if test "x$with_ppl" != "x"; then
+	AC_MSG_RESULT(installed in $with_ppl)
+	CPPFLAGS="-I$with_ppl/include $CPPFLAGS"
+	LDFLAGS="-L$with_ppl/lib $LDFLAGS"
+	LD_LIBRARY_PATH="$with_ppl/lib:$LD_LIBRARY_PATH"
+	export LD_LIBRARY_PATH
+else
+	AC_MSG_RESULT(installed in standard location)
+fi
+
+LIBS="$LIBS -lppl_c -lppl -lgmpxx"
+AC_CHECK_HEADER(ppl_c.h,[],
+                [AC_MSG_ERROR(Can't find PPL headers.)])
 
 dnl /**************************************************************************
 dnl  *                          Where is PolyLib?                             *
