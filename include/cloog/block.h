@@ -162,9 +162,19 @@ static inline void cloog_block_set_usr (CloogBlock *b, void *u)
  */
 struct cloogblocklist
 { CloogBlock * block ;          /**< An element of the list. */
-  struct cloogblocklist * next ;/**< Pointer to the next element of the list.*/
+  struct cloogblocklist * _next ;/**< Pointer to the next element of the list.*/
 } ;
 typedef struct cloogblocklist CloogBlockList ;
+
+static inline CloogBlockList *cloog_block_list_next (CloogBlockList *s)
+{
+  return s->_next;
+}
+
+static inline void cloog_block_list_set_next (CloogBlockList *s, CloogBlockList *n)
+{
+  s->_next = n;
+}
 
 
 /******************************************************************************

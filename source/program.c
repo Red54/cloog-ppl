@@ -351,7 +351,7 @@ CloogOptions * options ;
         
 	  statement = cloog_statement_next (statement);
 	}
-      blocklist = blocklist->next ;
+      blocklist = cloog_block_list_next (blocklist) ;
     }
     
     /* The iterator and parameter declaration. */
@@ -497,8 +497,8 @@ CloogProgram * cloog_program_read(FILE * file, CloogOptions * options)
 	if (cloog_domain_dim(cloog_loop_domain (next)) - nb_parameters > nb_iterators)
 	  nb_iterators = cloog_domain_dim (cloog_loop_domain (next)) - nb_parameters ;
       
-      previous->next = cloog_block_list_alloc(cloog_loop_block (next)) ;
-      previous = previous->next ;    
+      cloog_block_list_set_next (previous, cloog_block_list_alloc (cloog_loop_block (next)));
+      previous = cloog_block_list_next (previous) ;    
     
       cloog_loop_set_next (current, next);
       current = cloog_loop_next (current) ;
@@ -789,8 +789,8 @@ void cloog_program_block(CloogProgram * program, CloogDomainList * scattering)
       scatt_start = scatt_loop ;
       
       /* We update the block list. */
-      previous->next = cloog_block_list_alloc(cloog_loop_block (start)) ;
-      previous = previous->next ;    
+      cloog_block_list_set_next (previous, cloog_block_list_alloc (cloog_loop_block (start)));
+      previous = cloog_block_list_next (previous) ;    
     }
 
     /* If the reference node has been included into a block, we can free it. */
@@ -898,7 +898,7 @@ CloogDomainList * scattering ;
     for (i = 0; i < nb_scaldims; i++)
       cloog_block_scaldims_init (block, i);
     
-    blocklist = blocklist->next ;
+    blocklist = cloog_block_list_next (blocklist);
   }
   
   /* Then we have to fill these scalar values, so we can erase those dimensions
@@ -918,7 +918,7 @@ CloogDomainList * scattering ;
 	  block = blocklist->block ;
 	  cloog_domain_scalar (cloog_domain (scattering), i,
 			       cloog_block_scaldims_elt_addr (block, current));
-	  blocklist = blocklist->next;
+	  blocklist = cloog_block_list_next (blocklist);
 	  scattering = cloog_next_domain (scattering);
 	}
   

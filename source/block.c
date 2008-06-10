@@ -208,7 +208,7 @@ void cloog_block_list_print(FILE * file, CloogBlockList * blocklist)
   while (blocklist != NULL)
   { fprintf(file,"+-- CloogBlockList node %d\n",i) ;
     cloog_block_print_structure(file,blocklist->block,1) ;
-    blocklist = blocklist->next ;
+    blocklist = cloog_block_list_next (blocklist);
     i++ ;
   }
 }
@@ -257,11 +257,12 @@ void cloog_block_list_free(CloogBlockList * blocklist)
 { CloogBlockList * temp ;
   
   while (blocklist != NULL)
-  { temp = blocklist->next ;
-    cloog_block_free(blocklist->block) ;
-    free(blocklist) ;
-    blocklist = temp ;
-  }
+    {
+      temp = cloog_block_list_next (blocklist);
+      cloog_block_free(blocklist->block);
+      free(blocklist) ;
+      blocklist = temp ;
+    }
 }
 
 
@@ -357,7 +358,7 @@ CloogBlockList * cloog_block_list_malloc()
   
   /* We set the various fields with default values. */
   blocklist->block = NULL ;
-  blocklist->next  = NULL ;
+  cloog_block_list_set_next (blocklist, NULL);
   
   return blocklist ;
 }  
@@ -381,7 +382,7 @@ CloogBlockList * cloog_block_list_alloc(CloogBlock * block)
 
   blocklist->block = block ;
   cloog_block_inc_references (blocklist->block); /* The block has a new reference to it. */
-  blocklist->next = NULL ;
+  cloog_block_list_set_next (blocklist, NULL);
   
   return blocklist ;
 }
