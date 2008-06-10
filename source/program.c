@@ -328,22 +328,22 @@ CloogOptions * options ;
       statement = cloog_block_stmt (block) ;
       while (statement != NULL)
       { fprintf(file,"#define S%d(",statement->number) ;
-        if (block->depth > 0)
+        if (cloog_block_depth (block) > 0)
 	  { 
 	    fprintf (file, "%s", cloog_program_names (program)->iterators[0]);
-	    for(j=1;j<block->depth;j++)
+	    for (j = 1; j < cloog_block_depth (block); j++)
 	      fprintf (file, ",%s", cloog_program_names (program)->iterators[j]) ;
 	  }
         fprintf(file,") {total++;") ;
-	if (block->depth > 0)
+	if (cloog_block_depth (block) > 0)
         { fprintf(file," printf(\"S%d \%%d",statement->number) ;
-          for(j=1;j<block->depth;j++)
-          fprintf(file," \%%d") ;
+          for (j = 1; j < cloog_block_depth (block); j++)
+	    fprintf (file, " \%%d");
           
           fprintf(file,"\\n\",%s", cloog_program_names (program)->iterators[0]) ;
-	  for(j=1;j<block->depth;j++)
+	  for (j = 1;j < cloog_block_depth (block); j++)
 	    fprintf (file, ",%s", cloog_program_names (program)->iterators[j]) ;
-          fprintf(file,");") ;
+          fprintf (file, ");");
         }
         fprintf(file,"}\n") ;
         

@@ -150,7 +150,7 @@ void cloog_block_print_structure(FILE * file, CloogBlock * block, int level)
     /* Print depth. */
     for (i=0; i<level+1; i++)
     fprintf(file,"|\t") ;
-    fprintf(file,"Depth: %d\n",block->depth) ;
+    fprintf (file, "Depth: %d\n", cloog_block_depth (block));
     
     /* A blank line. */
     for (i=0; i<level+1; i++)
@@ -269,7 +269,7 @@ CloogBlock * cloog_block_malloc()
   cloog_block_set_scattering (block, NULL);
   cloog_block_set_nb_scaldims (block, 0);
   cloog_block_set_scaldims (block, NULL);
-  block->depth = 0 ;
+  cloog_block_set_depth (block, 0);
   block->references = 1 ;
   block->usr = NULL;
   
@@ -308,7 +308,7 @@ Value * scaldims ;
   cloog_block_set_scattering (block, scattering);
   cloog_block_set_nb_scaldims (block, nb_scaldims);
   cloog_block_set_scaldims (block, scaldims);
-  block->depth = depth ;
+  cloog_block_set_depth (block, depth);
   block->references = 1 ;
   
   return block ;

@@ -61,7 +61,7 @@ struct cloogblock
   CloogMatrix * _scattering ;    /**< The scattering function for the block. */
   int  _nb_scaldims ;            /**< Number of scalar dimensions. */
   Value * _scaldims ;            /**< Scalar dimension values. */
-  int depth ;                   /**< Original block depth (outer loop number).*/
+  int _depth ;                   /**< Original block depth (outer loop number).*/
   int references ;              /**< Number of references to this structure. */
   void * usr;		        /**< User field, for library user convenience.
 				 *   This pointer is not freed when the
@@ -133,6 +133,16 @@ static inline void cloog_block_scaldims_clear (CloogBlock *b, int i)
 static inline void cloog_block_scaldims_init (CloogBlock *b, int i)
 {
   value_init_c (b->_scaldims[i]);
+}
+
+static inline int cloog_block_depth (CloogBlock *b)
+{
+  return b->_depth;
+}
+
+static inline void cloog_block_set_depth (CloogBlock *b, int n)
+{
+  b->_depth = n;
 }
 
 
