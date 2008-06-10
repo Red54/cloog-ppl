@@ -611,7 +611,7 @@ static struct clast_stmt * clast_equal(CloogInfos *infos)
       cloog_matrix_element_set_si(equal, i, 0, 0) ;
       e = clast_bound_from_constraint(equal, i, i+1, infos->names);
       cloog_matrix_element_assign(equal, i, 0, type) ;
-      *next = &new_clast_assignment(infos->names->iterators[iterator], e)->stmt;
+      *next = &new_clast_assignment(cloog_names_iterators (infos->names)[iterator], e)->stmt;
       next = &(*next)->next;
     }
   }
@@ -658,8 +658,8 @@ static struct clast_stmt * clast_equal_cpp(int level, CloogInfos *infos)
       cloog_matrix_element_assign(equal, i, 0, type) ;
     } else {
       value_set_si(type, 1);
-      e = &new_clast_term(type, 
-			  infos->names->iterators[i - cloog_names_nb_scattering (infos->names)])->expr;
+      e = &new_clast_term
+	(type, cloog_names_iterator_elt (infos->names, i - cloog_names_nb_scattering (infos->names)))->expr;
     }
     *next = &new_clast_assignment(NULL, e)->stmt;
     next = &(*next)->next;
@@ -718,7 +718,7 @@ struct clast_expr *clast_bound_from_constraint(CloogMatrix *matrix,
 	if (i <= cloog_names_nb_scattering (names))
         name = cloog_names_scattering_elt (names, i - 1);
       else
-        name = names->iterators[i - cloog_names_nb_scattering (names) - 1];
+        name = cloog_names_iterator_elt (names, i - cloog_names_nb_scattering (names) - 1);
       
       if (sign == -1)
 	value_oppose(temp,cloog_matrix_element(matrix, line_num, i)) ;
@@ -937,7 +937,7 @@ static void insert_guard(CloogMatrix *matrix, int level,
 	{ if (i <= cloog_names_nb_scattering (infos->names))
 	  name = cloog_names_scattering_elt (infos->names, i - 1);
         else
-	  name = infos->names->iterators[i - cloog_names_nb_scattering (infos->names) - 1] ;
+	  name = cloog_names_iterator_elt (infos->names, i - cloog_names_nb_scattering (infos->names) - 1);
       }
       else
       name = infos->names->parameters[i-(nb_iter+1)] ;
@@ -1173,7 +1173,7 @@ static void insert_modulo_guard(CloogMatrix *matrix, int num, int level,
       if (i <= cloog_names_nb_scattering (infos->names))
 	name = cloog_names_scattering_elt (infos->names, i - 1);
       else
-	name = infos->names->iterators[i-cloog_names_nb_scattering (infos->names)-1];
+	name = cloog_names_iterator_elt (infos->names, i - cloog_names_nb_scattering (infos->names) - 1);
 
       r->elts[nb_elts++] = &new_clast_term(line[i], name)->expr;
     }
@@ -1262,7 +1262,7 @@ static void insert_equality(CloogMatrix *matrix, int num,
       ass = new_clast_assignment(cloog_names_scattering_elt (infos->names, level - 1), e);
     else
 	ass = new_clast_assignment
-	  (infos->names->iterators[level - cloog_names_nb_scattering (infos->names) - 1], e);
+	  (cloog_names_iterator_elt (infos->names, level - cloog_names_nb_scattering (infos->names) - 1), e);
 
     **next = &ass->stmt;
     *next = &(**next)->next;
@@ -1303,7 +1303,8 @@ static void insert_for(CloogMatrix *matrix, int level,
   if (level <= cloog_names_nb_scattering (infos->names))
     iterator = cloog_names_scattering_elt (infos->names, level - 1);
   else
-    iterator = infos->names->iterators[level-cloog_names_nb_scattering (infos->names)-1] ;
+    iterator = cloog_names_iterator_elt 
+      (infos->names, level - cloog_names_nb_scattering (infos->names) - 1);
   
   e1 = clast_minmax(matrix,level,1,0,infos) ;
   e2 = clast_minmax(matrix,level,0,0,infos) ;

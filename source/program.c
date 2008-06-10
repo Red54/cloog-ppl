@@ -228,7 +228,7 @@ void cloog_program_dump_cloog(FILE * foo, CloogProgram * program)
   for (i = 0; i < cloog_names_nb_scattering (cloog_program_names (program)); i++)
     fprintf (foo, "%s ", cloog_names_scattering_elt (cloog_program_names (program), i));
   for (i = 0; i < cloog_names_nb_iterators (cloog_program_names (program)); i++)
-    fprintf (foo, "%s ", cloog_program_names (program)->iterators[i]);
+    fprintf (foo, "%s ", cloog_names_iterator_elt (cloog_program_names (program), i));
   fprintf(foo,"\n\n") ;
 
   /* Scattering functions (none since included inside domains). */
@@ -332,9 +332,9 @@ CloogOptions * options ;
 	    fprintf (file, "#define S%d(", cloog_statement_number (statement));
 	    if (cloog_block_depth (block) > 0)
 	      { 
-		fprintf (file, "%s", cloog_program_names (program)->iterators[0]);
+		fprintf (file, "%s", cloog_names_iterator_elt (cloog_program_names (program), 0));
 		for (j = 1; j < cloog_block_depth (block); j++)
-		  fprintf (file, ",%s", cloog_program_names (program)->iterators[j]) ;
+		  fprintf (file, ",%s", cloog_names_iterator_elt (cloog_program_names (program), j)) ;
 	      }
 	    fprintf(file,") {total++;") ;
 	    if (cloog_block_depth (block) > 0)
@@ -343,9 +343,9 @@ CloogOptions * options ;
 		for (j = 1; j < cloog_block_depth (block); j++)
 		  fprintf (file, " \%%d");
           
-		fprintf(file,"\\n\",%s", cloog_program_names (program)->iterators[0]) ;
+		fprintf(file,"\\n\",%s", cloog_names_iterator_elt (cloog_program_names (program), 0));
 		for (j = 1;j < cloog_block_depth (block); j++)
-		  fprintf (file, ",%s", cloog_program_names (program)->iterators[j]) ;
+		  fprintf (file, ",%s", cloog_names_iterator_elt (cloog_program_names (program), j)) ;
 		fprintf (file, ");");
 	      }
 	    fprintf(file,"}\n") ;
@@ -375,9 +375,9 @@ CloogOptions * options ;
     }
     if (cloog_names_nb_iterators (cloog_program_names (program)) > 0)
     { fprintf(file,"  /* Original iterators. */\n") ;
-      fprintf(file,"  int %s",cloog_program_names (program)->iterators[0]) ; 
+      fprintf (file,"  int %s", cloog_names_iterator_elt (cloog_program_names (program), 0)) ; 
       for(i=2;i<=cloog_names_nb_iterators (cloog_program_names (program));i++)
-	fprintf(file,", %s",cloog_program_names (program)->iterators[i-1]) ; 
+	fprintf(file,", %s", cloog_names_iterator_elt (cloog_program_names (program), i-1)) ; 
       
       fprintf(file," ;\n") ;
     }

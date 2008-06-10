@@ -162,7 +162,7 @@ void cloog_names_print_structure(FILE * file, CloogNames * names, int level)
     if (cloog_names_nb_iterators (names) > 0)
     { fprintf(file,"+-- Iterator strings ------:") ;
       for (i=0;i<cloog_names_nb_iterators (names);i++)
-      fprintf(file," %s",names->iterators[i]) ;
+	fprintf(file," %s",cloog_names_iterator_elt (names, i)) ;
       fprintf(file,"\n") ;
     }
     else
@@ -247,11 +247,12 @@ void cloog_names_free(CloogNames * names)
       free (cloog_names_scattering (names));
     }
    
-  if (names->iterators != NULL)
-    { for (i=0;i<cloog_names_nb_iterators (names);i++)
-    free(names->iterators[i]) ;
-    free(names->iterators) ;
-  }
+  if (cloog_names_iterators (names))
+    {
+      for (i=0;i<cloog_names_nb_iterators (names);i++)
+	free (cloog_names_iterator_elt (names, i)) ;
+      free (cloog_names_iterators (names)) ;
+    }
    
   if (names->parameters != NULL)
     { for (i=0;i<cloog_names_nb_parameters (names);i++)
@@ -390,7 +391,7 @@ CloogNames * cloog_names_malloc()
   cloog_names_set_nb_parameters (names, 0);
   cloog_names_set_scalars (names, NULL);
   cloog_names_set_scattering (names, NULL);
-  names->iterators     = NULL ;
+  cloog_names_set_iterators (names, NULL);
   names->parameters    = NULL ;
   cloog_names_init_references (names);
   
@@ -423,7 +424,7 @@ char ** scalars, ** scattering, ** iterators, ** parameters ;
   cloog_names_set_nb_parameters (names, nb_parameters);
   cloog_names_set_scalars (names, scalars);
   cloog_names_set_scattering (names, scattering);
-  names->iterators     = iterators ;
+  cloog_names_set_iterators (names, iterators);
   names->parameters    = parameters ;
   
   return names ;
@@ -516,7 +517,7 @@ char first_s,    first_t,       first_i,      first_p ;
   cloog_names_set_scattering (names, cloog_names_generate_items (nb_scattering,
 								 NULL, first_t));
   names->parameters    = cloog_names_generate_items(nb_parameters,NULL,first_p);
-  names->iterators     = cloog_names_generate_items(nb_iterators, NULL,first_i);
+  cloog_names_set_iterators (names, cloog_names_generate_items (nb_iterators, NULL, first_i));
 
   return names ;
 }
