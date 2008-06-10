@@ -43,6 +43,27 @@
 # include "../include/cloog/cloog.h"
 
 
+static inline int cloog_names_references (CloogNames *n)
+{
+  return n->_references;
+}
+
+static inline void cloog_names_init_references (CloogNames *n)
+{
+  n->_references = 1;
+}
+
+static inline void cloog_names_inc_references (CloogNames *n)
+{
+  n->_references++;
+}
+
+static inline void cloog_names_dec_references (CloogNames *n)
+{
+  n->_references--;
+}
+
+
 /******************************************************************************
  *                          Structure display function                        *
  ******************************************************************************/
@@ -177,7 +198,7 @@ void cloog_names_print_structure(FILE * file, CloogNames * names, int level)
   }
   else
   fprintf(file,"+-- No CloogNames\n") ;
-  fprintf(file, "Number of active references: %d\n", names->references);
+  fprintf(file, "Number of active references: %d\n", cloog_names_references (names));
 }
 
 
@@ -208,7 +229,8 @@ void cloog_names_print(FILE * file, CloogNames * names)
 void cloog_names_free(CloogNames * names)
 { int i ;
 
-  if (--names->references)
+  cloog_names_dec_references (names);
+  if (cloog_names_references (names))
     return;
 
   if (names->scalars != NULL)
@@ -245,7 +267,7 @@ void cloog_names_free(CloogNames * names)
  */ 
 CloogNames *cloog_names_copy(CloogNames *names)
 {
-  names->references++;
+  cloog_names_inc_references (names);
   return names;
 }
 
@@ -369,7 +391,7 @@ CloogNames * cloog_names_malloc()
   cloog_names_set_scattering (names, NULL);
   names->iterators     = NULL ;
   names->parameters    = NULL ;
-  names->references    = 1;
+  cloog_names_init_references (names);
   
   return names ;
 }  

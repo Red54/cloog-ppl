@@ -61,7 +61,7 @@ struct cloognames
   char ** _scattering ;     /**< The scattering names (an array of strings). */
   char ** iterators ;      /**< The iterator names   (an array of strings). */
   char ** parameters ;     /**< The parameter names  (an array of strings). */
-  int references;          /**< Number of references to this structure. */
+  int _references;          /**< Number of references to this structure. */
 } ;
 typedef struct cloognames CloogNames ;
 
