@@ -182,17 +182,6 @@ void cloog_domain_print(FILE * foo, CloogDomain * domain)
   fprintf (foo, "Number of active references: %d\n", cloog_domain_references (domain));
 }
 
-
-/**
- * cloog_polyhedron_print function:
- * This function prints the content of a Polyhedron structure (polyhedron) into
- * a file (foo, possibly stdout). Just there as a development facility.
- */
-void cloog_polyhedron_print(FILE * foo, Polyhedron * polyhedron)
-{ Polyhedron_Print(foo,P_VALUE_FMT,polyhedron) ;
-}
-
-
 /**
  * cloog_domain_free function:
  * This function frees the allocated memory for a CloogDomain structure
