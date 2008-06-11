@@ -180,29 +180,6 @@ cloog_domain_alloc (Polyhedron * polyhedron)
 }
 
 
-
-/******************************************************************************
- *                              PolyLib interface                             *
- ******************************************************************************/
-
-
-/* CLooG makes an intensive use of polyhedral operations and the PolyLib do
- * the job. Here are the interfaces to all the PolyLib calls (CLooG uses 19
- * PolyLib functions), with or without some adaptations. If another polyhedral
- * library can be used, only these functions have to be changed.
- * - April 16th 2005: Since PolyLib 5.20, compacting is no more useful and have
- *                    been removed. The direct use of the PolyLib's Polyhedron
- *                    data structure is also replaced with the CloogDomain data
- *                    structure that includes the Polyhedron and an additional
- *                    counter on how many pointers point on this structure.
- *                    This allows to save memory (cloog_domain_copy now only
- *                    increment the counter) while memory leaks are avoided (the
- *                    function cloog_domain_free decrements the counter and
- *                    actually frees the data structure only when its value
- *                    is 0).
- */
-
-
 /**
  * cloog_domain_matrix2domain function:
  * Given a matrix of constraints (matrix), this function constructs and returns
