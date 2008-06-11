@@ -205,9 +205,14 @@ AC_SUBST(PPL_LIBS)
 
 AC_MSG_CHECKING(for Parma Polyhedral Library (PPL))
 if test "x$with_ppl" != "x"; then
+
+   	if test "x$with_polylib_prefix" != "x" -o "x$with_polylib_exec_prefix" != "x" -o "x$with_polylib_builddir" != "x"; then
+	   	AC_MSG_ERROR([--with-polylib and --with-ppl are mutually exclusive])
+	fi
+
 	AC_MSG_RESULT(installed in $with_ppl)
 	POLYHEDRAL_BACKEND=ppl
-	CPPFLAGS="-I$with_ppl/include $CPPFLAGS"
+	CPPFLAGS="-I$with_ppl/include -DCLOOG_PPL_BACKEND $CPPFLAGS"
 	LDFLAGS="-L$with_ppl/lib $LDFLAGS"
 	LD_LIBRARY_PATH="$with_ppl/lib:$LD_LIBRARY_PATH"
 	export LD_LIBRARY_PATH
