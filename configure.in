@@ -213,11 +213,10 @@ if test "x$with_ppl" != "x"; then
 	export LD_LIBRARY_PATH
 	AC_CHECK_HEADER(ppl_c.h,[],
 		        [AC_MSG_ERROR(Can't find PPL headers.)])
+	LIBS="$LIBS -lppl_c -lppl -lgmpxx"
 else
-	AC_MSG_RESULT(installed in standard location)
+	AC_MSG_RESULT(not using PPL)
 fi
-
-LIBS="$LIBS -lppl_c -lppl -lgmpxx"
 
 dnl /**************************************************************************
 dnl  *                          Where is PolyLib?                             *
