@@ -227,6 +227,66 @@ cloog_translate_domain (CloogDomain *dom)
   return res;
 }
 
+static CloogDomain *
+cloog_translate_ppl_polyhedron (ppl_Polyhedron_t pol)
+{
+  CloogDomain *res;
+  CloogMatrix *matrix ;
+  ppl_dimension_type dim;
+  ppl_const_Constraint_System_t pcs;
+  ppl_Constraint_System_const_iterator_t cit, end;
+  int row;
+
+  ppl_Polyhedron_constraints (pol, &pcs);
+
+  for (row = 0, ppl_Constraint_System_begin (pcs, cit), ppl_Constraint_System_end (pcs, end);
+       !ppl_Constraint_System_const_iterator_equal_test (cit, end);
+       ppl_Constraint_System_const_iterator_increment (cit), row++);
+
+  ppl_Polyhedron_space_dimension (pol, &dim);
+  matrix = cloog_matrix_alloc (row, dim + 2);
+
+  for (row = 0, ppl_Constraint_System_begin (pcs, cit), ppl_Constraint_System_end (pcs, end);
+       !ppl_Constraint_System_const_iterator_equal_test (cit, end);
+       ppl_Constraint_System_const_iterator_increment (cit), row++)
+    {
+      ppl_const_Constraint_t pc;
+      ppl_Coefficient_t coef;
+      ppl_dimension_type col;
+      Value val;
+
+      ppl_Constraint_System_const_iterator_dereference (cit, &pc);
+
+      switch (ppl_Constraint_type (pc))
+	{
+	case PPL_CONSTRAINT_TYPE_LESS_THAN_OR_EQUAL:
+	  value_set_si (matrix->p[row][0], 1);
+	  break;
+
+	case PPL_CONSTRAINT_TYPE_EQUAL:
+	  value_set_si (matrix->p[row][0], 0);
+	  break;
+
+	default:
+	  fprintf (stderr, "not implemented yet\n");
+	  exit (1);
+	}
+
+      for (col = 0; col < dim; col++)
+	{
+	  ppl_Constraint_coefficient (pc, col, coef);
+	  ppl_Coefficient_to_mpz_t (coef, val);
+	  value_assign (matrix->p[row][col], val);
+	}
+
+      ppl_Constraint_inhomogeneous_term (pc, coef);
+      ppl_Coefficient_to_mpz_t (coef, val);
+      value_assign (matrix->p[row][dim + 1], val);
+    }
+
+  res = cloog_domain_matrix2domain (matrix);
+  return res;
+}
 
 static inline int
 cloog_domain_references (CloogDomain * d)
