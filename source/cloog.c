@@ -63,6 +63,8 @@ int main(int argv, char * argc[])
 { CloogProgram * program ;
   CloogOptions * options ;
   FILE * input, * output ;
+
+  cloog_initialize ();
    
   /* Options and input/output file setting. */
   cloog_options_read(argv,argc,&input,&output,&options) ;
@@ -113,6 +115,7 @@ int main(int argv, char * argc[])
   }
 
   cloog_options_free(options) ;
+  cloog_finalize ();
   fclose(output) ;
   return 0;
 }
