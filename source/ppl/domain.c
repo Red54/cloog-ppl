@@ -54,45 +54,11 @@
  */
 int MAX_RAYS = 50;
 
-
-/******************************************************************************
- *                             Memory leaks hunting                           *
- ******************************************************************************/
-
-
-/**
- * These functions and global variables are devoted to memory leaks hunting: we
- * want to know at each moment how many Polyhedron structures had been allocated
- * (cloog_domain_allocated) and how many had been freed (cloog_domain_freed).
- * Each time a Polyhedron structure is allocated, a call to the function
- * cloog_domain_leak_up() must be carried out, and respectively
- * cloog_domain_leak_down() when a Polyhedron structure is freed. The special
- * variable cloog_domain_max gives the maximal number of Polyhedron structures
- * simultaneously alive (i.e. allocated and non-freed) in memory.
- * - July 3rd->11th 2003: first version (memory leaks hunt and correction).
- */
-
+/* Unused in this backend.  */
 
 int cloog_domain_allocated = 0;
 int cloog_domain_freed = 0;
 int cloog_domain_max = 0;
-
-
-static void
-cloog_domain_leak_up ()
-{
-  cloog_domain_allocated++;
-  if ((cloog_domain_allocated - cloog_domain_freed) > cloog_domain_max)
-    cloog_domain_max = cloog_domain_allocated - cloog_domain_freed;
-}
-
-
-static void
-cloog_domain_leak_down ()
-{
-  cloog_domain_freed++;
-}
-
 
 /* The same for Value variables since in GMP mode they have to be freed. */
 int cloog_value_allocated = 0;
@@ -145,7 +111,6 @@ cloog_domain_malloc ()
       fprintf (stderr, "[CLooG]ERROR: memory overflow.\n");
       exit (1);
     }
-  cloog_domain_leak_up ();
 
   /* We set the various fields with default values. */
   cloog_domain_polyhedron_set (domain, NULL);
@@ -250,10 +215,7 @@ cloog_domain_free (CloogDomain * domain)
       if (cloog_domain_references (domain) == 0)
 	{
 	  if (cloog_domain_polyhedron (domain) != NULL)
-	    {
-	      cloog_domain_leak_down ();
-	      Domain_Free (cloog_domain_polyhedron (domain));
-	    }
+	    Domain_Free (cloog_domain_polyhedron (domain));
 
 	  free (domain);
 	}
