@@ -15,12 +15,12 @@
    Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 */
 
-static void
+static inline void
 cloog_initialize (void)
 {
 }
 
-static void
+static inline void
 cloog_finalize (void)
 {
 }

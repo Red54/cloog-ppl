@@ -17,13 +17,13 @@
 
 # include <ppl_c.h>
 
-static void
+static inline void
 cloog_initialize (void)
 {
   ppl_initialize ();
 }
 
-static void
+static inline void
 cloog_finalize (void)
 {
   ppl_finalize ();

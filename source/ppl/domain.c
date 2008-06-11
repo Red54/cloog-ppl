@@ -178,6 +178,56 @@ cloog_domain_domain2matrix (CloogDomain * domain)
 			 (cloog_domain_polyhedron (domain)));
 }
 
+/* In the matrix representation an equality has a 0 in the first
+   column.  When the value of the first column is 1, the row
+   represents an inequality.  */
+
+static inline int
+cloog_matrix_row_is_eq_p (CloogMatrix *matrix, int row)
+{
+  return value_zero_p (matrix->p[row][0]);
+}
+
+static ppl_Polyhedron_t
+cloog_translate_domain (CloogDomain *dom)
+{
+  int i, j;
+  ppl_Polyhedron_t res;
+  ppl_Constraint_t cstr;
+  ppl_Linear_Expression_t expr;
+  ppl_Coefficient_t coef;
+  CloogMatrix *matrix = cloog_domain_domain2matrix (dom);
+
+  /* FIXME: For the moment unions of polyhedra are not translated.  */
+  assert (cloog_domain_polyhedron (dom)->next == NULL);
+
+  ppl_new_Coefficient (&coef);
+  ppl_new_Linear_Expression_with_dimension (&expr, matrix->NbColumns - 2);
+
+  for (i = 0; i < matrix->NbRows; i++)
+    {
+      for (j = 1; j < matrix->NbColumns - 1; j++)
+	{
+	  ppl_assign_Coefficient_from_mpz_t (coef, matrix->p[i][j]);
+	  ppl_Linear_Expression_add_to_coefficient (expr, j, coef);
+	}
+
+      ppl_assign_Coefficient_from_mpz_t 
+	(coef, matrix->p[i][matrix->NbColumns - 1]);
+      ppl_Linear_Expression_add_to_inhomogeneous (expr, coef);
+
+      if (cloog_matrix_row_is_eq_p (matrix, i))
+	ppl_new_Constraint (&cstr, expr, PPL_CONSTRAINT_TYPE_EQUAL);
+      else
+	ppl_new_Constraint (&cstr, expr, PPL_CONSTRAINT_TYPE_LESS_THAN_OR_EQUAL);
+
+      ppl_Polyhedron_add_constraint (res, cstr);
+    }
+
+  return res;
+}
+
+
 static inline int
 cloog_domain_references (CloogDomain * d)
 {
