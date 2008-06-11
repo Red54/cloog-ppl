@@ -430,7 +430,7 @@ cloog_domain_dim (CloogDomain * d)
 CloogDomain *
 cloog_domain_simple_convex (CloogDomain * domain, int nb_par)
 {
-  /* NIY: not implemented yet.  */
+  fprintf (stderr, "cloog_domain_simple_convex is not implemented yet.\n");
   exit (1);
 }
 
