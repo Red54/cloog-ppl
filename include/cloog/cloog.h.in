@@ -52,10 +52,8 @@
  ******************************************************************************/
 #ifdef GNUMP
 #define value_init_c(val)              { mpz_init((val)) ; \
-                                         cloog_value_leak_up() ; \
                                        }
 #define value_clear_c(val)             { mpz_clear((val)) ; \
-                                         cloog_value_leak_down() ; \
                                        }
 #define value_sprint(Dst,fmt,val)      { char * str ; \
                                          str = mpz_get_str(0,10,(val)) ; \

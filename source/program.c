@@ -898,7 +898,7 @@ CloogDomainList * scattering ;
       cloog_block_set_scaldims (block, (Value *) malloc (nb_scaldims * sizeof (Value)));
 
       for (i = 0; i < nb_scaldims; i++)
-	cloog_block_scaldims_init (block, i);
+	value_init_c (block->scaldims[i]);
     
       blocklist = cloog_block_list_next (blocklist);
     }
@@ -919,7 +919,7 @@ CloogDomainList * scattering ;
 	{ 
 	  block = cloog_block (blocklist) ;
 	  cloog_domain_scalar (cloog_domain (scattering), i,
-			       cloog_block_scaldims_elt_addr (block, current));
+			       &block->scaldims[current]);
 	  blocklist = cloog_block_list_next (blocklist);
 	  scattering = cloog_next_domain (scattering);
 	}

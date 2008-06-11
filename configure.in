@@ -189,41 +189,6 @@ else
 fi
 
 dnl /**************************************************************************
-dnl  *                     Where is Parma Polyhedral Library?                 *
-dnl  **************************************************************************/
-
-# The default back-end for polyhedral operations is PolyLib, unless
-# -with-ppl is used.
-AC_SUBST(POLYHEDRAL_BACKEND)
-POLYHEDRAL_BACKEND=polylib
-
-dnl Checking for PPL
-AC_SUBST(PPL_CPPFLAGS)
-AC_SUBST(PPL_LDFLAGS)
-AC_SUBST(PPL_LIBS)
-
-
-AC_MSG_CHECKING(for Parma Polyhedral Library (PPL))
-if test "x$with_ppl" != "x"; then
-
-   	if test "x$with_polylib_prefix" != "x" -o "x$with_polylib_exec_prefix" != "x" -o "x$with_polylib_builddir" != "x"; then
-	   	AC_MSG_ERROR([--with-polylib and --with-ppl are mutually exclusive])
-	fi
-
-	AC_MSG_RESULT(installed in $with_ppl)
-	POLYHEDRAL_BACKEND=ppl
-	CPPFLAGS="-I$with_ppl/include -DCLOOG_PPL_BACKEND $CPPFLAGS"
-	LDFLAGS="-L$with_ppl/lib $LDFLAGS"
-	LD_LIBRARY_PATH="$with_ppl/lib:$LD_LIBRARY_PATH"
-	export LD_LIBRARY_PATH
-	AC_CHECK_HEADER(ppl_c.h,[],
-		        [AC_MSG_ERROR(Can't find PPL headers.)])
-	LIBS="$LIBS -lppl_c -lppl -lgmpxx"
-else
-	AC_MSG_RESULT(not using PPL)
-fi
-
-dnl /**************************************************************************
 dnl  *                          Where is PolyLib?                             *
 dnl  **************************************************************************/
 
@@ -301,6 +266,45 @@ if test -f $srcdir/.git/HEAD; then
 	GIT_INDEX="\$(top_srcdir)/.git/index"
 fi
 
+
+dnl /**************************************************************************
+dnl  *                     Where is Parma Polyhedral Library?                 *
+dnl  **************************************************************************/
+
+# The default back-end for polyhedral operations is PolyLib, unless
+# -with-ppl is used.
+AC_SUBST(POLYHEDRAL_BACKEND)
+POLYHEDRAL_BACKEND=polylib
+
+dnl Checking for PPL
+AC_SUBST(PPL_CPPFLAGS)
+AC_SUBST(PPL_LDFLAGS)
+AC_SUBST(PPL_LIBS)
+
+
+AC_MSG_CHECKING(for Parma Polyhedral Library (PPL))
+if test "x$with_ppl" != "x"; then
+
+   	if test "x$with_polylib_prefix" != "x" -o "x$with_polylib_exec_prefix" != "x" -o "x$with_polylib_builddir" != "x"; then
+	   	AC_MSG_ERROR([--with-polylib and --with-ppl are mutually exclusive])
+	fi
+
+	AC_MSG_RESULT(installed in $with_ppl)
+	POLYHEDRAL_BACKEND=ppl
+	CPPFLAGS="-I$with_ppl/include -DCLOOG_PPL_BACKEND $CPPFLAGS"
+	LDFLAGS="-L$with_ppl/lib $LDFLAGS"
+	LD_LIBRARY_PATH="$with_ppl/lib:$LD_LIBRARY_PATH"
+	export LD_LIBRARY_PATH
+	AC_CHECK_HEADER(ppl_c.h,[],
+		        [AC_MSG_ERROR(Can't find PPL headers.)])
+	LIBS="$LIBS -lppl_c -lppl -lgmpxx"
+
+	dnl FIXME: Temporarily for PPL porting, ask for a GMP Polylib.
+	cl_cv_polylib="polylibgmp"
+	LIBS="-l$cl_cv_polylib $LIBS"
+else
+	AC_MSG_RESULT(not using PPL)
+fi
 
 dnl /**************************************************************************
 dnl  *                            Substitutions                               *

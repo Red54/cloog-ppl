@@ -133,7 +133,7 @@ void cloog_loop_print_structure(FILE * file, CloogLoop * loop, int level)
     for(j=0; j<=level; j++)
     fprintf(file,"|\t") ;
     fprintf(file, "Stride: ") ;
-    value_print(file,VALUE_FMT,cloog_loop_stride (loop)) ;
+    value_print(file,VALUE_FMT,loop->stride) ;
     fprintf(file, "\n") ;
         
     /* A blank line. */
@@ -212,7 +212,7 @@ void cloog_loop_free(CloogLoop * loop)
     if (cloog_loop_inner (loop))
       cloog_loop_free (cloog_loop_inner (loop));
     
-    cloog_loop_clear_stride (loop);
+    value_clear_c (loop->stride);
     free(loop) ;
     loop = next ;
   }
@@ -246,7 +246,7 @@ int domain, block, inner, next ;
     if (inner && cloog_loop_inner (loop))
       cloog_loop_free_parts (cloog_loop_inner (loop), domain, block, inner, 1);
     
-    cloog_loop_clear_stride (loop);
+    value_clear_c (loop->stride);
     free(loop) ;
     if (next)
     loop = follow ;
@@ -296,8 +296,8 @@ CloogLoop * cloog_loop_read(FILE * foo, int number, int nb_parameters)
   else
     nb_iterators = 0 ;
   /* stride is initialized to 1. */
-  cloog_loop_init_stride (loop);
-  cloog_loop_set_si_stride (loop, 1);
+  value_init_c (loop->stride);
+  value_set_si (loop->stride, 1);
   /* included statement block. */
   statement = cloog_statement_alloc(number+1);
   cloog_loop_set_block (loop, cloog_block_alloc (statement, 0, NULL, nb_iterators));
@@ -346,8 +346,8 @@ CloogLoop * cloog_loop_malloc()
   cloog_loop_set_usr (loop, NULL);
   cloog_loop_set_inner (loop, NULL);
   cloog_loop_set_next (loop, NULL);
-  cloog_loop_init_stride (loop);
-  cloog_loop_set_si_stride (loop, 1); 
+  value_init_c (loop->stride);
+  value_set_si (loop->stride, 1);
   
   return loop ;
 }  
@@ -375,7 +375,7 @@ CloogLoop * inner, * next ;
   cloog_loop_set_block (loop, block);
   cloog_loop_set_inner (loop, inner);
   cloog_loop_set_next (loop, next);
-  cloog_loop_set_stride (loop, stride);
+  value_assign (loop->stride, stride);
   
   return(loop) ;
 }
@@ -440,7 +440,7 @@ CloogLoop * cloog_loop_copy(CloogLoop * source)
     {
       domain = cloog_domain_copy (cloog_loop_domain (source));
       block  = cloog_block_copy (cloog_loop_block (source));
-      loop   = cloog_loop_alloc(domain,cloog_loop_stride (source),block,NULL,NULL) ;
+      loop   = cloog_loop_alloc(domain,source->stride,block,NULL,NULL) ;
       cloog_loop_set_usr (loop, cloog_loop_usr (source));
       cloog_loop_set_inner (loop, cloog_loop_copy (cloog_loop_inner (source)));
       cloog_loop_set_next (loop, cloog_loop_copy (cloog_loop_next (source)));
@@ -626,7 +626,7 @@ CloogLoop * cloog_loop_project(CloogLoop * loop, int level, int nb_par)
   value_init_c(one) ;
   value_set_si(one,1) ;
   
-  copy = cloog_loop_alloc(cloog_loop_domain (loop),cloog_loop_stride (loop),cloog_loop_block (loop),
+  copy = cloog_loop_alloc(cloog_loop_domain (loop),loop->stride,cloog_loop_block (loop),
                           cloog_loop_inner (loop),NULL) ;
 
   if ((cloog_domain_dim(cloog_loop_domain (loop))-nb_par) == level)
@@ -1097,7 +1097,7 @@ static void cloog_loop_stride_1 (CloogLoop * loop, int level, int nb_par)
   /* Update the values if necessary. */
   if (value_notone_p(stride))
   { /* Update the stride value. */
-    cloog_loop_set_stride (loop, stride);
+    value_assign (loop->stride, stride);
     /* The new lower bound l' is such that 
      *      (l' + offset) % s = 0 and l <= l' <= l+(s-1)
      * Let l' = k s - offset, then 
@@ -1174,8 +1174,8 @@ int level, * scaldims, nb_scattdims, scalar ;
   while ((scalar < cloog_block_nb_scaldims (cloog_loop_block (cloog_loop_inner (l1))))
 	 && scaldims[level+scalar-1])
     {
-      if (value_gt (cloog_block_scaldims_elt (cloog_loop_block (cloog_loop_inner (l1)), scalar),
-		    cloog_block_scaldims_elt (cloog_loop_block (cloog_loop_inner (l2)), scalar)))
+      if (value_gt (cloog_loop_block (cloog_loop_inner (l1))->scaldims[scalar],
+		    cloog_loop_block (cloog_loop_inner (l2))->scaldims[scalar]))
 	scalar ++ ;
       else
 	return 0 ;
@@ -1208,8 +1208,8 @@ int level, * scaldims, nb_scattdims, scalar ;
   while ((scalar < cloog_block_nb_scaldims (cloog_loop_block (cloog_loop_inner (l1))))
 	 && scaldims[level+scalar-1])
     {
-      if (value_eq (cloog_block_scaldims_elt (cloog_loop_block (cloog_loop_inner (l1)), scalar),
-		    cloog_block_scaldims_elt (cloog_loop_block (cloog_loop_inner (l2)), scalar)))
+      if (value_eq (cloog_loop_block (cloog_loop_inner (l1))->scaldims[scalar],
+		    cloog_loop_block (cloog_loop_inner (l2))->scaldims[scalar]))
 	scalar ++ ;
       else
 	return 0 ;
@@ -1315,7 +1315,7 @@ CloogOptions * options ;
       l = cloog_loop_sort(l,level,nb_par) ;
       while (l != NULL)
 	{
-	  cloog_loop_set_stride (l, cloog_loop_stride (temp));
+	  value_assign (l->stride, temp->stride);
 	  cloog_loop_add(&loop,&now,l) ;
 	  l = cloog_loop_next (l) ;
 	}
@@ -1668,7 +1668,7 @@ int level, nb_par ;
 
   new_block = cloog_block_copy (cloog_loop_block (loop));
   
-  simplified = cloog_loop_alloc (simp, cloog_loop_stride (loop), new_block, inner, next);
+  simplified = cloog_loop_alloc (simp, loop->stride, new_block, inner, next);
   
   /* Examples like test/iftest2.cloog give unions of polyhedra after
    * simplifying, thus we we have to disjoint them. Another good reason to

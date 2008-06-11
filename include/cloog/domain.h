@@ -107,7 +107,6 @@ static inline void cloog_set_next_domain (CloogDomainList *l, CloogDomainList *n
   l->_next = n;
 }
 
-
 /******************************************************************************
  *                         Polyhedral Library interface                       *
  ******************************************************************************/

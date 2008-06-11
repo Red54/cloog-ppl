@@ -148,7 +148,7 @@ void cloog_block_print_structure(FILE * file, CloogBlock * block, int level)
       {
 	fprintf (file, "Scalar dimensions (%d):", cloog_block_nb_scaldims (block));
 	for (i = 0; i < cloog_block_nb_scaldims (block); i++)
-	  value_print (file, " "VALUE_FMT, cloog_block_scaldims_elt (block, i));
+	  value_print (file, " "VALUE_FMT, block->scaldims[i]);
 	fprintf (file, "\n");
       }
     
@@ -226,7 +226,7 @@ void cloog_block_free(CloogBlock * block)
 	  if (cloog_block_scaldims (block))
 	    {
 	      for (i = 0; i < cloog_block_nb_scaldims (block); i++)
-		cloog_block_scaldims_clear (block, i);
+		value_init_c (block->scaldims[i]);
       
 	      free (cloog_block_scaldims (block)) ;
 	    }

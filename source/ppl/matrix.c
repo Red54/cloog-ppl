@@ -165,7 +165,7 @@ void cloog_matrix_print_structure(FILE * file, CloogMatrix * matrix, int level)
     fprintf(file,"[ ") ;
       
     for (j=0; j<matrix->NbColumns; j++)
-      { value_print(file,P_VALUE_FMT,cloog_matrix_element(matrix, i, j)) ;
+      { value_print(file,P_VALUE_FMT,matrix->p[i][j]) ;
       fprintf(file," ") ;
     }      
 
@@ -271,8 +271,8 @@ void cloog_matrix_normalize(CloogMatrix * matrix, int level)
 
   /* Let us find an equality for the current level that can be propagated. */
   for (ref=0;ref<matrix->NbRows;ref++)
-    if (value_zero_p(cloog_matrix_element(matrix, ref, 0))
-	&& value_notzero_p(cloog_matrix_element(matrix, ref, level)))
+    if (value_zero_p(matrix->p[ref][0])
+	&& value_notzero_p(matrix->p[ref][level]))
   { value_init_c(gcd) ;
     value_init_c(temp_i) ;
     value_init_c(temp_ref) ;
@@ -281,14 +281,13 @@ void cloog_matrix_normalize(CloogMatrix * matrix, int level)
   
     /* Row "ref" is the reference equality, now let us find a row to simplify.*/
     for (i=ref+1;i<matrix->NbRows;i++)
-      if (value_notzero_p(cloog_matrix_element(matrix, i, level)))
+      if (value_notzero_p(matrix->p[i][level]))
     { /* Now let us set to 0 the "level" coefficient of row "j" using "ref".
        * First we compute the factors to apply to each row vector element.
        */
-      Gcd(cloog_matrix_element(matrix, ref, level),
-	  cloog_matrix_element(matrix, i, level), &gcd) ;
-      value_division(factor_i,cloog_matrix_element(matrix, ref, level),gcd) ;
-      value_division(factor_ref,cloog_matrix_element(matrix, i, level),gcd) ;
+      Gcd(matrix->p[ref][level], matrix->p[i][level], &gcd) ;
+      value_division(factor_i,matrix->p[ref][level],gcd) ;
+      value_division(factor_ref,matrix->p[i][level],gcd) ;
       
       /* Maybe we are simplifying an inequality: factor_i must not be <0. */
       if (value_neg_p(factor_i))
@@ -298,9 +297,9 @@ void cloog_matrix_normalize(CloogMatrix * matrix, int level)
       
       /* Now update the vector. */
       for (j=1;j<matrix->NbColumns;j++)
-	{ value_multiply(temp_i,factor_i,cloog_matrix_element(matrix, i, j)) ;
-	  value_multiply(temp_ref,factor_ref,cloog_matrix_element(matrix, ref, j)) ;
-	  cloog_matrix_element_substract(matrix, i, j, temp_i, temp_ref) ;
+	{ value_multiply(temp_i,factor_i,matrix->p[i][j]) ;
+	  value_multiply(temp_ref,factor_ref,matrix->p[ref][j]) ;
+	  value_substract(matrix->p[i][j], temp_i, temp_ref) ;
       }
     
       /* Normalize (divide by GCD of all elements) the updated vector. */
@@ -346,21 +345,21 @@ void cloog_matrix_equality_update(CloogMatrix * equal, int level, int nb_par)
   { /* if the corresponding iterator is inside the current equality and is equal
      * to something,
      */
-    if (value_notzero_p(cloog_matrix_element(equal, level-1, i+1)) &&
-        value_notzero_p(cloog_matrix_element(equal, i, 0)))
+    if (value_notzero_p(equal->p[level-1][i+1]) &&
+        value_notzero_p(equal->p[i][0]))
     { /* Compute the Greatest Common Divisor. */ 
-      Gcd(cloog_matrix_element(equal, level-1, i+1),cloog_matrix_element(equal, i, i+1),&gcd) ;
+      Gcd(equal->p[level-1][i+1],equal->p[i][i+1],&gcd) ;
       
       /* Compute the factors to apply to each row vector element. */
-      value_division(factor_level,cloog_matrix_element(equal, i, i+1),gcd) ;
-      value_division(factor_outer,cloog_matrix_element(equal, level-1, i+1),gcd) ;
+      value_division(factor_level,equal->p[i][i+1],gcd) ;
+      value_division(factor_outer,equal->p[level-1][i+1],gcd) ;
             
       /* Now update the row 'level'. */
       /* - the iterators, up to level, */
       for (j=1;j<=level;j++)
-	{ value_multiply(temp_level,factor_level,cloog_matrix_element(equal, level-1, j)) ;
-	  value_multiply(temp_outer,factor_outer,cloog_matrix_element(equal, i, j)) ;
-	  cloog_matrix_element_substract(equal, level-1, j, temp_level, temp_outer) ;
+	{ value_multiply(temp_level,factor_level,equal->p[level-1][j]) ;
+	  value_multiply(temp_outer,factor_outer,equal->p[i][j]) ;
+	  value_substract(equal->p[level-1][j], temp_level, temp_outer) ;
       }
       /* - between last useful iterator (level) and the first parameter, the
        *   matrix is sparse (full of zeroes), we just do nothing there. 
@@ -368,11 +367,11 @@ void cloog_matrix_equality_update(CloogMatrix * equal, int level, int nb_par)
        */
       for (j=0;j<nb_par+1;j++)
       { value_multiply(temp_level,factor_level,
-                       cloog_matrix_element(equal, level-1, equal->NbColumns-j-1)) ;
+                       equal->p[level-1][equal->NbColumns-j-1]) ;
         value_multiply(temp_outer,factor_outer,
-                       cloog_matrix_element(equal, i, equal->NbColumns-j-1)) ;
-        cloog_matrix_element_substract(equal, level-1, equal->NbColumns-j-1,
-				       temp_level, temp_outer) ;
+                       equal->p[i][equal->NbColumns-j-1]) ;
+        value_substract(equal->p[level-1][equal->NbColumns-j-1],
+			temp_level, temp_outer) ;
       }
     }
   }
@@ -402,7 +401,7 @@ CloogMatrix * cloog_matrix_copy(CloogMatrix * matrix)
   
   for (i=0;i<matrix->NbRows;i++)
     for (j=0;j<matrix->NbColumns;j++)
-      cloog_matrix_element_assign(copy, i, j, cloog_matrix_element(matrix, i, j)) ;
+      value_assign(copy->p[i][j], matrix->p[i][j]) ;
   
   return copy ;
 }
@@ -471,12 +470,12 @@ int length, level, nb_par ;
   if (i != level)
   { /* if the coefficient in not null, and there exists a useful equality */
     if ((value_notzero_p(simplified[i])) &&
-        (value_notzero_p(cloog_matrix_element(equal, i-1, 0))))
+        (value_notzero_p(equal->p[i-1][0])))
     { /* Compute the Greatest Common Divisor. */ 
-      Gcd(simplified[i],cloog_matrix_element(equal, i-1, i),&gcd) ;
+      Gcd(simplified[i],equal->p[i-1][i],&gcd) ;
       
       /* Compute the factors to apply to each row vector element. */
-      value_division(factor_vector,cloog_matrix_element(equal, i-1, i),gcd) ;
+      value_division(factor_vector,equal->p[i-1][i],gcd) ;
       value_division(factor_equal,simplified[i],gcd) ;
       
       /* We are simplifying an inequality: factor_vector must not be <0. */
@@ -489,7 +488,7 @@ int length, level, nb_par ;
       /* - the iterators, up to the current level, */
       for (j=1;j<=length-nb_par-2;j++)
       { value_multiply(temp_vector,factor_vector,simplified[j]) ;
-        value_multiply(temp_equal,factor_equal,cloog_matrix_element(equal, i-1, j)) ;
+        value_multiply(temp_equal,factor_equal,equal->p[i-1][j]) ;
         value_substract(simplified[j],temp_vector,temp_equal) ;
       }
       /* - between last useful iterator (i) and the first parameter, the equal
@@ -499,7 +498,7 @@ int length, level, nb_par ;
       for (j=0;j<nb_par+1;j++)
       { value_multiply(temp_vector,factor_vector,simplified[length-1-j]) ;
         value_multiply(temp_equal,factor_equal,
-                       cloog_matrix_element(equal, i-1, equal->NbColumns-j-1)) ;
+                       equal->p[i-1][equal->NbColumns-j-1]) ;
         value_substract(simplified[length-1-j],temp_vector,temp_equal) ;
       }
     }
