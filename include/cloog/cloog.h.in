@@ -41,12 +41,14 @@
 #define CLOOG_H
 
 #ifdef CLOOG_PPL_BACKEND
-# include <ppl_c.h>
+# include<cloog/ppl_backend.h>
 /* FIXME: For porting to PPL, temporarily include this.  */
 # include <polylib/@cl_cv_polylib@.h>
 #else
 # include <polylib/@cl_cv_polylib@.h>
+# include<cloog/polylib_backend.h>
 #endif
+
 /******************************************************************************
  *                             CLOOG GMP MACROS                               *
  ******************************************************************************/
