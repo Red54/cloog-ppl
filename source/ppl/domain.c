@@ -564,6 +564,24 @@ cloog_domain_dim (CloogDomain * d)
   return cloog_polyhedron_dim (cloog_domain_polyhedron (d));
 }
 
+static void
+cloog_check_domains (CloogDomain *dom1, CloogDomain *dom2)
+{
+  /* Cannot use cloog_domain_lazy_equal (polylib, ppl) here as this
+     function is too dumb: it does not detect permutations of
+     constraints.  */
+  if (!cloog_domain_isempty (cloog_domain_difference (dom1, dom2))
+      || !cloog_domain_isempty (cloog_domain_difference (dom2, dom1)))
+    {
+      fprintf (stderr, "different domains ((\n");
+      cloog_domain_print (stderr, dom1);
+      fprintf (stderr, ")(\n");
+      cloog_domain_print (stderr, dom2);
+      fprintf (stderr, "))\n");
+      exit (1);
+    }
+}
+
 /**
  * cloog_domain_simple_convex:
  * Given a list (union) of polyhedra, this function returns a "simple"
@@ -701,19 +719,7 @@ cloog_domain_intersection (CloogDomain * dom1, CloogDomain * dom2)
 			     cloog_domain_polyhedron (dom2),
 			     MAX_RAYS));
 
-      /* Cannot use cloog_domain_lazy_equal (polylib, ppl) here as
-	 this function is too dumb: it does not detect permutations of
-	 constraints.  */
-      if (!cloog_domain_isempty (cloog_domain_difference (polylib, ppl))
-	  || !cloog_domain_isempty (cloog_domain_difference (ppl, polylib)))
-	{
-	  fprintf (stderr, "((\n");
-	  cloog_domain_print (stderr, ppl);
-	  fprintf (stderr, ")(\n");
-	  cloog_domain_print (stderr, polylib);
-	  fprintf (stderr, "))\n");
-	  exit (1);
-	}
+      cloog_check_domains (ppl, polylib);
 
       if (cloog_return_ppl_result)
 	return ppl;
