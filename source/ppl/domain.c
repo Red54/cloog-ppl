@@ -564,22 +564,27 @@ cloog_domain_dim (CloogDomain * d)
   return cloog_polyhedron_dim (cloog_domain_polyhedron (d));
 }
 
-static void
-cloog_check_domains (CloogDomain *dom1, CloogDomain *dom2)
+static CloogDomain *
+cloog_check_domains (CloogDomain *ppl, CloogDomain *polylib)
 {
   /* Cannot use cloog_domain_lazy_equal (polylib, ppl) here as this
      function is too dumb: it does not detect permutations of
      constraints.  */
-  if (!cloog_domain_isempty (cloog_domain_difference (dom1, dom2))
-      || !cloog_domain_isempty (cloog_domain_difference (dom2, dom1)))
+  if (!cloog_domain_isempty (cloog_domain_difference (ppl, polylib))
+      || !cloog_domain_isempty (cloog_domain_difference (polylib, ppl)))
     {
       fprintf (stderr, "different domains ((\n");
-      cloog_domain_print (stderr, dom1);
+      cloog_domain_print (stderr, ppl);
       fprintf (stderr, ")(\n");
-      cloog_domain_print (stderr, dom2);
+      cloog_domain_print (stderr, polylib);
       fprintf (stderr, "))\n");
       exit (1);
     }
+
+  if (cloog_return_ppl_result)
+    return ppl;
+  else
+    return polylib;
 }
 
 /**
@@ -711,29 +716,9 @@ cloog_domain_intersection (CloogDomain * dom1, CloogDomain * dom2)
 	  }
     }
 
-  if (cloog_check_polyhedral_ops)
-    {
-      CloogDomain *ppl = res;
-      CloogDomain *polylib = cloog_domain_alloc
-	(DomainIntersection (cloog_domain_polyhedron (dom1),
-			     cloog_domain_polyhedron (dom2),
-			     MAX_RAYS));
-
-      cloog_check_domains (ppl, polylib);
-
-      if (cloog_return_ppl_result)
-	return ppl;
-      else
-	return polylib;
-    }
-
-  if (cloog_return_ppl_result)
-    return res;
-  else
-    return (cloog_domain_alloc
-	    (DomainIntersection
-	     (cloog_domain_polyhedron (dom1), cloog_domain_polyhedron (dom2),
-	      MAX_RAYS)));
+  return cloog_check_domains (res, cloog_domain_alloc (DomainIntersection (cloog_domain_polyhedron (dom1),
+									   cloog_domain_polyhedron (dom2),
+									   MAX_RAYS)));
 }
 
 
