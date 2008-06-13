@@ -54,9 +54,7 @@
  * These functions and global variables are devoted to memory leaks hunting: we
  * want to know at each moment how many CloogMatrix structures are allocated
  * (cloog_matrix_allocated) and how many had been freed (cloog_matrix_freed).
- * Each time a CloogMatrix structure is allocated, a call to the function
- * cloog_matrix_leak_up() must be carried out, and respectively
- * cloog_matrix_leak_down() when a CloogMatrix structure is freed. The special
+ * The special
  * variable cloog_matrix_max gives the maximal number of CloogMatrix structures
  * simultaneously alive (i.e. allocated and non-freed) in memory.
  * - April 17th 2005: first version.
@@ -66,18 +64,6 @@
 int cloog_matrix_allocated = 0 ;
 int cloog_matrix_freed = 0 ;
 int cloog_matrix_max = 0 ;
-
-
-static void cloog_matrix_leak_up()
-{ cloog_matrix_allocated ++ ;
-  if ((cloog_matrix_allocated-cloog_matrix_freed) > cloog_matrix_max)
-  cloog_matrix_max = cloog_matrix_allocated - cloog_matrix_freed ;
-}
-
-
-static void cloog_matrix_leak_down()
-{ cloog_matrix_freed ++ ;
-}
 
 
 /******************************************************************************
@@ -109,7 +95,7 @@ void cloog_matrix_print(FILE * foo, CloogMatrix * matrix)
  * (matrix).
  */
 void cloog_matrix_free(CloogMatrix * matrix)
-{ cloog_matrix_leak_down() ;
+{
   Matrix_Free(matrix) ;
 }
 
@@ -120,7 +106,7 @@ void cloog_matrix_free(CloogMatrix * matrix)
  * nb_rows rows and nb_columns columns, it set its elements to 0.
  */
 CloogMatrix * cloog_matrix_alloc(unsigned nb_rows, unsigned nb_columns)
-{ cloog_matrix_leak_up() ;
+{
   return Matrix_Alloc(nb_rows,nb_columns) ;
 }
 
@@ -131,7 +117,6 @@ CloogMatrix * cloog_matrix_alloc(unsigned nb_rows, unsigned nb_columns)
  */
 CloogMatrix * cloog_matrix_matrix(Matrix *matrix)
 {
-  cloog_matrix_leak_up();
   return matrix;
 }
 
