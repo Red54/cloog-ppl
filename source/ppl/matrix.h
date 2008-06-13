@@ -62,7 +62,6 @@ typedef Matrix CloogMatrix;
 void          cloog_matrix_print(FILE *, CloogMatrix *) ;
 void          cloog_matrix_free(CloogMatrix *) ;
 CloogMatrix * cloog_matrix_alloc(unsigned, unsigned) ;
-CloogMatrix * cloog_matrix_matrix(Matrix *);
 
 
 /******************************************************************************

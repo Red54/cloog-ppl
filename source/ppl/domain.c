@@ -258,9 +258,7 @@ cloog_domain_polyhedron (CloogDomain * domain)
 static CloogMatrix *
 cloog_domain_domain2matrix (CloogDomain * domain)
 {
-  return
-    cloog_matrix_matrix (Polyhedron2Constraints
-			 (cloog_domain_polyhedron (domain)));
+  return Polyhedron2Constraints (cloog_domain_polyhedron (domain));
 }
 
 /* In the matrix representation an equality has a 0 in the first
@@ -684,13 +682,11 @@ cloog_domain_intersection (CloogDomain * dom1, CloogDomain * dom2)
 
   for (p1 = cloog_domain_polyhedron (dom1); p1; p1 = p1->next)
     {
-	ppl1 = cloog_translate_constraint_matrix
-	  (cloog_matrix_matrix (Polyhedron2Constraints (p1)));
+	ppl1 = cloog_translate_constraint_matrix (Polyhedron2Constraints (p1));
 
 	for (p2 = cloog_domain_polyhedron (dom2); p2; p2 = p2->next)
 	  {
-	    ppl2 = cloog_translate_constraint_matrix
-	      (cloog_matrix_matrix (Polyhedron2Constraints (p2)));
+	    ppl2 = cloog_translate_constraint_matrix (Polyhedron2Constraints (p2));
 	    ppl_Polyhedron_intersection_assign (ppl2, ppl1);
 
 	    res = cloog_domain_union (res, cloog_translate_ppl_polyhedron (ppl2));
@@ -2014,7 +2010,7 @@ cloog_domain_print_polyhedra (FILE * foo, CloogDomain * domain)
   while (polyhedron != NULL)
     {
       CloogMatrix *matrix;
-      matrix = cloog_matrix_matrix (Polyhedron2Constraints (polyhedron));
+      matrix = Polyhedron2Constraints (polyhedron);
       cloog_matrix_print (foo, matrix);
       cloog_matrix_free (matrix);
       polyhedron = polyhedron->next;

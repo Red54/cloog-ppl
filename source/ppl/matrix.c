@@ -111,16 +111,6 @@ CloogMatrix * cloog_matrix_alloc(unsigned nb_rows, unsigned nb_columns)
 }
 
 
-/**
- * cloog_matrix_matrix function:
- * This function converts a PolyLib Matrix to a CloogMatrix structure.
- */
-CloogMatrix * cloog_matrix_matrix(Matrix *matrix)
-{
-  return matrix;
-}
-
-
 /******************************************************************************
  *                          Structure display function                        *
  ******************************************************************************/
