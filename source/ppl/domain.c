@@ -44,6 +44,91 @@
 #include "matrix.h"
 
 
+static int cloog_check_polyhedral_ops = 1;
+static int cloog_return_ppl_result = 0;
+
+/* Variables names for pretty printing.  */
+static char wild_name[200][40];
+
+static inline const char*
+variable_output_function (ppl_dimension_type var)
+{
+  if (var < 40)
+    return wild_name[var + 1];
+  else
+    return 0;
+}
+
+static inline void
+error_handler (enum ppl_enum_error_code code, const char* description)
+{
+  fprintf (stderr, "PPL error code %d\n%s", code, description);
+  exit (1);
+}
+
+void
+cloog_initialize (void)
+{
+  sprintf (wild_name[0], "1");
+  sprintf (wild_name[1], "a");
+  sprintf (wild_name[2], "b");
+  sprintf (wild_name[3], "c");
+  sprintf (wild_name[4], "d");
+  sprintf (wild_name[5], "e");
+  sprintf (wild_name[6], "f");
+  sprintf (wild_name[7], "g");
+  sprintf (wild_name[8], "h");
+  sprintf (wild_name[9], "i");
+  sprintf (wild_name[10], "j");
+  sprintf (wild_name[11], "k");
+  sprintf (wild_name[12], "l");
+  sprintf (wild_name[13], "m");
+  sprintf (wild_name[14], "n");
+  sprintf (wild_name[15], "o");
+  sprintf (wild_name[16], "p");
+  sprintf (wild_name[17], "q");
+  sprintf (wild_name[18], "r");
+  sprintf (wild_name[19], "s");
+  sprintf (wild_name[20], "t");
+  sprintf (wild_name[21], "alpha");
+  sprintf (wild_name[22], "beta");
+  sprintf (wild_name[23], "gamma");
+  sprintf (wild_name[24], "delta");
+  sprintf (wild_name[25], "tau");
+  sprintf (wild_name[26], "sigma");
+  sprintf (wild_name[27], "chi");
+  sprintf (wild_name[28], "omega");
+  sprintf (wild_name[29], "pi");
+  sprintf (wild_name[30], "ni");
+  sprintf (wild_name[31], "Alpha");
+  sprintf (wild_name[32], "Beta");
+  sprintf (wild_name[33], "Gamma");
+  sprintf (wild_name[34], "Delta");
+  sprintf (wild_name[35], "Tau");
+  sprintf (wild_name[36], "Sigma");
+  sprintf (wild_name[37], "Chi");
+  sprintf (wild_name[38], "Omega");
+  sprintf (wild_name[39], "xxx");
+
+  if (ppl_initialize() < 0)
+    {
+      fprintf (stderr, "Cannot initialize the Parma Polyhedra Library.\n");
+      exit (1);
+    }
+
+  if (ppl_set_error_handler (error_handler) < 0)
+    {
+      fprintf (stderr, "Cannot install the custom error handler.\n");
+      exit (1);
+    }
+
+  if (ppl_io_set_variable_output_function (variable_output_function) < 0)
+    {
+      fprintf (stderr, "Cannot install the PPL custom variable output function. \n");
+      exit (1);
+    }
+}
+
 /**
  * The maximal number of rays allowed to be allocated by PolyLib. In fact since
  * version 5.20, PolyLib automatically tune the number of rays by multiplying
@@ -189,27 +274,26 @@ cloog_matrix_row_is_eq_p (CloogMatrix *matrix, int row)
 }
 
 static ppl_Polyhedron_t
-cloog_translate_domain (CloogDomain *dom)
+cloog_translate_constraint_matrix (CloogMatrix *matrix)
 {
   int i, j;
   ppl_Polyhedron_t res;
   ppl_Constraint_t cstr;
   ppl_Linear_Expression_t expr;
   ppl_Coefficient_t coef;
-  CloogMatrix *matrix = cloog_domain_domain2matrix (dom);
-
-  /* FIXME: For the moment unions of polyhedra are not translated.  */
-  assert (cloog_domain_polyhedron (dom)->next == NULL);
+  ppl_dimension_type dim = matrix->NbColumns - 2;
 
   ppl_new_Coefficient (&coef);
-  ppl_new_Linear_Expression_with_dimension (&expr, matrix->NbColumns - 2);
+  ppl_new_NNC_Polyhedron_from_dimension (&res, dim);
 
   for (i = 0; i < matrix->NbRows; i++)
     {
+      ppl_new_Linear_Expression_with_dimension (&expr, dim);
+
       for (j = 1; j < matrix->NbColumns - 1; j++)
 	{
 	  ppl_assign_Coefficient_from_mpz_t (coef, matrix->p[i][j]);
-	  ppl_Linear_Expression_add_to_coefficient (expr, j, coef);
+	  ppl_Linear_Expression_add_to_coefficient (expr, j - 1, coef);
 	}
 
       ppl_assign_Coefficient_from_mpz_t 
@@ -219,10 +303,13 @@ cloog_translate_domain (CloogDomain *dom)
       if (cloog_matrix_row_is_eq_p (matrix, i))
 	ppl_new_Constraint (&cstr, expr, PPL_CONSTRAINT_TYPE_EQUAL);
       else
-	ppl_new_Constraint (&cstr, expr, PPL_CONSTRAINT_TYPE_LESS_THAN_OR_EQUAL);
+	ppl_new_Constraint (&cstr, expr, PPL_CONSTRAINT_TYPE_GREATER_THAN_OR_EQUAL);
 
       ppl_Polyhedron_add_constraint (res, cstr);
     }
+
+  if (cloog_check_polyhedral_ops)
+    ppl_Polyhedron_OK (res);
 
   return res;
 }
@@ -238,6 +325,8 @@ cloog_translate_ppl_polyhedron (ppl_Polyhedron_t pol)
   int row;
 
   ppl_Polyhedron_constraints (pol, &pcs);
+  ppl_new_Constraint_System_const_iterator (&cit);
+  ppl_new_Constraint_System_const_iterator (&end);
 
   for (row = 0, ppl_Constraint_System_begin (pcs, cit), ppl_Constraint_System_end (pcs, end);
        !ppl_Constraint_System_const_iterator_equal_test (cit, end);
@@ -254,34 +343,52 @@ cloog_translate_ppl_polyhedron (ppl_Polyhedron_t pol)
       ppl_Coefficient_t coef;
       ppl_dimension_type col;
       Value val;
+      int neg;
 
+      value_init (val);
+      ppl_new_Coefficient (&coef);
       ppl_Constraint_System_const_iterator_dereference (cit, &pc);
 
-      switch (ppl_Constraint_type (pc))
-	{
-	case PPL_CONSTRAINT_TYPE_LESS_THAN_OR_EQUAL:
-	  value_set_si (matrix->p[row][0], 1);
-	  break;
-
-	case PPL_CONSTRAINT_TYPE_EQUAL:
-	  value_set_si (matrix->p[row][0], 0);
-	  break;
-
-	default:
-	  fprintf (stderr, "not implemented yet\n");
-	  exit (1);
-	}
+      neg = (ppl_Constraint_type (pc) == PPL_CONSTRAINT_TYPE_LESS_THAN
+	     || ppl_Constraint_type (pc) == PPL_CONSTRAINT_TYPE_LESS_THAN_OR_EQUAL) ? 1 : 0;
 
       for (col = 0; col < dim; col++)
 	{
 	  ppl_Constraint_coefficient (pc, col, coef);
 	  ppl_Coefficient_to_mpz_t (coef, val);
-	  value_assign (matrix->p[row][col], val);
+
+	  if (neg)
+	    value_oppose (val, val);
+
+	  value_assign (matrix->p[row][col+1], val);
 	}
 
       ppl_Constraint_inhomogeneous_term (pc, coef);
       ppl_Coefficient_to_mpz_t (coef, val);
       value_assign (matrix->p[row][dim + 1], val);
+
+      switch (ppl_Constraint_type (pc))
+	{
+	case PPL_CONSTRAINT_TYPE_EQUAL:
+	  value_set_si (matrix->p[row][0], 0);
+	  break;
+
+	case PPL_CONSTRAINT_TYPE_LESS_THAN:
+	case PPL_CONSTRAINT_TYPE_GREATER_THAN:
+	  value_decrement (matrix->p[row][dim + 1], matrix->p[row][dim + 1]);
+	  value_set_si (matrix->p[row][0], 1);
+	  break;
+
+	case PPL_CONSTRAINT_TYPE_LESS_THAN_OR_EQUAL:
+	case PPL_CONSTRAINT_TYPE_GREATER_THAN_OR_EQUAL:
+	  value_set_si (matrix->p[row][0], 1);
+	  break;
+
+	default:
+	  fprintf (stderr, "PPL_CONSTRAINT_TYPE_%d not implemented yet\n",
+		   ppl_Constraint_type (pc));
+	  exit (1);
+	}
     }
 
   res = cloog_domain_matrix2domain (matrix);
@@ -549,11 +656,16 @@ cloog_domain_simplify (CloogDomain * dom1, CloogDomain * dom2)
 CloogDomain *
 cloog_domain_union (CloogDomain * dom1, CloogDomain * dom2)
 {
+  if (!cloog_domain_polyhedron (dom1))
+    return cloog_domain_alloc (cloog_domain_polyhedron (dom2));
+
+  if (!cloog_domain_polyhedron (dom2))
+    return cloog_domain_alloc (cloog_domain_polyhedron (dom1));
+
   return (cloog_domain_alloc (DomainUnion (cloog_domain_polyhedron (dom1),
 					   cloog_domain_polyhedron (dom2),
 					   MAX_RAYS)));
 }
-
 
 /**
  * cloog_domain_intersection function:
@@ -564,10 +676,62 @@ cloog_domain_union (CloogDomain * dom1, CloogDomain * dom2)
 CloogDomain *
 cloog_domain_intersection (CloogDomain * dom1, CloogDomain * dom2)
 {
-  return (cloog_domain_alloc
-	  (DomainIntersection
-	   (cloog_domain_polyhedron (dom1), cloog_domain_polyhedron (dom2),
-	    MAX_RAYS)));
+  CloogDomain *res;
+  Polyhedron *p1, *p2;
+  ppl_Polyhedron_t ppl1, ppl2;
+
+  res = cloog_domain_malloc ();
+
+  for (p1 = cloog_domain_polyhedron (dom1); p1; p1 = p1->next)
+    {
+	ppl1 = cloog_translate_constraint_matrix
+	  (cloog_matrix_matrix (Polyhedron2Constraints (p1)));
+
+	for (p2 = cloog_domain_polyhedron (dom2); p2; p2 = p2->next)
+	  {
+	    ppl2 = cloog_translate_constraint_matrix
+	      (cloog_matrix_matrix (Polyhedron2Constraints (p2)));
+	    ppl_Polyhedron_intersection_assign (ppl2, ppl1);
+
+	    res = cloog_domain_union (res, cloog_translate_ppl_polyhedron (ppl2));
+	  }
+    }
+
+  if (cloog_check_polyhedral_ops)
+    {
+      CloogDomain *ppl = res;
+      CloogDomain *polylib = cloog_domain_alloc
+	(DomainIntersection (cloog_domain_polyhedron (dom1),
+			     cloog_domain_polyhedron (dom2),
+			     MAX_RAYS));
+
+      /* Cannot use cloog_domain_lazy_equal (polylib, ppl) here as
+	 this function is too dumb: it does not detect permutations of
+	 constraints.  */
+      if (!cloog_domain_isempty (cloog_domain_difference (polylib, ppl))
+	  && !cloog_domain_isempty (cloog_domain_difference (ppl, polylib)))
+	{
+	  fprintf (stderr, "((\n");
+	  cloog_domain_print (stderr, ppl);
+	  fprintf (stderr, ")(\n");
+	  cloog_domain_print (stderr, polylib);
+	  fprintf (stderr, "))\n");
+	  exit (1);
+	}
+
+      if (cloog_return_ppl_result)
+	return ppl;
+      else
+	return polylib;
+    }
+
+  if (cloog_return_ppl_result)
+    return res;
+  else
+    return (cloog_domain_alloc
+	    (DomainIntersection
+	     (cloog_domain_polyhedron (dom1), cloog_domain_polyhedron (dom2),
+	      MAX_RAYS)));
 }
 
 

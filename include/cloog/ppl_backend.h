@@ -17,11 +17,8 @@
 
 # include <ppl_c.h>
 
-static inline void
-cloog_initialize (void)
-{
-  ppl_initialize ();
-}
+
+extern void cloog_initialize (void);
 
 static inline void
 cloog_finalize (void)
