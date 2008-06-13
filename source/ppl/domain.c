@@ -703,11 +703,11 @@ cloog_domain_intersection (CloogDomain * dom1, CloogDomain * dom2)
 
   res = cloog_domain_malloc ();
 
-  for (p1 = cloog_domain_polyhedron (dom1); p1; p1 = p1->next)
+  for (p1 = cloog_domain_polyhedron (dom1); p1; p1 = cloog_polyhedron_next (p1))
     {
 	ppl1 = cloog_translate_constraint_matrix (Polyhedron2Constraints (p1));
 
-	for (p2 = cloog_domain_polyhedron (dom2); p2; p2 = p2->next)
+	for (p2 = cloog_domain_polyhedron (dom2); p2; p2 = cloog_polyhedron_next (p2))
 	  {
 	    ppl2 = cloog_translate_constraint_matrix (Polyhedron2Constraints (p2));
 	    ppl_Polyhedron_intersection_assign (ppl2, ppl1);
@@ -1987,7 +1987,7 @@ cloog_domain_nb_polyhedra (CloogDomain * domain)
   while (polyhedron != NULL)
     {
       j++;
-      polyhedron = polyhedron->next;
+      polyhedron = cloog_polyhedron_next (polyhedron);
     }
   return j;
 }
@@ -2004,6 +2004,6 @@ cloog_domain_print_polyhedra (FILE * foo, CloogDomain * domain)
       matrix = Polyhedron2Constraints (polyhedron);
       cloog_matrix_print (foo, matrix);
       cloog_matrix_free (matrix);
-      polyhedron = polyhedron->next;
+      polyhedron = cloog_polyhedron_next (polyhedron);
     }
 }
