@@ -705,7 +705,7 @@ cloog_domain_intersection (CloogDomain * dom1, CloogDomain * dom2)
 	 this function is too dumb: it does not detect permutations of
 	 constraints.  */
       if (!cloog_domain_isempty (cloog_domain_difference (polylib, ppl))
-	  && !cloog_domain_isempty (cloog_domain_difference (ppl, polylib)))
+	  || !cloog_domain_isempty (cloog_domain_difference (ppl, polylib)))
 	{
 	  fprintf (stderr, "((\n");
 	  cloog_domain_print (stderr, ppl);
