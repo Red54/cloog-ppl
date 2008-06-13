@@ -35,8 +35,9 @@ cloog_finalize (void)
  * a CloogDomain will be freed, we will decrement the active reference counter
  * and actually free it if its value is zero.
  */
-struct cloogdomain
-{ Polyhedron * _polyhedron ;      /**< The polyhedral domain. */
+typedef struct cloogdomain
+{
+  Polyhedron *_polyhedron ;      /**< A convex polyhedral domain. */
   int _references ;               /**< Number of references to this structure. */
-} ;
-typedef struct cloogdomain CloogDomain ;
+  struct cloogdomain *_next;      /**< Next polyhedra in the union of convex polyhedra.  */
+} CloogDomain;
