@@ -41,3 +41,5 @@ typedef struct cloogdomain
   int _references ;               /**< Number of references to this structure. */
   struct cloogdomain *_next;      /**< Next polyhedra in the union of convex polyhedra.  */
 } CloogDomain;
+
+extern void debug_cloog_domain (CloogDomain *);

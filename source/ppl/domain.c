@@ -2007,3 +2007,9 @@ cloog_domain_print_polyhedra (FILE * foo, CloogDomain * domain)
       polyhedron = cloog_polyhedron_next (polyhedron);
     }
 }
+
+void
+debug_cloog_domain (CloogDomain *domain)
+{
+  cloog_domain_print_polyhedra (stderr, domain);
+}
