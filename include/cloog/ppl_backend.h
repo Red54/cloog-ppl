@@ -26,20 +26,20 @@ cloog_finalize (void)
   ppl_finalize ();
 }
 
-/**
- * CloogDomain structure:
- * this structure contains a polyhedron in the PolyLib shape and the number of
- * active references to this structure. Because CLooG uses many copies of
- * domains there is no need to actually copy these domains but just to return
- * a pointer to them and to increment the number of active references. Each time
- * a CloogDomain will be freed, we will decrement the active reference counter
- * and actually free it if its value is zero.
- */
+typedef struct ppl_polyhedra_union {
+  Polyhedron *_polyhedron;
+} ppl_polyhedra_union;
+
 typedef struct cloogdomain
 {
-  Polyhedron *_polyhedron ;      /**< A convex polyhedral domain. */
-  int _references ;               /**< Number of references to this structure. */
-  struct cloogdomain *_next;      /**< Next polyhedra in the union of convex polyhedra.  */
+  struct ppl_polyhedra_union *_polyhedron;
+  int _references;
 } CloogDomain;
 
 extern void debug_cloog_domain (CloogDomain *);
+
+static inline Polyhedron *
+cloog_domain_polyhedron (CloogDomain * domain)
+{
+  return domain->_polyhedron->_polyhedron;
+}

@@ -169,7 +169,7 @@ cloog_value_leak_down ()
 static inline Polyhedron *
 cloog_domain_polyhedron_set (CloogDomain * d, Polyhedron * p)
 {
-  return d->_polyhedron = p;
+  return d->_polyhedron->_polyhedron = p;
 }
 
 static inline void
@@ -178,15 +178,8 @@ cloog_domain_set_references (CloogDomain * d, int i)
   d->_references = i;
 }
 
-/**
- * cloog_domain_malloc function:
- * This function allocates the memory space for a CloogDomain structure and
- * sets its fields with default values. Then it returns a pointer to the
- * allocated space.
- * - November 21th 2005: first version.
- */
 static CloogDomain *
-cloog_domain_malloc ()
+cloog_domain_alloc (Polyhedron * polyhedron)
 {
   CloogDomain *domain;
 
@@ -197,38 +190,12 @@ cloog_domain_malloc ()
       exit (1);
     }
 
-  /* We set the various fields with default values. */
-  cloog_domain_polyhedron_set (domain, NULL);
+  domain->_polyhedron = (ppl_polyhedra_union *) malloc (sizeof (ppl_polyhedra_union));
+  domain->_polyhedron->_polyhedron = polyhedron;
   cloog_domain_set_references (domain, 1);
 
   return domain;
 }
-
-
-/**
- * cloog_domain_alloc function:
- * This function allocates the memory space for a CloogDomain structure and
- * sets its fields with those given as input. Then it returns a pointer to the
- * allocated space.
- * - April    19th 2005: first version.
- * - November 21th 2005: cloog_domain_malloc use.
- */
-static CloogDomain *
-cloog_domain_alloc (Polyhedron * polyhedron)
-{
-  CloogDomain *domain;
-
-  if (polyhedron == NULL)
-    return NULL;
-  else
-    {
-      domain = cloog_domain_malloc ();
-      cloog_domain_polyhedron_set (domain, polyhedron);
-
-      return domain;
-    }
-}
-
 
 /**
  * cloog_domain_matrix2domain function:
@@ -241,13 +208,6 @@ static CloogDomain *
 cloog_domain_matrix2domain (CloogMatrix * matrix)
 {
   return (cloog_domain_alloc (Constraints2Polyhedron (matrix, MAX_RAYS)));
-}
-
-
-static inline Polyhedron *
-cloog_domain_polyhedron (CloogDomain * domain)
-{
-  return domain->_polyhedron;
 }
 
 /**
@@ -422,15 +382,18 @@ cloog_domain_print (FILE * foo, CloogDomain * domain)
 void
 cloog_domain_free (CloogDomain * domain)
 {
-  if (domain != NULL)
+  if (domain)
     {
       cloog_domain_set_references (domain,
 				   cloog_domain_references (domain) - 1);
 
       if (cloog_domain_references (domain) == 0)
 	{
-	  if (cloog_domain_polyhedron (domain) != NULL)
-	    Domain_Free (cloog_domain_polyhedron (domain));
+	  if (cloog_domain_polyhedron (domain))
+	    {
+	      Domain_Free (cloog_domain_polyhedron (domain));
+	      cloog_domain_polyhedron_set (domain, NULL);
+	    }
 
 	  free (domain);
 	}
@@ -555,7 +518,10 @@ cloog_polyhedron_dim (Polyhedron * p)
 int
 cloog_domain_isconvex (CloogDomain * domain)
 {
-  return !cloog_domain_polyhedron_next (domain);
+  if (cloog_domain_polyhedron (domain))
+    return !cloog_domain_polyhedron_next (domain);
+
+  return 1;
 }
 
 unsigned
@@ -701,7 +667,7 @@ cloog_domain_intersection (CloogDomain * dom1, CloogDomain * dom2)
   Polyhedron *p1, *p2;
   ppl_Polyhedron_t ppl1, ppl2;
 
-  res = cloog_domain_malloc ();
+  res = cloog_domain_empty (cloog_domain_dim (dom1));
 
   for (p1 = cloog_domain_polyhedron (dom1); p1; p1 = cloog_polyhedron_next (p1))
     {
@@ -1843,8 +1809,11 @@ cloog_domain_cut_first (CloogDomain * domain)
 {
   CloogDomain *rest;
 
-  if ((domain != NULL) && (cloog_domain_polyhedron (domain) != NULL))
+  if (domain && cloog_domain_polyhedron (domain))
     {
+      if (!cloog_domain_polyhedron_next (domain))
+	return NULL;
+
       rest = cloog_domain_alloc (cloog_domain_polyhedron_next (domain));
       cloog_domain_polyhedron_set_next (domain, NULL);
     }
