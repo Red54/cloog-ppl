@@ -28,6 +28,7 @@ cloog_finalize (void)
 
 typedef struct ppl_polyhedra_union {
   Polyhedron *_polyhedron;
+  struct ppl_polyhedra_union *_next;
 } ppl_polyhedra_union;
 
 typedef struct cloogdomain
