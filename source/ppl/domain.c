@@ -43,9 +43,20 @@
 # include "../../include/cloog/cloog.h"
 #include "matrix.h"
 
-
 static int cloog_check_polyhedral_ops = 1;
 static int cloog_return_ppl_result = 0;
+static int cloog_print_debug = 0;
+
+static CloogDomain *
+print_result (char *s, CloogDomain *d)
+{
+  if (cloog_print_debug)
+    {
+      fprintf (stderr, "%s \n", s);
+      debug_cloog_domain (d);
+    }
+  return d;
+}
 
 /* Variables names for pretty printing.  */
 static char wild_name[200][40];
@@ -194,7 +205,7 @@ cloog_domain_alloc (Polyhedron * polyhedron)
   domain->_polyhedron->_polyhedron = polyhedron;
   cloog_domain_set_references (domain, 1);
 
-  return domain;
+  return print_result ("cloog_domain_alloc", domain);
 }
 
 /**
@@ -207,7 +218,7 @@ cloog_domain_alloc (Polyhedron * polyhedron)
 static CloogDomain *
 cloog_domain_matrix2domain (CloogMatrix * matrix)
 {
-  return (cloog_domain_alloc (Constraints2Polyhedron (matrix, MAX_RAYS)));
+  return print_result ("cloog_domain_matrix2domain", cloog_domain_alloc (Constraints2Polyhedron (matrix, MAX_RAYS)));
 }
 
 /**
@@ -350,7 +361,7 @@ cloog_translate_ppl_polyhedron (ppl_Polyhedron_t pol)
     }
 
   res = cloog_domain_matrix2domain (matrix);
-  return res;
+  return print_result ("cloog_translate_ppl_polyhedron", res);
 }
 
 static inline int
@@ -411,7 +422,7 @@ CloogDomain *
 cloog_domain_copy (CloogDomain * domain)
 {
   cloog_domain_set_references (domain, cloog_domain_references (domain) + 1);
-  return domain;
+  return print_result ("cloog_domain_copy", domain);
 }
 
 
@@ -424,9 +435,9 @@ cloog_domain_copy (CloogDomain * domain)
 static CloogDomain *
 cloog_domain_image (CloogDomain * domain, CloogMatrix * mapping)
 {
-  return (cloog_domain_alloc
-	  (DomainImage
-	   (cloog_domain_polyhedron (domain), mapping, MAX_RAYS)));
+  return print_result ("cloog_domain_image", cloog_domain_alloc
+		       (DomainImage
+			(cloog_domain_polyhedron (domain), mapping, MAX_RAYS)));
 }
 
 
@@ -440,9 +451,9 @@ cloog_domain_image (CloogDomain * domain, CloogMatrix * mapping)
 static CloogDomain *
 cloog_domain_preimage (CloogDomain * domain, CloogMatrix * mapping)
 {
-  return (cloog_domain_alloc
-	  (DomainPreimage
-	   (cloog_domain_polyhedron (domain), mapping, MAX_RAYS)));
+  return print_result ("cloog_domain_preimage", cloog_domain_alloc
+		       (DomainPreimage
+			(cloog_domain_polyhedron (domain), mapping, MAX_RAYS)));
 }
 
 
@@ -456,8 +467,8 @@ cloog_domain_preimage (CloogDomain * domain, CloogMatrix * mapping)
 CloogDomain *
 cloog_domain_convex (CloogDomain * domain)
 {
-  return (cloog_domain_alloc
-	  (DomainConvex (cloog_domain_polyhedron (domain), MAX_RAYS)));
+  return print_result ("cloog_domain_convex", cloog_domain_alloc
+		       (DomainConvex (cloog_domain_polyhedron (domain), MAX_RAYS)));
 }
 
 static inline Polyhedron *
@@ -630,7 +641,8 @@ cloog_domain_simplify (CloogDomain * dom1, CloogDomain * dom2)
 			(P, cloog_domain_polyhedron (dom2), MAX_RAYS));
   if (P != cloog_domain_polyhedron (dom1))
     Polyhedron_Free (P);
-  return dom;
+
+  return print_result ("cloog_domain_simplify", dom);
 }
 
 
@@ -649,9 +661,9 @@ cloog_domain_union (CloogDomain * dom1, CloogDomain * dom2)
   if (!cloog_domain_polyhedron (dom2))
     return cloog_domain_alloc (cloog_domain_polyhedron (dom1));
 
-  return (cloog_domain_alloc (DomainUnion (cloog_domain_polyhedron (dom1),
-					   cloog_domain_polyhedron (dom2),
-					   MAX_RAYS)));
+  return print_result ("cloog_domain_union", cloog_domain_alloc (DomainUnion (cloog_domain_polyhedron (dom1),
+									      cloog_domain_polyhedron (dom2),
+									      MAX_RAYS)));
 }
 
 /**
@@ -682,9 +694,10 @@ cloog_domain_intersection (CloogDomain * dom1, CloogDomain * dom2)
 	  }
     }
 
-  return cloog_check_domains (res, cloog_domain_alloc (DomainIntersection (cloog_domain_polyhedron (dom1),
-									   cloog_domain_polyhedron (dom2),
-									   MAX_RAYS)));
+  return print_result ("cloog_domain_intersection",
+		       cloog_check_domains (res, cloog_domain_alloc (DomainIntersection (cloog_domain_polyhedron (dom1),
+											 cloog_domain_polyhedron (dom2),
+											 MAX_RAYS))));
 }
 
 
@@ -699,12 +712,12 @@ CloogDomain *
 cloog_domain_difference (CloogDomain * domain, CloogDomain * minus)
 {
   if (cloog_domain_isempty (minus))
-    return (cloog_domain_copy (domain));
+    return print_result ("cloog_domain_difference", cloog_domain_copy (domain));
   else
-    return (cloog_domain_alloc
-	    (DomainDifference
-	     (cloog_domain_polyhedron (domain),
-	      cloog_domain_polyhedron (minus), MAX_RAYS)));
+    return print_result ("cloog_domain_difference", cloog_domain_alloc
+			 (DomainDifference
+			  (cloog_domain_polyhedron (domain),
+			   cloog_domain_polyhedron (minus), MAX_RAYS)));
 }
 
 
@@ -756,7 +769,7 @@ cloog_domain_addconstraints (domain_source, domain_target)
       next = cloog_domain_next (next);
     }
 
-  return (cloog_domain_alloc (new));
+  return print_result ("cloog_domain_addconstraints", cloog_domain_alloc (new));
 }
 
 
@@ -918,7 +931,7 @@ cloog_domain_read (FILE * foo)
   domain = cloog_domain_matrix2domain (matrix);
   cloog_matrix_free (matrix);
 
-  return (domain);
+  return print_result ("cloog_domain_read", domain);
 }
 
 
@@ -954,7 +967,7 @@ cloog_domain_union_read (FILE * foo)
 	  cloog_domain_free (temp);
 	  cloog_domain_free (old);
 	}
-      return domain;
+      return print_result ("cloog_domain_union_read", domain);
     }
   else
     return NULL;
@@ -1047,7 +1060,7 @@ cloog_domain_project (CloogDomain * domain, int level, int nb_par)
   difference = nb_columns - nb_rows;
 
   if (difference == 0)
-    return (cloog_domain_copy (domain));
+    return print_result ("cloog_domain_project", cloog_domain_copy (domain));
 
   matrix = cloog_matrix_alloc (nb_rows, nb_columns);
 
@@ -1063,7 +1076,7 @@ cloog_domain_project (CloogDomain * domain, int level, int nb_par)
   projected_domain = cloog_domain_image (domain, matrix);
   cloog_matrix_free (matrix);
 
-  return (projected_domain);
+  return print_result ("cloog_domain_project", projected_domain);
 }
 
 /**
@@ -1090,7 +1103,7 @@ cloog_domain_extend (CloogDomain * domain, int dim, int nb_par)
   difference = nb_columns - nb_rows;
 
   if (difference == 0)
-    return (cloog_domain_copy (domain));
+    return print_result ("cloog_domain_extend", cloog_domain_copy (domain));
 
   matrix = cloog_matrix_alloc (nb_rows, nb_columns);
 
@@ -1106,7 +1119,7 @@ cloog_domain_extend (CloogDomain * domain, int dim, int nb_par)
   extended_domain = cloog_domain_preimage (domain, matrix);
   cloog_matrix_free (matrix);
 
-  return (extended_domain);
+  return print_result ("cloog_domain_extend", extended_domain);
 }
 
 
@@ -1820,7 +1833,7 @@ cloog_domain_cut_first (CloogDomain * domain)
   else
     rest = NULL;
 
-  return rest;
+  return print_result ("cloog_domain_cut_first", rest);
 }
 
 
@@ -1942,7 +1955,7 @@ cloog_domain_erase_dimension (CloogDomain * domain, int dimension)
   erased = cloog_domain_matrix2domain (matrix);
   cloog_matrix_free (matrix);
 
-  return erased;
+  return print_result ("cloog_domain_erase_dimension", erased);
 }
 
 /* Number of polyhedra inside the union of disjoint polyhedra.  */
