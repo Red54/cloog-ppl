@@ -559,12 +559,6 @@ cloog_domain_convex (CloogDomain * domain)
   return print_result ("cloog_domain_convex", res);
 }
 
-static inline Polyhedron *
-cloog_polyhedron_next (Polyhedron * p)
-{
-  return p->next;
-}
-
 static inline unsigned
 cloog_polyhedron_nbc (Polyhedron * p)
 {
@@ -1680,20 +1674,16 @@ cloog_domain_lazy_block (d1, d2, scattering, scattdims)
   Value date1, date2, date3, temp;
   Polyhedron *p1, *p2, *p3;
 
-  p1 = d2p (d1);
-  p2 = d2p (d2);
-
   /* Some basic checks: we only accept convex domains, with same constraint
    * and dimension numbers.
    */
-  if (cloog_polyhedron_next (p1) || cloog_polyhedron_next (p2) ||
-      (cloog_polyhedron_nbc (p1) != cloog_polyhedron_nbc (p2)) ||
-      (cloog_polyhedron_dim (p1) != cloog_polyhedron_dim (p2)))
-    {
-      Polyhedron_Free (p1);
-      Polyhedron_Free (p2);
-      return 0;
-    }
+  if (!cloog_domain_isconvex (d1) || !cloog_domain_isconvex (d2) ||
+      (cloog_domain_nbconstraints (d1) != cloog_domain_nbconstraints (d2)) ||
+      (cloog_domain_dim (d1) != cloog_domain_dim (d2)))
+    return 0;
+
+  p1 = d2p (d1);
+  p2 = d2p (d2);
 
   /* There should be only one difference between the two domains, it
    * has to be at the constant level and the difference must be of +1,
@@ -1926,11 +1916,11 @@ cloog_domain_lazy_disjoint (CloogDomain * d1, CloogDomain * d2)
   Value scat_val;
   Polyhedron *p1, *p2;
 
+  if (!cloog_domain_isconvex (d1) || !cloog_domain_isconvex (d2))
+    return 0;
+
   p1 = d2p (d1);
   p2 = d2p (d2);
-
-  if (cloog_polyhedron_next (p1) || cloog_polyhedron_next (p2))
-    return 0;
 
   value_init_c (scat_val);
 
