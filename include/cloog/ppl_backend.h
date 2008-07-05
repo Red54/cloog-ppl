@@ -39,8 +39,49 @@ typedef struct cloogdomain
 
 extern void debug_cloog_domain (CloogDomain *);
 
+static inline ppl_polyhedra_union *
+cloog_domain_upol (CloogDomain * domain)
+{
+  return domain->_polyhedron;
+}
+
 static inline Polyhedron *
 cloog_domain_polyhedron (CloogDomain * domain)
 {
   return domain->_polyhedron->_polyhedron;
 }
+
+static inline Polyhedron *
+cloog_upol_polyhedron (ppl_polyhedra_union * ppl)
+{
+  return ppl->_polyhedron;
+}
+
+static inline void
+cloog_upol_set_polyhedron (ppl_polyhedra_union * ppl, Polyhedron *p)
+{
+  ppl->_polyhedron = p;
+}
+
+static inline ppl_polyhedra_union *
+cloog_new_upol (Polyhedron *p)
+{
+  ppl_polyhedra_union *ppl = (ppl_polyhedra_union *) malloc (sizeof (ppl_polyhedra_union));
+  ppl->_polyhedron = p;
+  ppl->_next = NULL;
+  return ppl;
+}
+
+static inline void
+cloog_upol_set_next (ppl_polyhedra_union * p, ppl_polyhedra_union * n)
+{
+  p->_next = n;
+}
+
+static inline ppl_polyhedra_union *
+cloog_upol_next (ppl_polyhedra_union * p)
+{
+  return p->_next;
+}
+
+
