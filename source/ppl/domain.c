@@ -572,21 +572,15 @@ cloog_domain_nbconstraints (CloogDomain * domain)
 }
 
 static inline unsigned
-cloog_polyhedron_nbeq (Polyhedron * p)
-{
-  return p->NbEq;
-}
-
-static inline unsigned
 cloog_upol_nbeq (ppl_polyhedra_union * d)
 {
-  return cloog_polyhedron_nbeq (cloog_upol_polyhedron (d));
+  return cloog_upol_polyhedron (d)->NbEq;
 }
 
 static inline unsigned
 cloog_domain_nbeq (CloogDomain * d)
 {
-  return cloog_polyhedron_nbeq (cloog_domain_polyhedron (d));
+  return cloog_domain_polyhedron (d)->NbEq;
 }
 
 static inline unsigned
@@ -672,12 +666,11 @@ cloog_domain_simplify (CloogDomain * dom1, CloogDomain * dom2)
    * so we remove them here first in case both dom1 and dom2
    * are single polyhedra (i.e., not unions of polyhedra).
    */
-  if (cloog_domain_isconvex (dom1)
-      && cloog_domain_isconvex (dom2)
-      && cloog_polyhedron_nbeq (P) && cloog_domain_nbeq (dom2))
+  if (cloog_domain_isconvex (dom1) && cloog_domain_isconvex (dom2)
+      && cloog_domain_nbeq (dom1) && cloog_domain_nbeq (dom2))
     {
       int i, row;
-      int rows = cloog_polyhedron_nbeq (P) + cloog_domain_nbeq (dom2);
+      int rows = cloog_domain_nbeq (dom1) + cloog_domain_nbeq (dom2);
       int cols = cloog_domain_dim (dom1) + 2;
       int rank;
       M = cloog_matrix_alloc (rows, cols);
@@ -686,7 +679,7 @@ cloog_domain_simplify (CloogDomain * dom1, CloogDomain * dom2)
 		   M->p[0], cloog_domain_nbeq (dom2) * cols);
       rank = cloog_domain_nbeq (dom2);
       row = 0;
-      for (i = 0; i < cloog_polyhedron_nbeq (P); ++i)
+      for (i = 0; i < cloog_domain_nbeq (dom1); ++i)
 	{
 	  Vector_Copy (P->Constraint[i], M->p[rank], cols);
 	  if (Gauss (M, rank + 1, cols - 1) > rank)
@@ -695,12 +688,10 @@ cloog_domain_simplify (CloogDomain * dom1, CloogDomain * dom2)
 	      rank++;
 	    }
 	}
-      if (row < cloog_polyhedron_nbeq (P))
+      if (row < cloog_domain_nbeq (dom1))
 	{
-	  Vector_Copy (P->Constraint[cloog_polyhedron_nbeq (P)],
-		       M2->p[row],
-		       (nbc -
-			cloog_polyhedron_nbeq (P)) * cols);
+	  Vector_Copy (P->Constraint[cloog_domain_nbeq (dom1)],
+		       M2->p[row], (nbc - cloog_domain_nbeq (dom1)) * cols);
 	  P = Constraints2Polyhedron (M2, MAX_RAYS);
 	}
       cloog_matrix_free (M2);
@@ -1395,15 +1386,14 @@ cloog_domain_stride (domain, strided_level, nb_par, stride, offset)
      int strided_level, nb_par;
      Value *stride, *offset;
 {
-  int i, dimension;
-  Polyhedron *polyhedron;
+  int i;
   int n_col, n_row, rank;
   CloogMatrix *M;
   Matrix *U;
   Vector *V;
-
-  polyhedron = d2p (domain);
-  dimension = cloog_domain_dim (domain);
+  Polyhedron *polyhedron = d2p (domain);
+  int dimension = cloog_domain_dim (domain);
+  int nbeq = cloog_domain_nbeq (domain);
 
   /* Look at all equalities involving strided_level and the inner
    * iterators.  We can ignore the outer iterators and the parameters
@@ -1411,13 +1401,13 @@ cloog_domain_stride (domain, strided_level, nb_par, stride, offset)
    * be a constant.
    */
   n_col = (1 + dimension - nb_par) - strided_level;
-  for (i = 0, n_row = 0; i < cloog_polyhedron_nbeq (polyhedron); i++)
+  for (i = 0, n_row = 0; i < nbeq; i++)
     if (First_Non_Zero
 	(polyhedron->Constraint[i] + strided_level, n_col) != -1)
       ++n_row;
 
   M = cloog_matrix_alloc (n_row + 1, n_col + 1);
-  for (i = 0, n_row = 0; i < cloog_polyhedron_nbeq (polyhedron); i++)
+  for (i = 0, n_row = 0; i < nbeq; i++)
     {
       if (First_Non_Zero
 	  (polyhedron->Constraint[i] + strided_level, n_col) == -1)
