@@ -560,21 +560,15 @@ cloog_domain_convex (CloogDomain * domain)
 }
 
 static inline unsigned
-cloog_polyhedron_nbc (Polyhedron * p)
-{
-  return p->NbConstraints;
-}
-
-static inline unsigned
 cloog_upol_nbc (ppl_polyhedra_union * p)
 {
-  return cloog_polyhedron_nbc (cloog_upol_polyhedron (p));
+  return cloog_upol_polyhedron (p)->NbConstraints;
 }
 
 static inline int
 cloog_domain_nbconstraints (CloogDomain * domain)
 {
-  return cloog_polyhedron_nbc (cloog_domain_polyhedron (domain));
+  return cloog_domain_polyhedron (domain)->NbConstraints;
 }
 
 static inline unsigned
@@ -678,6 +672,7 @@ cloog_domain_simplify (CloogDomain * dom1, CloogDomain * dom2)
   CloogMatrix *M, *M2;
   CloogDomain *dom;
   Polyhedron *d2, *P = d2p (dom1);
+  int nbc = cloog_domain_nbconstraints (dom1);
 
   /* DomainSimplify doesn't remove all redundant equalities,
    * so we remove them here first in case both dom1 and dom2
@@ -692,7 +687,7 @@ cloog_domain_simplify (CloogDomain * dom1, CloogDomain * dom2)
       int cols = cloog_polyhedron_dim (P) + 2;
       int rank;
       M = cloog_matrix_alloc (rows, cols);
-      M2 = cloog_matrix_alloc (cloog_polyhedron_nbc (P), cols);
+      M2 = cloog_matrix_alloc (nbc, cols);
       Vector_Copy (cloog_domain_polyhedron (dom2)->Constraint[0],
 		   M->p[0], cloog_domain_nbeq (dom2) * cols);
       rank = cloog_domain_nbeq (dom2);
@@ -710,7 +705,7 @@ cloog_domain_simplify (CloogDomain * dom1, CloogDomain * dom2)
 	{
 	  Vector_Copy (P->Constraint[cloog_polyhedron_nbeq (P)],
 		       M2->p[row],
-		       (cloog_polyhedron_nbc (P) -
+		       (nbc -
 			cloog_polyhedron_nbeq (P)) * cols);
 	  P = Constraints2Polyhedron (M2, MAX_RAYS);
 	}
@@ -1334,7 +1329,7 @@ cloog_domain_extend (CloogDomain * domain, int dim, int nb_par)
 int
 cloog_domain_never_integral (CloogDomain * domain)
 {
-  int i, dimension;
+  int i, dimension, nbc;
   Value gcd, modulo;
   Polyhedron *polyhedron;
 
@@ -1345,9 +1340,10 @@ cloog_domain_never_integral (CloogDomain * domain)
   value_init_c (modulo);
   polyhedron = d2p (domain);
   dimension = cloog_domain_dim (domain) + 2;
+  nbc = cloog_domain_nbconstraints (domain);
 
   /* For each constraint... */
-  for (i = 0; i < cloog_polyhedron_nbc (polyhedron); i++)
+  for (i = 0; i < nbc; i++)
     {				/* If we have an equality and the scalar part is not zero... */
       if (value_zero_p (polyhedron->Constraint[i][0]) &&
 	  value_notzero_p (polyhedron->Constraint[i][dimension - 1]))
@@ -1485,17 +1481,18 @@ cloog_domain_integral_lowerbound (domain, level, lower)
      int level;
      Value *lower;
 {
-  int i, first_lower = 1, dimension, lower_constraint = -1;
+  int i, first_lower = 1, dimension, lower_constraint = -1, nbc;
   Value iterator, constant, tmp;
   Polyhedron *polyhedron;
 
   polyhedron = d2p (domain);
   dimension = cloog_domain_dim (domain);
+  nbc = cloog_domain_nbconstraints (domain);
 
   /* We want one and only one lower bound (e.g. no equality, no maximum
    * calculation...).
    */
-  for (i = 0; i < cloog_polyhedron_nbc (polyhedron); i++)
+  for (i = 0; i < nbc; i++)
     if (value_zero_p (polyhedron->Constraint[i][0])
 	&& value_notzero_p (polyhedron->Constraint[i][level]))
       {
@@ -1503,7 +1500,7 @@ cloog_domain_integral_lowerbound (domain, level, lower)
 	return 0;
       }
 
-  for (i = 0; i < cloog_polyhedron_nbc (polyhedron); i++)
+  for (i = 0; i < nbc; i++)
     if (value_pos_p (polyhedron->Constraint[i][level]))
       {
 	if (first_lower)
@@ -1581,11 +1578,11 @@ cloog_domain_lowerbound_update (domain, level, lower)
      int level;
      Value lower;
 {
-  int i;
+  int i, nbc = cloog_domain_nbconstraints (domain);
   Polyhedron *polyhedron = cloog_domain_polyhedron (domain);
 
   /* There is only one lower bound, the first one is the good one. */
-  for (i = 0; i < cloog_polyhedron_nbc (polyhedron); i++)
+  for (i = 0; i < nbc; i++)
     if (value_pos_p (polyhedron->Constraint[i][level]))
       {
 	value_set_si (polyhedron->Constraint[i][level], 1);
@@ -1670,7 +1667,7 @@ cloog_domain_lazy_block (d1, d2, scattering, scattdims)
      CloogDomainList *scattering;
      int scattdims;
 {
-  int i, j, difference = 0, different_constraint = 0;
+  int i, j, difference = 0, different_constraint = 0, nbc;
   Value date1, date2, date3, temp;
   Polyhedron *p1, *p2, *p3;
 
@@ -1684,6 +1681,7 @@ cloog_domain_lazy_block (d1, d2, scattering, scattdims)
 
   p1 = d2p (d1);
   p2 = d2p (d2);
+  nbc = cloog_domain_nbconstraints (d1);
 
   /* There should be only one difference between the two domains, it
    * has to be at the constant level and the difference must be of +1,
@@ -1703,7 +1701,7 @@ cloog_domain_lazy_block (d1, d2, scattering, scattdims)
    */
 
   value_init_c (temp);
-  for (i = 0; i < cloog_polyhedron_nbc (p1); i++)
+  for (i = 0; i < nbc; i++)
     {
       if (difference == 0)
 	{			/* All elements except scalar must be equal. */
@@ -1912,7 +1910,7 @@ cloog_domain_lazy_block (d1, d2, scattering, scattdims)
 int
 cloog_domain_lazy_disjoint (CloogDomain * d1, CloogDomain * d2)
 {
-  int i1, j1, i2, j2, scat_dim;
+  int i1, j1, i2, j2, scat_dim, nbc1, nbc2;
   Value scat_val;
   Polyhedron *p1, *p2;
 
@@ -1921,10 +1919,11 @@ cloog_domain_lazy_disjoint (CloogDomain * d1, CloogDomain * d2)
 
   p1 = d2p (d1);
   p2 = d2p (d2);
-
+  nbc1 = cloog_domain_nbconstraints (d1);
+  nbc2 = cloog_domain_nbconstraints (d2);
   value_init_c (scat_val);
 
-  for (i1 = 0; i1 < cloog_polyhedron_nbc (p1); i1++)
+  for (i1 = 0; i1 < nbc1; i1++)
     {
       if (value_notzero_p (p1->Constraint[i1][0]))
 	continue;
@@ -1948,7 +1947,7 @@ cloog_domain_lazy_disjoint (CloogDomain * d1, CloogDomain * d2)
 	  value_assign (scat_val,
 			p1->Constraint[i1][cloog_polyhedron_dim (p1) + 1]);
 
-	  for (i2 = 0; i2 < cloog_polyhedron_nbc (p2); i2++)
+	  for (i2 = 0; i2 < nbc2; i2++)
 	    {
 	      for (j2 = 0; j2 < scat_dim; j2++)
 		if (value_notzero_p (p2->Constraint[i2][j2]))
@@ -2057,12 +2056,14 @@ cloog_domain_cut_first (CloogDomain * domain)
 int
 cloog_domain_lazy_isscalar (CloogDomain * domain, int dimension)
 {
-  int i, j;
+  int i, j, nbc;
   Polyhedron *polyhedron;
 
   polyhedron = d2p (domain);
+  nbc = cloog_domain_nbconstraints (domain);
+
   /* For each constraint... */
-  for (i = 0; i < cloog_polyhedron_nbc (polyhedron); i++)
+  for (i = 0; i < nbc; i++)
     {				/* ...if it is concerned by the potentially scalar dimension... */
       if (value_notzero_p
 	  (polyhedron->Constraint[i][dimension + 1]))
@@ -2106,11 +2107,11 @@ void
 cloog_domain_scalar (CloogDomain * domain, int dimension, Value * value)
 {
   int i;
-  Polyhedron *polyhedron;
+  Polyhedron *polyhedron = d2p (domain);
+  int nbc = cloog_domain_nbconstraints (domain);
 
-  polyhedron = d2p (domain);
   /* For each constraint... */
-  for (i = 0; i < cloog_polyhedron_nbc (polyhedron); i++)
+  for (i = 0; i < nbc; i++)
     {				/* ...if it is the equality defining the scalar dimension... */
       if (value_notzero_p
 	  (polyhedron->Constraint[i][dimension + 1])
@@ -2143,21 +2144,21 @@ cloog_domain_scalar (CloogDomain * domain, int dimension, Value * value)
 CloogDomain *
 cloog_domain_erase_dimension (CloogDomain * domain, int dimension)
 {
-  int i, j, mi, nb_dim;
+  int i, j, mi, nb_dim, nbc;
   CloogMatrix *matrix;
   CloogDomain *erased;
   Polyhedron *polyhedron;
 
   polyhedron = d2p (domain);
   nb_dim = cloog_domain_dim (domain);
+  nbc = cloog_domain_nbconstraints (domain);
 
   /* The matrix is one column less and at least one constraint less. */
-  matrix =
-    cloog_matrix_alloc (cloog_polyhedron_nbc (polyhedron) - 1, nb_dim + 1);
+  matrix = cloog_matrix_alloc (nbc - 1, nb_dim + 1);
 
   /* mi is the constraint counter for the matrix. */
   mi = 0;
-  for (i = 0; i < cloog_polyhedron_nbc (polyhedron); i++)
+  for (i = 0; i < nbc; i++)
     if (value_zero_p (polyhedron->Constraint[i][dimension + 1]))
       {
 	for (j = 0; j <= dimension; j++)
