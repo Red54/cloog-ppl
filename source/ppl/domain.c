@@ -729,7 +729,6 @@ cloog_upol_copy (ppl_polyhedra_union *p)
 CloogDomain *
 cloog_domain_union (CloogDomain * dom1, CloogDomain * dom2)
 {
-  Polyhedron *p1, *p2;
   CloogDomain *res;
   ppl_polyhedra_union *head1, *head2, *tail1, *tail2;
   ppl_polyhedra_union *d1, *d2;
@@ -820,11 +819,16 @@ cloog_domain_union (CloogDomain * dom1, CloogDomain * dom2)
       res = cloog_new_domain (head1);
     }
 
-  p1 = d2p (dom1);
-  p2 = d2p (dom2);
-  cloog_check_domains (res, cloog_domain_alloc (DomainUnion (p1, p2, MAX_RAYS)));
-  Polyhedron_Free (p1);
-  Polyhedron_Free (p2);
+  if (cloog_check_polyhedral_ops)
+    {
+      Polyhedron *p1 = d2p (dom1);
+      Polyhedron *p2 = d2p (dom2);
+
+      cloog_check_domains (res, cloog_domain_alloc (DomainUnion (p1, p2, MAX_RAYS)));
+
+      Polyhedron_Free (p1);
+      Polyhedron_Free (p2);
+    }
 
   return print_result ("cloog_domain_union", cloog_check_domain (res));
 }
@@ -838,7 +842,6 @@ cloog_domain_union (CloogDomain * dom1, CloogDomain * dom2)
 CloogDomain *
 cloog_domain_intersection (CloogDomain * dom1, CloogDomain * dom2)
 {
-  Polyhedron *a1, *a2;
   CloogDomain *res;
   ppl_polyhedra_union *p1, *p2;
   ppl_Polyhedron_t ppl1, ppl2;
@@ -858,11 +861,16 @@ cloog_domain_intersection (CloogDomain * dom1, CloogDomain * dom2)
 	}
     }
 
-  a1 = d2p (dom1);
-  a2 = d2p (dom2);
-  res = cloog_check_domains (res, cloog_domain_alloc (DomainIntersection (a1, a2, MAX_RAYS)));
-  Polyhedron_Free (a1);
-  Polyhedron_Free (a2);
+  if (cloog_check_polyhedral_ops)
+    {
+      Polyhedron *a1 = d2p (dom1);
+      Polyhedron *a2 = d2p (dom2);
+
+      res = cloog_check_domains (res, cloog_domain_alloc (DomainIntersection (a1, a2, MAX_RAYS)));
+
+      Polyhedron_Free (a1);
+      Polyhedron_Free (a2);
+    }
 
   return print_result ("cloog_domain_intersection", res);
 }
@@ -960,8 +968,7 @@ cloog_domain_sort (doms, nb_pols, level, nb_par, permut)
      int *permut;
 {
   int *time, i;
-  Polyhedron **pols =
-    (Polyhedron **) malloc (nb_pols * sizeof (Polyhedron *));
+  Polyhedron **pols = (Polyhedron **) malloc (nb_pols * sizeof (Polyhedron *));
 
   for (i = 0; i < nb_pols; i++)
     pols[i] = cloog_domain_polyhedron (doms[i]);
