@@ -720,6 +720,28 @@ cloog_upol_copy (ppl_polyhedra_union *p)
   return res;
 }
 
+/* Adds to D1 the union of polyhedra from D2, with no checks of
+   redundancies between polyhedra.  */
+
+CloogDomain *
+cloog_domain_add_domain (CloogDomain *d1, CloogDomain *d2)
+{
+  ppl_polyhedra_union *upol;
+
+  if (!d1)
+    return d2;
+
+  if (!d2)
+    return d1;
+
+  upol = cloog_domain_upol (d1);
+  while (cloog_upol_next (upol))
+    upol = cloog_upol_next (upol);
+
+  cloog_upol_set_next (upol, cloog_domain_upol (d2));
+  return d1;
+}
+
 /**
  * cloog_domain_union function:
  * This function returns a new CloogDomain structure including a polyhedral
@@ -1214,7 +1236,6 @@ cloog_domain_isempty (CloogDomain * domain)
   return ((cloog_domain_dim (domain) < cloog_domain_nbeq (domain)) ? 1 : 0);
 }
 
-
 /**
  * cloog_domain_project function:
  * From Quillere's LoopGen 0.4. This function returns the projection of
@@ -1227,7 +1248,7 @@ cloog_domain_isempty (CloogDomain * domain)
  *                   CLooG 0.12.1).
  */
 CloogDomain *
-cloog_domain_project (CloogDomain * domain, int level, int nb_par)
+cloog_domain_project_1 (CloogDomain * domain, int level, int nb_par)
 {
   int row, column, nb_rows, nb_columns, difference;
   CloogDomain *projected_domain;
@@ -1254,7 +1275,49 @@ cloog_domain_project (CloogDomain * domain, int level, int nb_par)
   projected_domain = cloog_domain_image (domain, matrix);
   cloog_matrix_free (matrix);
 
-  return print_result ("cloog_domain_project", cloog_check_domain (projected_domain));
+  return print_result ("cloog_domain_project_1", cloog_check_domain (projected_domain));
+}
+
+CloogDomain *
+cloog_domain_project (CloogDomain * domain, int level, int nb_par)
+{
+  return print_result ("cloog_domain_project",
+		       cloog_domain_project_1 (domain, level, nb_par));
+}
+
+CloogDomain *
+cloog_domain_project_ported (CloogDomain * domain, int level, int nb_par)
+{
+  CloogDomain *res = NULL;
+  ppl_polyhedra_union *upol = cloog_domain_upol (domain);
+  int i, diff = cloog_domain_dim (domain) - level - nb_par;
+  size_t n;
+  ppl_dimension_type *to_remove;
+
+  if (diff == 0)
+    return print_result ("cloog_domain_project", domain);
+
+  n = diff;
+  to_remove = (ppl_dimension_type *) malloc (n * sizeof (ppl_dimension_type));
+
+  for (i = 0; i < n; i++)
+    to_remove[i] = i + level;
+
+  while (upol)
+    {
+      ppl_Polyhedron_t ppl = cloog_translate_constraint_matrix (cloog_upol_domain2matrix (upol));
+
+      ppl_Polyhedron_remove_space_dimensions (ppl, to_remove, n);
+      res = cloog_domain_add_domain (res, cloog_translate_ppl_polyhedron (ppl));
+      upol = cloog_upol_next (upol);
+    }
+
+  if (cloog_check_polyhedral_ops)
+    return print_result ("cloog_domain_project", 
+			 cloog_check_domains
+			 (res, cloog_domain_project_1 (domain, level, nb_par)));
+
+  return print_result ("cloog_domain_project", res);
 }
 
 /**
