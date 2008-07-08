@@ -1295,7 +1295,7 @@ cloog_domain_project_ported (CloogDomain * domain, int level, int nb_par)
   ppl_dimension_type *to_remove;
 
   if (diff == 0)
-    return print_result ("cloog_domain_project", domain);
+    return print_result ("cloog_domain_project", cloog_domain_copy (domain));
 
   n = diff;
   to_remove = (ppl_dimension_type *) malloc (n * sizeof (ppl_dimension_type));
@@ -1333,7 +1333,7 @@ cloog_domain_project_ported (CloogDomain * domain, int level, int nb_par)
  *                 CLooG 0.12.1).
  */
 CloogDomain *
-cloog_domain_extend (CloogDomain * domain, int dim, int nb_par)
+cloog_domain_extend_1 (CloogDomain * domain, int dim, int nb_par)
 {
   int row, column, nb_rows, nb_columns, difference;
   CloogDomain *extended_domain;
@@ -1344,7 +1344,7 @@ cloog_domain_extend (CloogDomain * domain, int dim, int nb_par)
   difference = nb_columns - nb_rows;
 
   if (difference == 0)
-    return print_result ("cloog_domain_extend", cloog_domain_copy (domain));
+    return print_result ("cloog_domain_extend_1", cloog_domain_copy (domain));
 
   matrix = cloog_matrix_alloc (nb_rows, nb_columns);
 
@@ -1360,9 +1360,53 @@ cloog_domain_extend (CloogDomain * domain, int dim, int nb_par)
   extended_domain = cloog_domain_preimage (domain, matrix);
   cloog_matrix_free (matrix);
 
-  return print_result ("cloog_domain_extend", cloog_check_domain (extended_domain));
+  return print_result ("cloog_domain_extend_1", cloog_check_domain (extended_domain));
 }
 
+CloogDomain *
+cloog_domain_extend (CloogDomain * domain, int dim, int nb_par)
+{
+  CloogDomain *res = NULL;
+  ppl_polyhedra_union *upol = cloog_domain_upol (domain);
+  int i, k, n, diff = dim + nb_par - cloog_domain_dim (domain);
+  ppl_dimension_type *map;
+  ppl_dimension_type to_add = diff;
+
+  if (diff == 0)
+    return print_result ("cloog_domain_extend", cloog_domain_copy (domain));
+
+  n = dim + nb_par;
+  map = (ppl_dimension_type *) malloc (n * sizeof (ppl_dimension_type));
+
+  k = cloog_domain_dim (domain) - nb_par;
+  for (i = 0; i < k; i++)
+    map[i] = i;
+
+  k += nb_par;
+  for (; i < k; i++)
+    map[i] = i + diff;
+
+  k += diff;
+  for (; i < k; i++)
+    map[i] = i - nb_par;
+
+  while (upol)
+    {
+      ppl_Polyhedron_t ppl = cloog_translate_constraint_matrix (cloog_upol_domain2matrix (upol));
+
+      ppl_Polyhedron_add_space_dimensions_and_embed (ppl, to_add);
+      ppl_Polyhedron_map_space_dimensions (ppl, map, n);
+      res = cloog_domain_add_domain (res, cloog_translate_ppl_polyhedron (ppl));
+      upol = cloog_upol_next (upol);
+    }
+
+  if (cloog_check_polyhedral_ops)
+    return print_result ("cloog_domain_extend", 
+			 cloog_check_domains
+			 (res, cloog_domain_extend_1 (domain, dim, nb_par)));
+
+  return print_result ("cloog_domain_extend", res);
+}
 
 /**
  * cloog_domain_never_integral function:
