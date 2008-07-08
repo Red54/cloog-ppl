@@ -1281,13 +1281,6 @@ cloog_domain_project_1 (CloogDomain * domain, int level, int nb_par)
 CloogDomain *
 cloog_domain_project (CloogDomain * domain, int level, int nb_par)
 {
-  return print_result ("cloog_domain_project",
-		       cloog_domain_project_1 (domain, level, nb_par));
-}
-
-CloogDomain *
-cloog_domain_project_ported (CloogDomain * domain, int level, int nb_par)
-{
   CloogDomain *res = NULL;
   ppl_polyhedra_union *upol = cloog_domain_upol (domain);
   int i, diff = cloog_domain_dim (domain) - level - nb_par;
