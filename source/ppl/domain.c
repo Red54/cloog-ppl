@@ -1287,6 +1287,13 @@ cloog_domain_project (CloogDomain * domain, int level, int nb_par)
   size_t n;
   ppl_dimension_type *to_remove;
 
+  if (diff < 0)
+    {
+      fprintf (stderr, "cloog_domain_project should not be called with"
+	       "cloog_domain_dim (domain) < level + nb_par");
+      exit (1);
+    }
+
   if (diff == 0)
     return print_result ("cloog_domain_project", cloog_domain_copy (domain));
 
