@@ -629,10 +629,7 @@ CloogLoop * cloog_loop_project(CloogLoop * loop, int level, int nb_par)
   copy = cloog_loop_alloc(cloog_loop_domain (loop),loop->stride,cloog_loop_block (loop),
                           cloog_loop_inner (loop),NULL) ;
 
-  if ((cloog_domain_dim(cloog_loop_domain (loop))-nb_par) == level)
-    new_domain = cloog_domain_copy(cloog_loop_domain (loop)) ;  
-  else
-    new_domain = cloog_domain_project(cloog_loop_domain (loop),level,nb_par) ;
+  new_domain = cloog_domain_project(cloog_loop_domain (loop),level,nb_par) ;
 
   new_loop = cloog_loop_alloc(new_domain,one,NULL,copy,NULL) ;
   value_clear_c(one) ;
