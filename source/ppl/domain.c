@@ -310,18 +310,18 @@ cloog_matrix_row_is_eq_p (CloogMatrix *matrix, int row)
   return value_zero_p (matrix->p[row][0]);
 }
 
-static ppl_Polyhedron_t
-cloog_translate_constraint_matrix (CloogMatrix *matrix)
+/* Adds to PPL the constraints from MATRIX.  */
+
+static void
+cloog_translate_constraint_matrix_1 (ppl_Polyhedron_t ppl, CloogMatrix *matrix)
 {
   int i, j;
-  ppl_Polyhedron_t res;
   ppl_Constraint_t cstr;
   ppl_Linear_Expression_t expr;
   ppl_Coefficient_t coef;
   ppl_dimension_type dim = matrix->NbColumns - 2;
 
   ppl_new_Coefficient (&coef);
-  ppl_new_NNC_Polyhedron_from_dimension (&res, dim);
 
   for (i = 0; i < matrix->NbRows; i++)
     {
@@ -342,13 +342,22 @@ cloog_translate_constraint_matrix (CloogMatrix *matrix)
       else
 	ppl_new_Constraint (&cstr, expr, PPL_CONSTRAINT_TYPE_GREATER_THAN_OR_EQUAL);
 
-      ppl_Polyhedron_add_constraint (res, cstr);
+      ppl_Polyhedron_add_constraint (ppl, cstr);
     }
 
   if (cloog_check_polyhedral_ops)
-    ppl_Polyhedron_OK (res);
+    ppl_Polyhedron_OK (ppl);
+}
 
-  return res;
+static ppl_Polyhedron_t
+cloog_translate_constraint_matrix (CloogMatrix *matrix)
+{
+  ppl_Polyhedron_t ppl;
+  ppl_dimension_type dim = matrix->NbColumns - 2;
+
+  ppl_new_NNC_Polyhedron_from_dimension (&ppl, dim);
+  cloog_translate_constraint_matrix_1 (ppl, matrix);
+  return ppl;
 }
 
 static CloogDomain *
@@ -540,6 +549,28 @@ cloog_domain_preimage (CloogDomain * domain, CloogMatrix * mapping)
   return print_result ("cloog_domain_preimage", res);
 }
 
+static CloogDomain *
+cloog_check_domains (CloogDomain *ppl, CloogDomain *polylib)
+{
+  /* Cannot use cloog_domain_lazy_equal (polylib, ppl) here as this
+     function is too dumb: it does not detect permutations of
+     constraints.  */
+  if (!cloog_domain_isempty (cloog_domain_difference (ppl, polylib))
+      || !cloog_domain_isempty (cloog_domain_difference (polylib, ppl)))
+    {
+      fprintf (stderr, "different domains ( \n ppl (\n");
+      cloog_domain_print (stderr, ppl);
+      fprintf (stderr, ") \n polylib (\n");
+      cloog_domain_print (stderr, polylib);
+      fprintf (stderr, "))\n");
+      exit (1);
+    }
+
+  if (cloog_return_ppl_result)
+    return ppl;
+  else
+    return polylib;
+}
 
 /**
  * cloog_domain_convex function:
@@ -602,29 +633,6 @@ unsigned
 cloog_domain_dim (CloogDomain * d)
 {
   return cloog_domain_polyhedron (d)->Dimension;
-}
-
-static CloogDomain *
-cloog_check_domains (CloogDomain *ppl, CloogDomain *polylib)
-{
-  /* Cannot use cloog_domain_lazy_equal (polylib, ppl) here as this
-     function is too dumb: it does not detect permutations of
-     constraints.  */
-  if (!cloog_domain_isempty (cloog_domain_difference (ppl, polylib))
-      || !cloog_domain_isempty (cloog_domain_difference (polylib, ppl)))
-    {
-      fprintf (stderr, "different domains ( \n ppl (\n");
-      cloog_domain_print (stderr, ppl);
-      fprintf (stderr, ") \n polylib (\n");
-      cloog_domain_print (stderr, polylib);
-      fprintf (stderr, "))\n");
-      exit (1);
-    }
-
-  if (cloog_return_ppl_result)
-    return ppl;
-  else
-    return polylib;
 }
 
 /**
