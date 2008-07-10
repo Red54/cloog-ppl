@@ -942,8 +942,8 @@ cloog_domain_difference (CloogDomain * domain, CloogDomain * minus)
  * elimination in cloog_loop_separate !). This function is yet another part
  * of the DomainSimplify patching problem...
  */
-CloogDomain *
-cloog_domain_addconstraints (domain_source, domain_target)
+static CloogDomain *
+cloog_domain_addconstraints_1 (domain_source, domain_target)
      CloogDomain *domain_source, *domain_target;
 {
   unsigned nb_constraint;
@@ -981,6 +981,51 @@ cloog_domain_addconstraints (domain_source, domain_target)
   return print_result ("cloog_domain_addconstraints", cloog_check_domain (cloog_new_domain (new)));
 }
 
+CloogDomain *
+cloog_domain_addconstraints (CloogDomain *domain_source, CloogDomain *domain_target)
+{
+  CloogDomain *res;
+  ppl_Polyhedron_t ppl;
+  ppl_polyhedra_union *source, *target, *last;
+  int dim = cloog_domain_dim (domain_target);
+
+  source = cloog_domain_upol (domain_source);
+  target = cloog_domain_upol (domain_target);
+
+  ppl_new_NNC_Polyhedron_from_dimension (&ppl, dim);
+  cloog_translate_constraint_matrix_1 (ppl, cloog_upol_domain2matrix (target));
+  cloog_translate_constraint_matrix_1 (ppl, cloog_upol_domain2matrix (source));
+  res = cloog_translate_ppl_polyhedron (ppl);
+  last = cloog_domain_upol (res);
+
+  source = cloog_upol_next (source);
+  target = cloog_upol_next (target);
+
+  while (target)
+    {
+      ppl_new_NNC_Polyhedron_from_dimension (&ppl, dim);
+      cloog_translate_constraint_matrix_1 (ppl, cloog_upol_domain2matrix (target));
+
+      if (source)
+	{
+	  cloog_translate_constraint_matrix_1 (ppl, cloog_upol_domain2matrix (source));
+	  source = cloog_upol_next (source);
+	}
+
+      cloog_upol_set_next
+	(last, cloog_domain_upol (cloog_translate_ppl_polyhedron (ppl)));
+
+      last = cloog_upol_next (last);
+      target = cloog_upol_next (target);
+    }
+
+  if (cloog_check_polyhedral_ops)
+    return print_result ("cloog_domain_addconstraints", cloog_check_domains
+			 (res, cloog_domain_addconstraints_1 (domain_source,
+							      domain_target)));
+
+  return print_result ("cloog_domain_addconstraints", res);
+}
 
 /**
  * cloog_domain_sort function:
