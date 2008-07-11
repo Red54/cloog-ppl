@@ -310,40 +310,45 @@ cloog_matrix_row_is_eq_p (CloogMatrix *matrix, int row)
   return value_zero_p (matrix->p[row][0]);
 }
 
+static ppl_Constraint_t
+cloog_translate_constraint (CloogMatrix *matrix, int i)
+{
+  int j;
+  ppl_Constraint_t cstr;
+  ppl_Coefficient_t coef;
+  ppl_Linear_Expression_t expr;
+  ppl_dimension_type dim = matrix->NbColumns - 2;
+
+  ppl_new_Coefficient (&coef);
+  ppl_new_Linear_Expression_with_dimension (&expr, dim);
+
+  for (j = 1; j < matrix->NbColumns - 1; j++)
+    {
+      ppl_assign_Coefficient_from_mpz_t (coef, matrix->p[i][j]);
+      ppl_Linear_Expression_add_to_coefficient (expr, j - 1, coef);
+    }
+
+  ppl_assign_Coefficient_from_mpz_t 
+    (coef, matrix->p[i][matrix->NbColumns - 1]);
+  ppl_Linear_Expression_add_to_inhomogeneous (expr, coef);
+
+  if (cloog_matrix_row_is_eq_p (matrix, i))
+    ppl_new_Constraint (&cstr, expr, PPL_CONSTRAINT_TYPE_EQUAL);
+  else
+    ppl_new_Constraint (&cstr, expr, PPL_CONSTRAINT_TYPE_GREATER_THAN_OR_EQUAL);
+
+  return cstr;
+}
+
 /* Adds to PPL the constraints from MATRIX.  */
 
 static void
 cloog_translate_constraint_matrix_1 (ppl_Polyhedron_t ppl, CloogMatrix *matrix)
 {
-  int i, j;
-  ppl_Constraint_t cstr;
-  ppl_Linear_Expression_t expr;
-  ppl_Coefficient_t coef;
-  ppl_dimension_type dim = matrix->NbColumns - 2;
-
-  ppl_new_Coefficient (&coef);
+  int i;
 
   for (i = 0; i < matrix->NbRows; i++)
-    {
-      ppl_new_Linear_Expression_with_dimension (&expr, dim);
-
-      for (j = 1; j < matrix->NbColumns - 1; j++)
-	{
-	  ppl_assign_Coefficient_from_mpz_t (coef, matrix->p[i][j]);
-	  ppl_Linear_Expression_add_to_coefficient (expr, j - 1, coef);
-	}
-
-      ppl_assign_Coefficient_from_mpz_t 
-	(coef, matrix->p[i][matrix->NbColumns - 1]);
-      ppl_Linear_Expression_add_to_inhomogeneous (expr, coef);
-
-      if (cloog_matrix_row_is_eq_p (matrix, i))
-	ppl_new_Constraint (&cstr, expr, PPL_CONSTRAINT_TYPE_EQUAL);
-      else
-	ppl_new_Constraint (&cstr, expr, PPL_CONSTRAINT_TYPE_GREATER_THAN_OR_EQUAL);
-
-      ppl_Polyhedron_add_constraint (ppl, cstr);
-    }
+    ppl_Polyhedron_add_constraint (ppl, cloog_translate_constraint (matrix, i));
 
   if (cloog_check_polyhedral_ops)
     ppl_Polyhedron_OK (ppl);
