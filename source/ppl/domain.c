@@ -259,6 +259,12 @@ cloog_domain_alloc (Polyhedron *p)
   return print_result ("cloog_domain_alloc", cloog_new_domain (p2u (p)));
 }
 
+void
+debug_polyhedron (Polyhedron *p)
+{
+  debug_cloog_domain (cloog_domain_alloc (p));
+}
+
 static inline CloogDomain *
 cloog_check_domain_id (CloogDomain *dom)
 {
@@ -311,14 +317,44 @@ cloog_matrix_row_is_eq_p (CloogMatrix *matrix, int row)
 }
 
 static ppl_Constraint_t
-cloog_translate_constraint (CloogMatrix *matrix, int i)
+cloog_build_ppl_cstr (ppl_Linear_Expression_t expr, int ineq)
+{
+  ppl_Constraint_t cstr;
+
+  switch (ineq)
+    {
+    case 0:
+      ppl_new_Constraint (&cstr, expr, PPL_CONSTRAINT_TYPE_EQUAL);
+      break;
+
+    case 1:
+      ppl_new_Constraint (&cstr, expr, PPL_CONSTRAINT_TYPE_GREATER_THAN_OR_EQUAL);
+      break;
+
+    default:
+      /* Should not happen.  */
+      exit (1);
+    }
+
+  return cstr;
+}
+
+/* Translates to PPL row I from MATRIX.  CST is the constant part that
+   is added to the constraint.  When INEQ is 1 the constraint is
+   translated as an inequality, when INEQ is 0 it is translated as an
+   equality, when INEQ has another value, the first column of the
+   matrix is read for determining the type of the constraint. */
+
+static ppl_Constraint_t
+cloog_translate_constraint (CloogMatrix *matrix, int i, int cst, int ineq)
 {
   int j;
-  ppl_Constraint_t cstr;
   ppl_Coefficient_t coef;
   ppl_Linear_Expression_t expr;
   ppl_dimension_type dim = matrix->NbColumns - 2;
+  Value val;
 
+  value_init (val);
   ppl_new_Coefficient (&coef);
   ppl_new_Linear_Expression_with_dimension (&expr, dim);
 
@@ -328,16 +364,52 @@ cloog_translate_constraint (CloogMatrix *matrix, int i)
       ppl_Linear_Expression_add_to_coefficient (expr, j - 1, coef);
     }
 
-  ppl_assign_Coefficient_from_mpz_t 
-    (coef, matrix->p[i][matrix->NbColumns - 1]);
+  value_set_si (val, cst);
+  value_addto (val, matrix->p[i][matrix->NbColumns - 1], val);
+  ppl_assign_Coefficient_from_mpz_t (coef, val);
   ppl_Linear_Expression_add_to_inhomogeneous (expr, coef);
 
-  if (cloog_matrix_row_is_eq_p (matrix, i))
-    ppl_new_Constraint (&cstr, expr, PPL_CONSTRAINT_TYPE_EQUAL);
-  else
-    ppl_new_Constraint (&cstr, expr, PPL_CONSTRAINT_TYPE_GREATER_THAN_OR_EQUAL);
+  if (ineq != 0 && ineq != 1)
+    ineq = !cloog_matrix_row_is_eq_p (matrix, i);
 
-  return cstr;
+  return cloog_build_ppl_cstr (expr, ineq);
+}
+
+/* Translates to PPL the opposite of row I from MATRIX.  When INEQ is
+   1 the constraint is translated as an inequality, when INEQ is 0 it
+   is translated as an equality, when INEQ has another value, the
+   first column of the matrix is read for determining the type of the
+   constraint.  */
+
+static ppl_Constraint_t
+cloog_translate_oppose_constraint (CloogMatrix *matrix, int i, int ineq)
+{
+  int j;
+  ppl_Coefficient_t coef;
+  ppl_Linear_Expression_t expr;
+  ppl_dimension_type dim = matrix->NbColumns - 2;
+  Value val;
+
+  value_init (val);
+  ppl_new_Coefficient (&coef);
+  ppl_new_Linear_Expression_with_dimension (&expr, dim);
+
+  for (j = 1; j < matrix->NbColumns - 1; j++)
+    {
+      value_oppose (val, matrix->p[i][j]);
+      ppl_assign_Coefficient_from_mpz_t (coef, val);
+      ppl_Linear_Expression_add_to_coefficient (expr, j - 1, coef);
+    }
+
+  value_oppose (val, matrix->p[i][matrix->NbColumns - 1]);
+  value_decrement (val, val);
+  ppl_assign_Coefficient_from_mpz_t (coef, val);
+  ppl_Linear_Expression_add_to_inhomogeneous (expr, coef);
+
+  if (ineq != 0 && ineq != 1)
+    ineq = !cloog_matrix_row_is_eq_p (matrix, i);
+
+  return cloog_build_ppl_cstr (expr, ineq);
 }
 
 /* Adds to PPL the constraints from MATRIX.  */
@@ -348,10 +420,7 @@ cloog_translate_constraint_matrix_1 (ppl_Polyhedron_t ppl, CloogMatrix *matrix)
   int i;
 
   for (i = 0; i < matrix->NbRows; i++)
-    ppl_Polyhedron_add_constraint (ppl, cloog_translate_constraint (matrix, i));
-
-  if (cloog_check_polyhedral_ops)
-    ppl_Polyhedron_OK (ppl);
+    ppl_Polyhedron_add_constraint (ppl, cloog_translate_constraint (matrix, i, 0, -1));
 }
 
 static ppl_Polyhedron_t
@@ -554,14 +623,16 @@ cloog_domain_preimage (CloogDomain * domain, CloogMatrix * mapping)
   return print_result ("cloog_domain_preimage", res);
 }
 
+static CloogDomain *cloog_domain_difference_1 (CloogDomain *, CloogDomain *);
+
 static CloogDomain *
 cloog_check_domains (CloogDomain *ppl, CloogDomain *polylib)
 {
   /* Cannot use cloog_domain_lazy_equal (polylib, ppl) here as this
      function is too dumb: it does not detect permutations of
      constraints.  */
-  if (!cloog_domain_isempty (cloog_domain_difference (ppl, polylib))
-      || !cloog_domain_isempty (cloog_domain_difference (polylib, ppl)))
+  if (!cloog_domain_isempty (cloog_domain_difference_1 (ppl, polylib))
+      || !cloog_domain_isempty (cloog_domain_difference_1 (polylib, ppl)))
     {
       fprintf (stderr, "different domains ( \n ppl (\n");
       cloog_domain_print (stderr, ppl);
@@ -918,8 +989,9 @@ cloog_domain_intersection (CloogDomain * dom1, CloogDomain * dom2)
  * inside two CloogDomain structures.
  * - November 8th 2001: first version.
  */
-CloogDomain *
-cloog_domain_difference (CloogDomain * domain, CloogDomain * minus)
+
+static CloogDomain *
+cloog_domain_difference_1 (CloogDomain * domain, CloogDomain * minus)
 {
   if (cloog_domain_isempty (minus))
     return print_result ("cloog_domain_difference", cloog_domain_copy (domain));
@@ -932,6 +1004,83 @@ cloog_domain_difference (CloogDomain * domain, CloogDomain * minus)
       Polyhedron_Free (p2);
       return print_result ("cloog_domain_difference", res);
     }
+}
+
+/* Returns non-zero when the constraint I in MATRIX is the positivity
+   constraint: "0 >= 0".  */
+
+static int
+cloog_positivity_constraint_p (CloogMatrix *matrix, int i, int dim)
+{
+  int j;
+
+  for (j = 1; j < dim; j++)
+    if (value_notzero_p (matrix->p[i][j]))
+      break;
+
+  return (j == dim);
+}
+
+/* Returns d1 minus d2.  */
+
+CloogDomain *
+cloog_domain_difference (CloogDomain * d1, CloogDomain * d2)
+{
+  CloogDomain *res = NULL, *d = d1;
+  ppl_polyhedra_union *p1, *p2;
+
+  if (cloog_domain_isempty (d2))
+    return print_result ("cloog_domain_difference", cloog_domain_copy (d1));
+
+  for (p2 = cloog_domain_upol (d2); p2; p2 = cloog_upol_next (p2))
+    {
+      CloogMatrix *matrix = cloog_upol_domain2matrix (p2);
+
+      for (p1 = cloog_domain_upol (d); p1; p1 = cloog_upol_next (p1))
+	{
+	  int i;
+	  CloogMatrix *m1 = cloog_upol_domain2matrix (p1);
+
+	  for (i = 0; i < matrix->NbRows; i++)
+	    {
+	      ppl_Polyhedron_t p3;
+	      ppl_Constraint_t cstr;
+
+	      /* Don't handle "0 >= 0".  */
+	      if (cloog_positivity_constraint_p (matrix, i,
+						 cloog_domain_dim (d) + 1))
+		continue;
+
+	      /* Add the constraint "-matrix[i] - 1 >= 0".  */
+	      p3 = cloog_translate_constraint_matrix (m1);
+	      cstr = cloog_translate_oppose_constraint (matrix, i, 1);
+	      ppl_Polyhedron_add_constraint_and_minimize (p3, cstr);
+	      res = cloog_domain_union (res, cloog_translate_ppl_polyhedron (p3));
+	
+	      /* For an equality, add the constraint "matrix[i] - 1 >= 0".  */
+	      if (cloog_matrix_row_is_eq_p (matrix, i))
+		{
+		  p3 = cloog_translate_constraint_matrix (m1);
+		  cstr = cloog_translate_constraint (matrix, i, -1, 1);
+		  ppl_Polyhedron_add_constraint_and_minimize (p3, cstr);
+		  res = cloog_domain_union (res, cloog_translate_ppl_polyhedron (p3));
+		}
+	    }
+	}
+      d = res;
+      res = NULL;
+    }
+
+  if (!d)
+    res = cloog_domain_empty (cloog_domain_dim (d2));
+  else
+    res = d;
+
+  if (cloog_check_polyhedral_ops)
+    return print_result ("cloog_domain_difference", cloog_check_domains
+			 (res, cloog_domain_difference_1 (d1, d2)));
+
+  return print_result ("cloog_domain_difference", res);
 }
 
 
