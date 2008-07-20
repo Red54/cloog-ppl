@@ -500,6 +500,7 @@ cloog_translate_ppl_polyhedron (ppl_Polyhedron_t pol)
       ppl_Constraint_inhomogeneous_term (pc, coef);
       ppl_Coefficient_to_mpz_t (coef, val);
       value_assign (matrix->p[row][dim + 1], val);
+      ppl_delete_Coefficient (coef);
 
       switch (ppl_Constraint_type (pc))
 	{
@@ -524,6 +525,8 @@ cloog_translate_ppl_polyhedron (ppl_Polyhedron_t pol)
 	  exit (1);
 	}
     }
+  ppl_delete_Constraint_System_const_iterator (cit);
+  ppl_delete_Constraint_System_const_iterator (end);
 
   res = cloog_domain_matrix2domain (matrix);
   return print_result ("cloog_translate_ppl_polyhedron", cloog_check_domain (res));
@@ -889,10 +892,13 @@ cloog_domain_union (CloogDomain * dom1, CloogDomain * dom2)
 
 	  if (ppl_Polyhedron_contains_Polyhedron (ppl2, ppl1))
 	    {
+	      ppl_delete_Polyhedron (ppl2);
 	      found = 1;
 	      break;
 	    }
+	  ppl_delete_Polyhedron (ppl2);
 	}
+      ppl_delete_Polyhedron (ppl1);
 
       if (!found)
 	{
@@ -922,10 +928,13 @@ cloog_domain_union (CloogDomain * dom1, CloogDomain * dom2)
 
 	  if (ppl_Polyhedron_contains_Polyhedron (ppl1, ppl2))
 	    {
+	      ppl_delete_Polyhedron (ppl1);
 	      found = 1;
 	      break;
 	    }
+	  ppl_delete_Polyhedron (ppl1);
 	}
+      ppl_delete_Polyhedron (ppl2);
 
       if (!found)
 	{
@@ -987,9 +996,10 @@ cloog_domain_intersection (CloogDomain * dom1, CloogDomain * dom2)
 	{
 	  ppl2 = cloog_translate_constraint_matrix (Polyhedron2Constraints (cloog_upol_polyhedron (p2)));
 	  ppl_Polyhedron_intersection_assign (ppl2, ppl1);
-
 	  res = cloog_domain_union (res, cloog_translate_ppl_polyhedron (ppl2));
+	  ppl_delete_Polyhedron (ppl2);
 	}
+      ppl_delete_Polyhedron (ppl1);
     }
 
   if (cloog_check_polyhedral_ops)
@@ -1082,6 +1092,7 @@ cloog_domain_difference (CloogDomain * d1, CloogDomain * d2)
 	      ppl_Polyhedron_add_constraint_and_minimize (p3, cstr);
 	      ppl_delete_Constraint (cstr);
 	      res = cloog_domain_union (res, cloog_translate_ppl_polyhedron (p3));
+	      ppl_delete_Polyhedron (p3);
 	
 	      /* For an equality, add the constraint "matrix[i] - 1 >= 0".  */
 	      if (cloog_matrix_row_is_eq_p (matrix, i))
@@ -1091,6 +1102,7 @@ cloog_domain_difference (CloogDomain * d1, CloogDomain * d2)
 		  ppl_Polyhedron_add_constraint_and_minimize (p3, cstr);
 		  ppl_delete_Constraint (cstr);
 		  res = cloog_domain_union (res, cloog_translate_ppl_polyhedron (p3));
+		  ppl_delete_Polyhedron (p3);
 		}
 	    }
 	}
@@ -1177,6 +1189,7 @@ cloog_domain_addconstraints (CloogDomain *domain_source, CloogDomain *domain_tar
   cloog_translate_constraint_matrix_1 (ppl, cloog_upol_domain2matrix (target));
   cloog_translate_constraint_matrix_1 (ppl, cloog_upol_domain2matrix (source));
   res = cloog_translate_ppl_polyhedron (ppl);
+  ppl_delete_Polyhedron (ppl);
   last = cloog_domain_upol (res);
 
   source = cloog_upol_next (source);
@@ -1195,6 +1208,7 @@ cloog_domain_addconstraints (CloogDomain *domain_source, CloogDomain *domain_tar
 
       cloog_upol_set_next
 	(last, cloog_domain_upol (cloog_translate_ppl_polyhedron (ppl)));
+      ppl_delete_Polyhedron (ppl);
 
       last = cloog_upol_next (last);
       target = cloog_upol_next (target);
@@ -1221,11 +1235,17 @@ cloog_domain_polyhedron_compare (CloogMatrix *m1, CloogMatrix *m2, int level, in
 
   p1 = cloog_translate_constraint_matrix (m1);
   if (ppl_Polyhedron_is_empty (p1))
-    return 0;
+    {
+      ppl_delete_Polyhedron (p1);
+      return 0;
+    }
 
   p2 = cloog_translate_constraint_matrix (m2);
   if (ppl_Polyhedron_is_empty (p2))
-    return 0;
+    {
+      ppl_delete_Polyhedron (p2);
+      return 0;
+    }
 
   ppl_new_NNC_Polyhedron_from_NNC_Polyhedron (&q1, p1);
   ppl_new_NNC_Polyhedron_from_NNC_Polyhedron (&q2, p2);
@@ -1245,16 +1265,28 @@ cloog_domain_polyhedron_compare (CloogMatrix *m1, CloogMatrix *m2, int level, in
       ppl_new_Generator (&g, expr, PPL_GENERATOR_TYPE_LINE, d);
       ppl_Polyhedron_add_generator (q1, g);
       ppl_Polyhedron_add_generator (q2, g);
+      ppl_delete_Generator (g);
+      ppl_delete_Linear_Expression (expr);
+      ppl_delete_Coefficient (d);
     }
 
   ppl_new_NNC_Polyhedron_from_NNC_Polyhedron (&q, q1);
   ppl_Polyhedron_intersection_assign (q, q2);
+  ppl_delete_Polyhedron (q1);
+  ppl_delete_Polyhedron (q2);
 
   if (ppl_Polyhedron_is_empty (q))
-    return 0;
+    {
+      ppl_delete_Polyhedron (p1);
+      ppl_delete_Polyhedron (p2);
+      ppl_delete_Polyhedron (q);
+      return 0;
+    }
 
   ppl_new_NNC_Polyhedron_from_NNC_Polyhedron (&q1, p1);
   ppl_new_NNC_Polyhedron_from_NNC_Polyhedron (&q2, p2);
+  ppl_delete_Polyhedron (p1);
+  ppl_delete_Polyhedron (p2);
 
   ppl_Polyhedron_intersection_assign (q1, q);
   ppl_Polyhedron_intersection_assign (q2, q);
@@ -1282,9 +1314,15 @@ cloog_domain_polyhedron_compare (CloogMatrix *m1, CloogMatrix *m2, int level, in
       }
 
   if (ppl_Polyhedron_is_empty (q4))
-    return 1;
+    {
+      ppl_delete_Polyhedron (q);
+      ppl_delete_Polyhedron (q1);
+      ppl_delete_Polyhedron (q2);
+      ppl_delete_Polyhedron (q4);
+      return 1;
+    }
 
-
+  ppl_delete_Polyhedron (q4);
   ppl_new_NNC_Polyhedron_from_NNC_Polyhedron (&q3, q);
   for (i = 0; i < m1->NbRows; i++)
     {
@@ -1352,16 +1390,30 @@ cloog_domain_polyhedron_compare (CloogMatrix *m1, CloogMatrix *m2, int level, in
 	    continue;
 
 	  if (!ppl_Polyhedron_is_empty (q5))
-	    return -1;
+	    {
+	      ppl_delete_Polyhedron (q);
+	      ppl_delete_Polyhedron (q1);
+	      ppl_delete_Polyhedron (q2);
+	      ppl_delete_Polyhedron (q3);
+	      ppl_delete_Polyhedron (q5);
+	      return -1;
+	    }
 
 	  /* Reinitialize Q5.  */
+	  ppl_delete_Polyhedron (q5);
 	  ppl_new_NNC_Polyhedron_from_NNC_Polyhedron (&q5, q3);
 	}
 
       /* Reinitialize Q3.  */
+      ppl_delete_Polyhedron (q3);
       ppl_new_NNC_Polyhedron_from_NNC_Polyhedron (&q3, q);
     }
 
+  ppl_delete_Polyhedron (q);
+  ppl_delete_Polyhedron (q1);
+  ppl_delete_Polyhedron (q2);
+  ppl_delete_Polyhedron (q3);
+  ppl_delete_Polyhedron (q5);
   return 1;
 }
 
@@ -1710,6 +1762,7 @@ cloog_domain_project (CloogDomain * domain, int level, int nb_par)
 
       ppl_Polyhedron_remove_space_dimensions (ppl, to_remove, n);
       res = cloog_domain_add_domain (res, cloog_translate_ppl_polyhedron (ppl));
+      ppl_delete_Polyhedron (ppl);
       upol = cloog_upol_next (upol);
     }
 
@@ -1798,6 +1851,7 @@ cloog_domain_extend (CloogDomain * domain, int dim, int nb_par)
       ppl_Polyhedron_add_space_dimensions_and_embed (ppl, to_add);
       ppl_Polyhedron_map_space_dimensions (ppl, map, n);
       res = cloog_domain_add_domain (res, cloog_translate_ppl_polyhedron (ppl));
+      ppl_delete_Polyhedron (ppl);
       upol = cloog_upol_next (upol);
     }
 
