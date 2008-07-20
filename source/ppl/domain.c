@@ -646,17 +646,6 @@ cloog_check_domains (CloogDomain *ppl, CloogDomain *polylib)
  * combined list, and  find the set of constraints which tightly bound all of
  * those objects. It returns the corresponding polyhedron.
  */
-static CloogDomain *
-cloog_domain_convex_1 (CloogDomain * domain)
-{
-  Polyhedron *p = d2p (domain);
-  CloogDomain *res =
-    cloog_check_domain (cloog_domain_alloc
-			(DomainConvex (p, MAX_RAYS)));
-  Polyhedron_Free (p);
-  return print_result ("cloog_domain_convex_1", res);
-}
-
 CloogDomain *
 cloog_domain_convex (CloogDomain * domain)
 {
@@ -682,11 +671,6 @@ cloog_domain_convex (CloogDomain * domain)
 
   res = cloog_translate_ppl_polyhedron (p1);
   ppl_delete_Polyhedron (p1);
-
-  if (cloog_check_polyhedral_ops)
-    return print_result ("cloog_domain_convex", 
-			 cloog_check_domains
-			 (res, cloog_domain_convex_1 (domain)));
 
   return print_result ("cloog_domain_convex", res);
 }
