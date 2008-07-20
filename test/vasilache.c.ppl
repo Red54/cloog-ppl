@@ -1,4 +1,4 @@
-/* Generated from vasilache.cloog by CLooG  64 bits in 3.09s. */
+/* Generated from vasilache.cloog by CLooG  64 bits in 1.74s. */
 S1 ;
 S2 ;
 for (p1=0;p1<=N-1;p1++) {
@@ -13,7 +13,7 @@ for (p1=0;p1<=N-1;p1++) {
       if (p5 <= -1) {
         S7(i = p1,j = p3,k = p5,l = 0) ;
       }
-      for (p7=max(32*p5+1,1);p7<=min(N-1,32*p5+31);p7++) {
+      for (p7=max(32*p5+1,1);p7<=min(32*p5+31,N-1);p7++) {
         l = p7-1 ;
         S6(i = p1,j = p3,k = p5) ;
         S7(i = p1,j = p3,k = p5,l = p7) ;
