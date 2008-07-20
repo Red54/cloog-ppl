@@ -16,7 +16,7 @@ if (N >= 0) {
     }
   }
 }
-for (i=0;i<=min(M,N-1);i++) {
+for (i=0;i<=min(N-1,M);i++) {
   for (j=0;j<=i;j++) {
     S1 ;
     S2 ;

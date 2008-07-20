@@ -1,4 +1,4 @@
-/* Generated from cholesky2.cloog by CLooG  64 bits in 1.52s. */
+/* Generated from cholesky2.cloog by CLooG  64 bits in 1.16s. */
 if (M >= 2) {
   for (c2=1;c2<=M-1;c2++) {
     S1(i = c2) ;
@@ -11,7 +11,7 @@ if (M >= 2) {
 if (M == 1) {
   S1(i = 1) ;
 }
-if (M >= 2) {
+if (M >= 1) {
   S3(i = 1) ;
 }
 if (M >= 3) {
@@ -26,16 +26,7 @@ if (M >= 3) {
 if (M == 2) {
   S6(i = 1,j = 2) ;
 }
-if (M >= 2) {
-  c1 = 3*M-3 ;
-  j = M-1 ;
-  S2(i = M) ;
-}
-if (M >= 1) {
-  c1 = 3*M-2 ;
-  S3(i = M) ;
-}
-for (c1=max(3*M-6,3);c1<=3*M-4;c1++) {
+for (c1=max(3,3*M-6);c1<=3*M-4;c1++) {
   if ((c1+2)%3 == 0) {
     i = (c1+2)/3 ;
     S3 ;
@@ -54,6 +45,11 @@ for (c1=max(3*M-6,3);c1<=3*M-4;c1++) {
       S2(i = c2,j = c1/3) ;
     }
   }
+}
+if (M >= 2) {
+  c1 = 3*M-3 ;
+  j = M-1 ;
+  S2(i = M) ;
 }
 for (c1=3;c1<=3*M-7;c1++) {
   if ((c1+2)%3 == 0) {
@@ -90,4 +86,8 @@ for (c1=3;c1<=3*M-7;c1++) {
       }
     }
   }
+}
+if (M >= 2) {
+  c1 = 3*M-2 ;
+  S3(i = M) ;
 }

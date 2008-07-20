@@ -614,43 +614,6 @@ cloog_domain_copy (CloogDomain * domain)
   return print_result ("cloog_domain_copy", domain);
 }
 
-
-/**
- * cloog_domain_image function:
- * This function returns a CloogDomain structure such that the included
- * polyhedral domain is computed from the former one into another
- * domain according to a given affine mapping function (mapping). 
- */
-static CloogDomain *
-cloog_domain_image (CloogDomain * domain, CloogMatrix * mapping)
-{
-  Polyhedron *p = d2p (domain);
-  CloogDomain *res =
-    cloog_check_domain (cloog_domain_alloc
-			(DomainImage (p, mapping, MAX_RAYS)));
-  Polyhedron_Free (p);
-  return print_result ("cloog_domain_image", res);
-}
-
-
-/**
- * cloog_domain_preimage function:
- * Given a polyhedral domain (polyhedron) inside a CloogDomain structure and a
- * mapping function (mapping), this function returns a new CloogDomain structure
- * with a polyhedral domain which when transformed by mapping function (mapping)
- * gives (polyhedron).
- */
-static CloogDomain *
-cloog_domain_preimage (CloogDomain * domain, CloogMatrix * mapping)
-{
-  Polyhedron *p = d2p (domain);
-  CloogDomain *res =
-    cloog_check_domain (cloog_domain_alloc
-			(DomainPreimage (p, mapping, MAX_RAYS)));
-  Polyhedron_Free (p);
-  return print_result ("cloog_domain_preimage", res);
-}
-
 static CloogDomain *cloog_domain_difference_1 (CloogDomain *, CloogDomain *);
 
 static CloogDomain *
@@ -1657,37 +1620,6 @@ cloog_domain_isempty (CloogDomain * domain)
  *                   CLooG 0.12.1).
  */
 CloogDomain *
-cloog_domain_project_1 (CloogDomain * domain, int level, int nb_par)
-{
-  int row, column, nb_rows, nb_columns, difference;
-  CloogDomain *projected_domain;
-  CloogMatrix *matrix;
-
-  nb_rows = level + nb_par + 1;
-  nb_columns = cloog_domain_dim (domain) + 1;
-  difference = nb_columns - nb_rows;
-
-  if (difference == 0)
-    return print_result ("cloog_domain_project", cloog_domain_copy (domain));
-
-  matrix = cloog_matrix_alloc (nb_rows, nb_columns);
-
-  for (row = 0; row < level; row++)
-    for (column = 0; column < nb_columns; column++)
-      value_set_si (matrix->p[row][column], (row == column ? 1 : 0));
-
-  for (; row < nb_rows; row++)
-    for (column = 0; column < nb_columns; column++)
-      value_set_si (matrix->p[row][column],
-		    (row + difference == column ? 1 : 0));
-
-  projected_domain = cloog_domain_image (domain, matrix);
-  cloog_matrix_free (matrix);
-
-  return print_result ("cloog_domain_project_1", cloog_check_domain (projected_domain));
-}
-
-CloogDomain *
 cloog_domain_project (CloogDomain * domain, int level, int nb_par)
 {
   CloogDomain *res = NULL;
@@ -1721,11 +1653,6 @@ cloog_domain_project (CloogDomain * domain, int level, int nb_par)
       ppl_delete_Polyhedron (ppl);
       upol = cloog_upol_next (upol);
     }
-
-  if (cloog_check_polyhedral_ops)
-    return print_result ("cloog_domain_project", 
-			 cloog_check_domains
-			 (res, cloog_domain_project_1 (domain, level, nb_par)));
 
   return print_result ("cloog_domain_project", res);
 }

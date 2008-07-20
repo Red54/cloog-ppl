@@ -1,5 +1,5 @@
-/* Generated from ./reservoir/QR.cloog by CLooG  64 bits in 2.48s. */
-if ((M >= 0) && (N >= 1)) {
+/* Generated from ./reservoir/QR.cloog by CLooG  64 bits in 2.32s. */
+if (N >= 1) {
   S1(i = 0) ;
 }
 if ((M >= 1) && (N >= 2)) {
@@ -14,7 +14,7 @@ if ((M >= 1) && (N >= 2)) {
   S1(i = 1) ;
   S5(i = 0) ;
 }
-for (c2=2;c2<=min(N-1,M);c2++) {
+for (c2=2;c2<=min(M,N-1);c2++) {
   for (c4=c2-1;c4<=N-1;c4++) {
     i = c2-2 ;
     S6(j = c4) ;
@@ -67,10 +67,13 @@ if ((M >= 1) && (M <= N-2)) {
   S1 ;
   S5(i = M) ;
 }
-if ((M <= -1) && (N >= 1)) {
-  S1(i = 0) ;
+if ((M <= 0) && (N >= 2)) {
+  S3(i = 0) ;
+  S10(i = 0) ;
+  S1(i = 1) ;
+  S5(i = 0) ;
 }
-for (c2=max(M+2,2);c2<=N-1;c2++) {
+for (c2=max(2,M+2);c2<=N-1;c2++) {
   for (c4=c2-1;c4<=N-1;c4++) {
     i = c2-2 ;
     S6(j = c4) ;
@@ -84,12 +87,6 @@ for (c2=max(M+2,2);c2<=N-1;c2++) {
   S1(i = c2) ;
   i = c2-1 ;
   S5 ;
-}
-if ((M <= 0) && (N >= 2)) {
-  S3(i = 0) ;
-  S10(i = 0) ;
-  S1(i = 1) ;
-  S5(i = 0) ;
 }
 if ((M >= N) && (N >= 2)) {
   c4 = N-1 ;
