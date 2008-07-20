@@ -646,14 +646,48 @@ cloog_check_domains (CloogDomain *ppl, CloogDomain *polylib)
  * combined list, and  find the set of constraints which tightly bound all of
  * those objects. It returns the corresponding polyhedron.
  */
-CloogDomain *
-cloog_domain_convex (CloogDomain * domain)
+static CloogDomain *
+cloog_domain_convex_1 (CloogDomain * domain)
 {
   Polyhedron *p = d2p (domain);
   CloogDomain *res =
     cloog_check_domain (cloog_domain_alloc
 			(DomainConvex (p, MAX_RAYS)));
   Polyhedron_Free (p);
+  return print_result ("cloog_domain_convex_1", res);
+}
+
+CloogDomain *
+cloog_domain_convex (CloogDomain * domain)
+{
+  CloogDomain *res;
+  ppl_Polyhedron_t p2;
+  ppl_polyhedra_union *upol = cloog_domain_upol (domain);
+  CloogMatrix *m = cloog_upol_domain2matrix (upol);
+  ppl_Polyhedron_t p1 = cloog_translate_constraint_matrix (m);
+  
+  upol = cloog_upol_next (upol);
+  while (upol)
+    {
+      ppl_const_Generator_System_t g;
+
+      m = cloog_upol_domain2matrix (upol);
+      p2 = cloog_translate_constraint_matrix (m);
+      ppl_Polyhedron_generators (p2, &g);
+      ppl_Polyhedron_add_generators_and_minimize (p1, g);
+      ppl_delete_Polyhedron (p2);
+
+      upol = cloog_upol_next (upol);
+    }
+
+  res = cloog_translate_ppl_polyhedron (p1);
+  ppl_delete_Polyhedron (p1);
+
+  if (cloog_check_polyhedral_ops)
+    return print_result ("cloog_domain_convex", 
+			 cloog_check_domains
+			 (res, cloog_domain_convex_1 (domain)));
+
   return print_result ("cloog_domain_convex", res);
 }
 
