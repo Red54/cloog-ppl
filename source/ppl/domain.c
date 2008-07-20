@@ -382,15 +382,16 @@ cloog_translate_constraint (CloogMatrix *matrix, int i, int cst, int ineq)
    constraint.  */
 
 static ppl_Constraint_t
-cloog_translate_oppose_constraint (CloogMatrix *matrix, int i, int ineq)
+cloog_translate_oppose_constraint (CloogMatrix *matrix, int i, int cst, int ineq)
 {
   int j;
   ppl_Coefficient_t coef;
   ppl_Linear_Expression_t expr;
   ppl_dimension_type dim = matrix->NbColumns - 2;
-  Value val;
+  Value val, val1;
 
   value_init (val);
+  value_init (val1);
   ppl_new_Coefficient (&coef);
   ppl_new_Linear_Expression_with_dimension (&expr, dim);
 
@@ -402,7 +403,8 @@ cloog_translate_oppose_constraint (CloogMatrix *matrix, int i, int ineq)
     }
 
   value_oppose (val, matrix->p[i][matrix->NbColumns - 1]);
-  value_decrement (val, val);
+  value_set_si (val1, cst);
+  value_addto (val, val, val1);
   ppl_assign_Coefficient_from_mpz_t (coef, val);
   ppl_Linear_Expression_add_to_inhomogeneous (expr, coef);
 
@@ -513,6 +515,17 @@ cloog_translate_ppl_polyhedron (ppl_Polyhedron_t pol)
 
   res = cloog_domain_matrix2domain (matrix);
   return print_result ("cloog_translate_ppl_polyhedron", cloog_check_domain (res));
+}
+
+void debug_poly (Polyhedron *p)
+{
+  Polyhedron_Print (stderr, P_VALUE_FMT, p);
+}
+
+void
+debug_ppl_poly (ppl_Polyhedron_t p)
+{
+  debug_poly (cloog_domain_polyhedron (cloog_translate_ppl_polyhedron (p)));
 }
 
 static inline int
@@ -1053,7 +1066,7 @@ cloog_domain_difference (CloogDomain * d1, CloogDomain * d2)
 
 	      /* Add the constraint "-matrix[i] - 1 >= 0".  */
 	      p3 = cloog_translate_constraint_matrix (m1);
-	      cstr = cloog_translate_oppose_constraint (matrix, i, 1);
+	      cstr = cloog_translate_oppose_constraint (matrix, i, -1, 1);
 	      ppl_Polyhedron_add_constraint_and_minimize (p3, cstr);
 	      res = cloog_domain_union (res, cloog_translate_ppl_polyhedron (p3));
 	
@@ -1190,8 +1203,8 @@ cloog_domain_addconstraints (CloogDomain *domain_source, CloogDomain *domain_tar
  * integers that contains a permutation specification after call in order to
  * apply the topological sorting. 
  */
-void
-cloog_domain_sort (doms, nb_pols, level, nb_par, permut)
+static void
+cloog_domain_sort_1 (doms, nb_pols, level, nb_par, permut)
      CloogDomain **doms;
      unsigned nb_pols, level, nb_par;
      int *permut;
@@ -1214,6 +1227,183 @@ cloog_domain_sort (doms, nb_pols, level, nb_par, permut)
   free (time);
 }
 
+/* Compares P1 to P2: returns 0 when the polyhedra don't overlap,
+   returns 1 when p1 >= p2, and returns -1 when p1 < p2.  The ">"
+   relation is the "contains" relation.  */
+
+static int
+cloog_domain_polyhedron_compare (CloogMatrix *m1, CloogMatrix *m2, int level, int nb_par, int dimension)
+{
+  int i, j;
+  ppl_Polyhedron_t q1, q2, q3, q4, q5, q;
+  ppl_Polyhedron_t p1, p2;
+
+  p1 = cloog_translate_constraint_matrix (m1);
+  if (ppl_Polyhedron_is_empty (p1))
+    return 0;
+
+  p2 = cloog_translate_constraint_matrix (m2);
+  if (ppl_Polyhedron_is_empty (p2))
+    return 0;
+
+  ppl_new_NNC_Polyhedron_from_NNC_Polyhedron (&q1, p1);
+  ppl_new_NNC_Polyhedron_from_NNC_Polyhedron (&q2, p2);
+
+  for (i = level; i < dimension - nb_par + 1; i++)
+    {
+      Value val;
+      ppl_Coefficient_t d;
+      ppl_Linear_Expression_t expr;
+      ppl_Generator_t g;
+
+      value_init (val);
+      value_set_si (val, 1);
+      ppl_new_Coefficient_from_mpz_t (&d, val);
+      ppl_new_Linear_Expression_with_dimension (&expr, dimension);
+      ppl_Linear_Expression_add_to_coefficient (expr, i - 1, d);
+      ppl_new_Generator (&g, expr, PPL_GENERATOR_TYPE_LINE, d);
+      ppl_Polyhedron_add_generator (q1, g);
+      ppl_Polyhedron_add_generator (q2, g);
+    }
+
+  ppl_new_NNC_Polyhedron_from_NNC_Polyhedron (&q, q1);
+  ppl_Polyhedron_intersection_assign (q, q2);
+
+  if (ppl_Polyhedron_is_empty (q))
+    return 0;
+
+  ppl_new_NNC_Polyhedron_from_NNC_Polyhedron (&q1, p1);
+  ppl_new_NNC_Polyhedron_from_NNC_Polyhedron (&q2, p2);
+
+  ppl_Polyhedron_intersection_assign (q1, q);
+  ppl_Polyhedron_intersection_assign (q2, q);
+
+  m1 = cloog_upol_domain2matrix (cloog_domain_upol (cloog_translate_ppl_polyhedron (q1)));
+  m2 = cloog_upol_domain2matrix (cloog_domain_upol (cloog_translate_ppl_polyhedron (q2)));
+
+  ppl_new_NNC_Polyhedron_from_NNC_Polyhedron (&q4, q);
+  for (i = 0; i < m1->NbRows; i++)
+    if (value_one_p (m1->p[i][0])
+	&& value_pos_p (m1->p[i][level]))
+      ppl_Polyhedron_add_constraint (q4, cloog_translate_constraint (m1, i, 0, 1));
+
+  for (i = 0; i < m2->NbRows; i++)
+    if (value_one_p (m2->p[i][0])
+	&& value_neg_p (m2->p[i][level]))
+      ppl_Polyhedron_add_constraint (q4, cloog_translate_constraint (m2, i, 0, 1));
+
+  if (ppl_Polyhedron_is_empty (q4))
+    return 1;
+
+
+  ppl_new_NNC_Polyhedron_from_NNC_Polyhedron (&q3, q);
+  for (i = 0; i < m1->NbRows; i++)
+    {
+      if (value_zero_p (m1->p[i][0]))
+	{
+	  if (value_zero_p (m1->p[i][level]))
+	    continue;
+
+	  else if (value_neg_p (m1->p[i][level]))
+	    ppl_Polyhedron_add_constraint (q3, cloog_translate_oppose_constraint (m1, i, 0, 1));
+
+	  else
+	    ppl_Polyhedron_add_constraint (q3, cloog_translate_constraint (m1, i, 0, 1));
+	}
+
+      else if (value_neg_p (m1->p[i][level]))
+	ppl_Polyhedron_add_constraint (q3, cloog_translate_oppose_constraint (m1, i, 0, 1));
+
+      else
+	continue;
+
+      ppl_new_NNC_Polyhedron_from_NNC_Polyhedron (&q5, q3);
+      for (j = 0; j < m2->NbRows; j++)
+	{
+	  if (value_zero_p (m2->p[j][0]))
+	    {
+	      if (value_zero_p (m2->p[j][level]))
+		continue;
+
+	      else if (value_pos_p (m2->p[j][level]))
+		ppl_Polyhedron_add_constraint (q5, cloog_translate_oppose_constraint (m2, j, 0, 1));
+
+	      else
+		ppl_Polyhedron_add_constraint (q5, cloog_translate_constraint (m2, j, 0, 1));
+	    }
+
+	  else if (value_pos_p (m2->p[j][level]))
+	    ppl_Polyhedron_add_constraint (q5, cloog_translate_oppose_constraint (m2, j, 0, 1));
+
+	  else
+	    continue;
+
+	  if (!ppl_Polyhedron_is_empty (q5))
+	    return -1;
+
+	  /* Reinitialize Q5.  */
+	  ppl_new_NNC_Polyhedron_from_NNC_Polyhedron (&q5, q3);
+	}
+
+      /* Reinitialize Q3.  */
+      ppl_new_NNC_Polyhedron_from_NNC_Polyhedron (&q3, q);
+    }
+
+  return 1;
+}
+
+void
+cloog_domain_sort (CloogDomain **doms, unsigned nb_pols, unsigned level,
+		   unsigned nb_par, int *permut)
+{
+  int i, j;
+  int dim = cloog_domain_dim (doms[0]);
+
+  for (i = 0; i < nb_pols; i++)
+    permut[i] = i + 1;
+
+  /* Note that here we do a comparison per tuple of polyhedra.
+     PolyLib does not do this, but instead it does fewer comparisons
+     and with a complex reasoning they infer that it some comparisons
+     are not useful.  The result is that PolyLib has wrong permutations.  
+
+     FIXME: In the PolyLib backend, Cloog should use this algorithm
+     instead of PolyhedronTSort, and cloog_domain_polyhedron_compare
+     should be implemented with a simple call to PolyhedronLTQ: these
+     two functions produce identical answers.  */
+  for (i = 0; i < nb_pols; i++)
+    for (j = i + 1; j < nb_pols; j++)
+    {
+      CloogMatrix *m1 = cloog_upol_domain2matrix (cloog_domain_upol (doms[i]));
+      CloogMatrix *m2 = cloog_upol_domain2matrix (cloog_domain_upol (doms[j]));
+
+      if (cloog_domain_polyhedron_compare (m1, m2, level, nb_par, dim) == 1)
+	{
+	  int v = permut[i];
+	  permut[i] = permut[j];
+	  permut[j] = v;
+	}
+    }
+
+  if (cloog_check_polyhedral_ops)
+    {
+      int *p = (int *) malloc (nb_pols * sizeof (int));
+
+      cloog_domain_sort_1 (doms, nb_pols, level, nb_par, p);
+
+
+      for (j = 0; j < nb_pols; j++)
+	if (permut[j] != p[j])
+	  {
+	    fprintf (stderr, "tsort differs: \n");
+
+	    for (i = 0; i < nb_pols; i++)
+	      fprintf (stderr, "permut[%d] = %d,\t p[%d] = %d\n", i, permut[i], i, p[i]);
+
+	    break;
+	  }
+    }
+}
 
 /**
  * cloog_domain_empty function:
