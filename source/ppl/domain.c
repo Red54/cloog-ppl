@@ -349,6 +349,7 @@ static ppl_Constraint_t
 cloog_translate_constraint (CloogMatrix *matrix, int i, int cst, int ineq)
 {
   int j;
+  ppl_Constraint_t res;
   ppl_Coefficient_t coef;
   ppl_Linear_Expression_t expr;
   ppl_dimension_type dim = matrix->NbColumns - 2;
@@ -368,11 +369,14 @@ cloog_translate_constraint (CloogMatrix *matrix, int i, int cst, int ineq)
   value_addto (val, matrix->p[i][matrix->NbColumns - 1], val);
   ppl_assign_Coefficient_from_mpz_t (coef, val);
   ppl_Linear_Expression_add_to_inhomogeneous (expr, coef);
+  ppl_delete_Coefficient (coef);
 
   if (ineq != 0 && ineq != 1)
     ineq = !cloog_matrix_row_is_eq_p (matrix, i);
 
-  return cloog_build_ppl_cstr (expr, ineq);
+  res = cloog_build_ppl_cstr (expr, ineq);
+  ppl_delete_Linear_Expression (expr);
+  return res;
 }
 
 /* Translates to PPL the opposite of row I from MATRIX.  When INEQ is
@@ -385,6 +389,7 @@ static ppl_Constraint_t
 cloog_translate_oppose_constraint (CloogMatrix *matrix, int i, int cst, int ineq)
 {
   int j;
+  ppl_Constraint_t res;
   ppl_Coefficient_t coef;
   ppl_Linear_Expression_t expr;
   ppl_dimension_type dim = matrix->NbColumns - 2;
@@ -407,11 +412,14 @@ cloog_translate_oppose_constraint (CloogMatrix *matrix, int i, int cst, int ineq
   value_addto (val, val, val1);
   ppl_assign_Coefficient_from_mpz_t (coef, val);
   ppl_Linear_Expression_add_to_inhomogeneous (expr, coef);
+  ppl_delete_Coefficient (coef);
 
   if (ineq != 0 && ineq != 1)
     ineq = !cloog_matrix_row_is_eq_p (matrix, i);
 
-  return cloog_build_ppl_cstr (expr, ineq);
+  res = cloog_build_ppl_cstr (expr, ineq);
+  ppl_delete_Linear_Expression (expr);
+  return res;
 }
 
 /* Adds to PPL the constraints from MATRIX.  */
@@ -422,7 +430,11 @@ cloog_translate_constraint_matrix_1 (ppl_Polyhedron_t ppl, CloogMatrix *matrix)
   int i;
 
   for (i = 0; i < matrix->NbRows; i++)
-    ppl_Polyhedron_add_constraint (ppl, cloog_translate_constraint (matrix, i, 0, -1));
+    {
+      ppl_Constraint_t c = cloog_translate_constraint (matrix, i, 0, -1);
+      ppl_Polyhedron_add_constraint (ppl, c);
+      ppl_delete_Constraint (c);
+    }
 }
 
 static ppl_Polyhedron_t
@@ -1068,6 +1080,7 @@ cloog_domain_difference (CloogDomain * d1, CloogDomain * d2)
 	      p3 = cloog_translate_constraint_matrix (m1);
 	      cstr = cloog_translate_oppose_constraint (matrix, i, -1, 1);
 	      ppl_Polyhedron_add_constraint_and_minimize (p3, cstr);
+	      ppl_delete_Constraint (cstr);
 	      res = cloog_domain_union (res, cloog_translate_ppl_polyhedron (p3));
 	
 	      /* For an equality, add the constraint "matrix[i] - 1 >= 0".  */
@@ -1076,6 +1089,7 @@ cloog_domain_difference (CloogDomain * d1, CloogDomain * d2)
 		  p3 = cloog_translate_constraint_matrix (m1);
 		  cstr = cloog_translate_constraint (matrix, i, -1, 1);
 		  ppl_Polyhedron_add_constraint_and_minimize (p3, cstr);
+		  ppl_delete_Constraint (cstr);
 		  res = cloog_domain_union (res, cloog_translate_ppl_polyhedron (p3));
 		}
 	    }
@@ -1194,39 +1208,6 @@ cloog_domain_addconstraints (CloogDomain *domain_source, CloogDomain *domain_tar
   return print_result ("cloog_domain_addconstraints", res);
 }
 
-/**
- * cloog_domain_sort function:
- * This function topologically sorts (nb_pols) polyhedra. Here (pols) is a an
- * array of pointers to polyhedra, (nb_pols) is the number of polyhedra,
- * (level) is the level to consider for partial ordering (nb_par) is the
- * parameter space dimension, (permut) if not NULL, is an array of (nb_pols)
- * integers that contains a permutation specification after call in order to
- * apply the topological sorting. 
- */
-static void
-cloog_domain_sort_1 (doms, nb_pols, level, nb_par, permut)
-     CloogDomain **doms;
-     unsigned nb_pols, level, nb_par;
-     int *permut;
-{
-  int *time, i;
-  Polyhedron **pols = (Polyhedron **) malloc (nb_pols * sizeof (Polyhedron *));
-
-  for (i = 0; i < nb_pols; i++)
-    pols[i] = cloog_domain_polyhedron (doms[i]);
-
-  /* time is an array of (nb_pols) integers to store logical time values. We
-   * do not use it, but it is compulsory for PolyhedronTSort.
-   */
-  time = (int *) malloc (nb_pols * sizeof (int));
-
-  /* PolyhedronTSort will fill up permut (and time). */
-  PolyhedronTSort (pols, nb_pols, level, nb_par, time, permut, MAX_RAYS);
-
-  free (pols);
-  free (time);
-}
-
 /* Compares P1 to P2: returns 0 when the polyhedra don't overlap,
    returns 1 when p1 >= p2, and returns -1 when p1 < p2.  The ">"
    relation is the "contains" relation.  */
@@ -1285,12 +1266,20 @@ cloog_domain_polyhedron_compare (CloogMatrix *m1, CloogMatrix *m2, int level, in
   for (i = 0; i < m1->NbRows; i++)
     if (value_one_p (m1->p[i][0])
 	&& value_pos_p (m1->p[i][level]))
-      ppl_Polyhedron_add_constraint (q4, cloog_translate_constraint (m1, i, 0, 1));
+      {
+	ppl_Constraint_t c = cloog_translate_constraint (m1, i, 0, 1);
+	ppl_Polyhedron_add_constraint (q4, c);
+	ppl_delete_Constraint (c);
+      }
 
   for (i = 0; i < m2->NbRows; i++)
     if (value_one_p (m2->p[i][0])
 	&& value_neg_p (m2->p[i][level]))
-      ppl_Polyhedron_add_constraint (q4, cloog_translate_constraint (m2, i, 0, 1));
+      {
+	ppl_Constraint_t c = cloog_translate_constraint (m2, i, 0, 1);
+	ppl_Polyhedron_add_constraint (q4, c);
+	ppl_delete_Constraint (c);
+      }
 
   if (ppl_Polyhedron_is_empty (q4))
     return 1;
@@ -1305,14 +1294,26 @@ cloog_domain_polyhedron_compare (CloogMatrix *m1, CloogMatrix *m2, int level, in
 	    continue;
 
 	  else if (value_neg_p (m1->p[i][level]))
-	    ppl_Polyhedron_add_constraint (q3, cloog_translate_oppose_constraint (m1, i, 0, 1));
+	    {
+	      ppl_Constraint_t c = cloog_translate_oppose_constraint (m1, i, 0, 1);
+	      ppl_Polyhedron_add_constraint (q3, c);
+	      ppl_delete_Constraint (c);
+	    }
 
 	  else
-	    ppl_Polyhedron_add_constraint (q3, cloog_translate_constraint (m1, i, 0, 1));
+	    {
+	      ppl_Constraint_t c = cloog_translate_constraint (m1, i, 0, 1);
+	      ppl_Polyhedron_add_constraint (q3, c);
+	      ppl_delete_Constraint (c);
+	    }
 	}
 
       else if (value_neg_p (m1->p[i][level]))
-	ppl_Polyhedron_add_constraint (q3, cloog_translate_oppose_constraint (m1, i, 0, 1));
+	{
+	  ppl_Constraint_t c = cloog_translate_oppose_constraint (m1, i, 0, 1);
+	  ppl_Polyhedron_add_constraint (q3, c);
+	  ppl_delete_Constraint (c);
+	}
 
       else
 	continue;
@@ -1326,14 +1327,26 @@ cloog_domain_polyhedron_compare (CloogMatrix *m1, CloogMatrix *m2, int level, in
 		continue;
 
 	      else if (value_pos_p (m2->p[j][level]))
-		ppl_Polyhedron_add_constraint (q5, cloog_translate_oppose_constraint (m2, j, 0, 1));
+		{
+		  ppl_Constraint_t c = cloog_translate_oppose_constraint (m2, j, 0, 1);
+		  ppl_Polyhedron_add_constraint (q5, c);
+		  ppl_delete_Constraint (c);
+		}
 
 	      else
-		ppl_Polyhedron_add_constraint (q5, cloog_translate_constraint (m2, j, 0, 1));
+		{
+		  ppl_Constraint_t c = cloog_translate_constraint (m2, j, 0, 1);
+		  ppl_Polyhedron_add_constraint (q5, c);
+		  ppl_delete_Constraint (c);
+		}
 	    }
 
 	  else if (value_pos_p (m2->p[j][level]))
-	    ppl_Polyhedron_add_constraint (q5, cloog_translate_oppose_constraint (m2, j, 0, 1));
+	    {
+	      ppl_Constraint_t c = cloog_translate_oppose_constraint (m2, j, 0, 1);
+	      ppl_Polyhedron_add_constraint (q5, c);
+	      ppl_delete_Constraint (c);
+	    }
 
 	  else
 	    continue;
@@ -1351,6 +1364,16 @@ cloog_domain_polyhedron_compare (CloogMatrix *m1, CloogMatrix *m2, int level, in
 
   return 1;
 }
+
+/**
+ * cloog_domain_sort function:
+ * This function topologically sorts (nb_pols) polyhedra. Here (pols) is a an
+ * array of pointers to polyhedra, (nb_pols) is the number of polyhedra,
+ * (level) is the level to consider for partial ordering (nb_par) is the
+ * parameter space dimension, (permut) if not NULL, is an array of (nb_pols)
+ * integers that contains a permutation specification after call in order to
+ * apply the topological sorting. 
+ */
 
 void
 cloog_domain_sort (CloogDomain **doms, unsigned nb_pols, unsigned level,
@@ -1383,25 +1406,6 @@ cloog_domain_sort (CloogDomain **doms, unsigned nb_pols, unsigned level,
 	  permut[i] = permut[j];
 	  permut[j] = v;
 	}
-    }
-
-  if (cloog_check_polyhedral_ops)
-    {
-      int *p = (int *) malloc (nb_pols * sizeof (int));
-
-      cloog_domain_sort_1 (doms, nb_pols, level, nb_par, p);
-
-
-      for (j = 0; j < nb_pols; j++)
-	if (permut[j] != p[j])
-	  {
-	    fprintf (stderr, "tsort differs: \n");
-
-	    for (i = 0; i < nb_pols; i++)
-	      fprintf (stderr, "permut[%d] = %d,\t p[%d] = %d\n", i, permut[i], i, p[i]);
-
-	    break;
-	  }
     }
 }
 
