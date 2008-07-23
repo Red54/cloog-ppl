@@ -1,9 +1,9 @@
-/* Generated from ././reservoir/lim-lam4.cloog by CLooG  64 bits in 0.12s. */
+/* Generated from ././reservoir/lim-lam4.cloog by CLooG  64 bits in 0.07s. */
 if (M >= 2) {
   S1(i = 1,j = 0,k = 0) ;
 }
 for (c2=2;c2<=2*M-2;c2++) {
-  for (c4=max(-c2+1,-M+1);c4<=-1;c4++) {
+  for (c4=max(-M+1,-c2+1);c4<=-1;c4++) {
     if ((c2 >= -c4+1) && (c4 <= -1) && (c4 >= -M+1)) {
       for (i=max(c2-M+1,1);i<=min(c2+c4,M-1);i++) {
         if ((c2 <= i+M-1) && (c2 >= -c4+i)) {

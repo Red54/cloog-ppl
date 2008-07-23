@@ -1,4 +1,4 @@
-/* Generated from ./lux.cloog by CLooG  64 bits in 0.07s. */
+/* Generated from ./lux.cloog by CLooG  64 bits in 0.03s. */
 if (M >= 2) {
   for (l=2;l<=M;l++) {
     S1(i = 1,j = 1,k = M) ;
@@ -14,7 +14,7 @@ for (i=2;i<=M-1;i++) {
       }
     }
   }
-  if ((i <= M-1) && (i >= 2)) {
+  if ((i >= 2) && (i <= M-1)) {
     for (l=i+1;l<=M;l++) {
       S1(j = i,k = M) ;
     }

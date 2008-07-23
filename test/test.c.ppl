@@ -1,4 +1,4 @@
-/* Generated from ./test.cloog by CLooG  64 bits in 0.08s. */
+/* Generated from ./test.cloog by CLooG  64 bits in 0.06s. */
 for (i=1;i<=2;i++) {
   for (j=1;j<=M;j++) {
     S1 ;
@@ -8,7 +8,7 @@ for (i=3;i<=M-1;i++) {
   for (j=1;j<=i-1;j++) {
     S1 ;
   }
-  if ((i >= 3) && (i <= M-1)) {
+  if ((i <= M-1) && (i >= 3)) {
     S1(j = i) ;
     S2(j = i) ;
   }

@@ -33,8 +33,11 @@
  *                                                                            *
  ******************************************************************************/
 
+static int cloog_check_polyhedral_ops = 1;
+static int cloog_return_ppl_result = 0;
 
-static CloogDomain *
+
+CloogDomain *
 cloog_domain_image (CloogDomain * domain, CloogMatrix * mapping)
 {
   Polyhedron *p = d2p (domain);
@@ -45,7 +48,7 @@ cloog_domain_image (CloogDomain * domain, CloogMatrix * mapping)
   return print_result ("cloog_domain_image", res);
 }
 
-static CloogDomain *
+CloogDomain *
 cloog_domain_preimage (CloogDomain * domain, CloogMatrix * mapping)
 {
   Polyhedron *p = d2p (domain);
@@ -87,7 +90,7 @@ cloog_domain_project_1 (CloogDomain * domain, int level, int nb_par)
   return print_result ("cloog_domain_project_1", cloog_check_domain (projected_domain));
 }
 
-static CloogDomain *
+CloogDomain *
 cloog_domain_addconstraints_1 (domain_source, domain_target)
      CloogDomain *domain_source, *domain_target;
 {
@@ -157,7 +160,7 @@ cloog_domain_extend_1 (CloogDomain * domain, int dim, int nb_par)
   return print_result ("cloog_domain_extend_1", cloog_check_domain (extended_domain));
 }
 
-static CloogDomain *
+CloogDomain *
 cloog_domain_convex_1 (CloogDomain * domain)
 {
   Polyhedron *p = d2p (domain);
@@ -168,7 +171,7 @@ cloog_domain_convex_1 (CloogDomain * domain)
   return print_result ("cloog_domain_convex_1", res);
 }
 
-static CloogDomain *
+CloogDomain *
 cloog_domain_simplify_1 (CloogDomain * dom1, CloogDomain * dom2)
 {
   CloogMatrix *M, *M2;
@@ -217,5 +220,52 @@ cloog_domain_simplify_1 (CloogDomain * dom1, CloogDomain * dom2)
   Polyhedron_Free (p1);
   Polyhedron_Free (p2);
   return print_result ("cloog_domain_simplify", cloog_check_domain (dom));
+}
+
+/**
+ * cloog_domain_difference function:
+ * This function returns a new CloogDomain structure including a polyhedral
+ * domain which is the difference of two polyhedral domains domain \ minus
+ * inside two CloogDomain structures.
+ * - November 8th 2001: first version.
+ */
+
+CloogDomain *
+cloog_domain_difference_1 (CloogDomain * domain, CloogDomain * minus)
+{
+  if (cloog_domain_isempty (minus))
+    return print_result ("cloog_domain_difference", cloog_domain_copy (domain));
+  else
+    {
+      Polyhedron *p1 = d2p (domain);
+      Polyhedron *p2 = d2p (minus);
+      CloogDomain *res = cloog_domain_alloc (DomainDifference (p1, p2, MAX_RAYS));
+      Polyhedron_Free (p1);
+      Polyhedron_Free (p2);
+      return print_result ("cloog_domain_difference", res);
+    }
+}
+
+static CloogDomain *
+cloog_check_domains (CloogDomain *ppl, CloogDomain *polylib)
+{
+  /* Cannot use cloog_domain_lazy_equal (polylib, ppl) here as this
+     function is too dumb: it does not detect permutations of
+     constraints.  */
+  if (!cloog_domain_isempty (cloog_domain_difference (ppl, polylib))
+      || !cloog_domain_isempty (cloog_domain_difference (polylib, ppl)))
+    {
+      fprintf (stderr, "different domains ( \n ppl (\n");
+      cloog_domain_print (stderr, ppl);
+      fprintf (stderr, ") \n polylib (\n");
+      cloog_domain_print (stderr, polylib);
+      fprintf (stderr, "))\n");
+      exit (1);
+    }
+
+  if (cloog_return_ppl_result)
+    return ppl;
+  else
+    return polylib;
 }
 

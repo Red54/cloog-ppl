@@ -42,8 +42,6 @@
 # include "../../include/cloog/cloog.h"
 #include "matrix.h"
 
-static int cloog_check_polyhedral_ops = 1;
-static int cloog_return_ppl_result = 0;
 static int cloog_print_debug = 0;
 
 static CloogDomain *
@@ -614,31 +612,6 @@ cloog_domain_copy (CloogDomain * domain)
   return print_result ("cloog_domain_copy", domain);
 }
 
-static CloogDomain *cloog_domain_difference_1 (CloogDomain *, CloogDomain *);
-
-static CloogDomain *
-cloog_check_domains (CloogDomain *ppl, CloogDomain *polylib)
-{
-  /* Cannot use cloog_domain_lazy_equal (polylib, ppl) here as this
-     function is too dumb: it does not detect permutations of
-     constraints.  */
-  if (!cloog_domain_isempty (cloog_domain_difference_1 (ppl, polylib))
-      || !cloog_domain_isempty (cloog_domain_difference_1 (polylib, ppl)))
-    {
-      fprintf (stderr, "different domains ( \n ppl (\n");
-      cloog_domain_print (stderr, ppl);
-      fprintf (stderr, ") \n polylib (\n");
-      cloog_domain_print (stderr, polylib);
-      fprintf (stderr, "))\n");
-      //      exit (1);
-    }
-
-  if (cloog_return_ppl_result)
-    return ppl;
-  else
-    return polylib;
-}
-
 /**
  * cloog_domain_convex function:
  * Given a polyhedral domain (polyhedron), this function concatenates the lists
@@ -1186,17 +1159,6 @@ cloog_domain_union (CloogDomain * dom1, CloogDomain * dom2)
       res = cloog_new_domain (head1);
     }
 
-  if (cloog_check_polyhedral_ops)
-    {
-      Polyhedron *p1 = d2p (dom1);
-      Polyhedron *p2 = d2p (dom2);
-
-      cloog_check_domains (res, cloog_domain_alloc (DomainUnion (p1, p2, MAX_RAYS)));
-
-      Polyhedron_Free (p1);
-      Polyhedron_Free (p2);
-    }
-
   return print_result ("cloog_domain_union", cloog_check_domain (res));
 }
 
@@ -1227,43 +1189,7 @@ cloog_domain_intersection (CloogDomain * dom1, CloogDomain * dom2)
       ppl_delete_Polyhedron (ppl1);
     }
 
-  if (cloog_check_polyhedral_ops)
-    {
-      Polyhedron *a1 = d2p (dom1);
-      Polyhedron *a2 = d2p (dom2);
-
-      res = cloog_check_domains (res, cloog_domain_alloc (DomainIntersection (a1, a2, MAX_RAYS)));
-
-      Polyhedron_Free (a1);
-      Polyhedron_Free (a2);
-    }
-
   return print_result ("cloog_domain_intersection", res);
-}
-
-
-/**
- * cloog_domain_difference function:
- * This function returns a new CloogDomain structure including a polyhedral
- * domain which is the difference of two polyhedral domains domain \ minus
- * inside two CloogDomain structures.
- * - November 8th 2001: first version.
- */
-
-static CloogDomain *
-cloog_domain_difference_1 (CloogDomain * domain, CloogDomain * minus)
-{
-  if (cloog_domain_isempty (minus))
-    return print_result ("cloog_domain_difference", cloog_domain_copy (domain));
-  else
-    {
-      Polyhedron *p1 = d2p (domain);
-      Polyhedron *p2 = d2p (minus);
-      CloogDomain *res = cloog_domain_alloc (DomainDifference (p1, p2, MAX_RAYS));
-      Polyhedron_Free (p1);
-      Polyhedron_Free (p2);
-      return print_result ("cloog_domain_difference", res);
-    }
 }
 
 /* Returns d1 minus d2.  */
@@ -1324,10 +1250,6 @@ cloog_domain_difference (CloogDomain * d1, CloogDomain * d2)
     res = cloog_domain_empty (cloog_domain_dim (d2));
   else
     res = d;
-
-  if (cloog_check_polyhedral_ops)
-    return print_result ("cloog_domain_difference", cloog_check_domains
-			 (res, cloog_domain_difference_1 (d1, d2)));
 
   return print_result ("cloog_domain_difference", res);
 }

@@ -1,4 +1,4 @@
-/* Generated from ./yosr2.cloog by CLooG  64 bits in 0.05s. */
+/* Generated from ./yosr2.cloog by CLooG  64 bits in 0.03s. */
 for (i=1;i<=M;i++) {
   S2 ;
 }
@@ -8,7 +8,7 @@ for (proc=2;proc<=M-1;proc++) {
       S4(j = proc) ;
     }
   }
-  if ((proc <= M-1) && (proc >= 2)) {
+  if ((proc >= 2) && (proc <= M-1)) {
     for (j=1;j<=proc-1;j++) {
       S1(i = proc) ;
     }

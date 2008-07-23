@@ -1,4 +1,4 @@
-! Generated from ./yosrf.cloog by CLooG  64 bits in 0.04s.
+! Generated from ./yosrf.cloog by CLooG  64 bits in 0.03s.
 IF (n >= 2) THEN
   DO j=2, n
     S1(i = 1)
@@ -12,7 +12,7 @@ DO proc=2, n-1
       END IF
     END DO
   END DO
-  IF ((proc <= n-1) .AND. (proc >= 2)) THEN
+  IF ((proc >= 2) .AND. (proc <= n-1)) THEN
     DO j=proc+1, n
       S1(i = proc)
     END DO

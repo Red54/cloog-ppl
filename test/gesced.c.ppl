@@ -1,12 +1,12 @@
-/* Generated from ./gesced.cloog by CLooG  64 bits in 0.10s. */
+/* Generated from ./gesced.cloog by CLooG  64 bits in 0.05s. */
 for (c1=1;c1<=N;c1++) {
-  if ((c1 >= 1) && (c1 <= N)) {
+  if ((c1 <= N) && (c1 >= 1)) {
     S1(i = c1) ;
   }
 }
 for (c1=N+1;c1<=2*N;c1++) {
   for (i=1;i<=N;i++) {
-    if ((c1 >= N+1) && (c1 <= 2*N)) {
+    if ((c1 <= 2*N) && (c1 >= N+1)) {
       j = c1-N ;
       S2 ;
     }
@@ -18,7 +18,7 @@ for (c1=2*N+1;c1<=M+N;c1++) {
       j = c1-2*N ;
       S3 ;
     }
-    if ((c1 <= M+N) && (c1 >= 2*N+1)) {
+    if ((c1 >= 2*N+1) && (c1 <= M+N)) {
       j = c1-N ;
       S2 ;
     }
@@ -26,7 +26,7 @@ for (c1=2*N+1;c1<=M+N;c1++) {
 }
 for (c1=M+N+1;c1<=M+2*N;c1++) {
   for (i=1;i<=N;i++) {
-    if ((c1 >= M+N+1) && (c1 <= M+2*N)) {
+    if ((c1 <= M+2*N) && (c1 >= M+N+1)) {
       j = c1-2*N ;
       S3 ;
     }

@@ -1,4 +1,4 @@
-/* Generated from ./donotsimp.cloog by CLooG  64 bits in 0.04s. */
+/* Generated from ./donotsimp.cloog by CLooG  64 bits in 0.02s. */
 for (c2=1;c2<=10;c2++) {
   for (c4=1;c4<=c2;c4++) {
     if ((c2 >= c4) && (c2 <= 10)) {
@@ -8,7 +8,7 @@ for (c2=1;c2<=10;c2++) {
     }
   }
   for (c4=11;c4<=M;c4++) {
-    if ((c2 >= 1) && (c2 <= 10)) {
+    if ((c2 <= 10) && (c2 >= 1)) {
       if ((c4 <= M) && (c4 >= 11)) {
         S2(i = c2,j = c4) ;
       }

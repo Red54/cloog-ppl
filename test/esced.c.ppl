@@ -1,4 +1,4 @@
-/* Generated from ./esced.cloog by CLooG  64 bits in 0.02s. */
+/* Generated from ./esced.cloog by CLooG  64 bits in 0.01s. */
 if (n >= 1) {
   for (i=1;i<=m;i++) {
     S1 ;

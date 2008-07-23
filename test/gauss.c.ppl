@@ -1,8 +1,8 @@
-/* Generated from ./gauss.cloog by CLooG  64 bits in 0.06s. */
+/* Generated from ./gauss.cloog by CLooG  64 bits in 0.03s. */
 if (M >= 2) {
   for (c2=2;c2<=M;c2++) {
     for (j=2;j<=M;j++) {
-      if ((c2 <= M) && (c2 >= 2)) {
+      if ((c2 >= 2) && (c2 <= M)) {
         S2(i = 1,k = c2) ;
       }
     }

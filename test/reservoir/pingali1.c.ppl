@@ -1,4 +1,4 @@
-/* Generated from ././reservoir/pingali1.cloog by CLooG  64 bits in 0.10s. */
+/* Generated from ././reservoir/pingali1.cloog by CLooG  64 bits in 0.06s. */
 if (N >= 2) {
   for (c2=1;c2<=M;c2++) {
     for (c4=1;c4<=2;c4++) {
@@ -35,7 +35,7 @@ if (N >= 2) {
 }
 if (N == 1) {
   for (c2=1;c2<=M;c2++) {
-    if ((c2 <= M) && (c2 >= 1)) {
+    if ((c2 >= 1) && (c2 <= M)) {
       S2(i = c2,j = 1) ;
     }
   }
