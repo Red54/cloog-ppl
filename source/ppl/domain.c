@@ -737,67 +737,6 @@ cloog_domain_simple_convex (CloogDomain * domain, int nb_par)
   exit (1);
 }
 
-
-/**
- * cloog_domain_simplify function:
- * Given two polyhedral domains (pol1) and (pol2) inside two CloogDomain
- * structures, this function finds the largest domain set (or the smallest list
- * of non-redundant constraints), that when intersected with polyhedral
- * domain (pol2) equals (Pol1)intersect(Pol2). The output is a new CloogDomain
- * structure with a polyhedral domain with the "redundant" constraints removed.
- * NB: this function do not work as expected with unions of polyhedra...
- */
-static CloogDomain *
-cloog_domain_simplify_1 (CloogDomain * dom1, CloogDomain * dom2)
-{
-  CloogMatrix *M, *M2;
-  CloogDomain *dom;
-  Polyhedron *p1 = d2p (dom1);
-  Polyhedron *p2 = d2p (dom2);
-  int nbc = cloog_domain_nbconstraints (dom1);
-
-  /* DomainSimplify doesn't remove all redundant equalities,
-   * so we remove them here first in case both dom1 and dom2
-   * are single polyhedra (i.e., not unions of polyhedra).
-   */
-  if (cloog_domain_isconvex (dom1) && cloog_domain_isconvex (dom2)
-      && cloog_domain_nbeq (dom1) && cloog_domain_nbeq (dom2))
-    {
-      int i, row;
-      int rows = cloog_domain_nbeq (dom1) + cloog_domain_nbeq (dom2);
-      int cols = cloog_domain_dim (dom1) + 2;
-      int rank;
-      M = cloog_matrix_alloc (rows, cols);
-      M2 = cloog_matrix_alloc (nbc, cols);
-      Vector_Copy (cloog_domain_polyhedron (dom2)->Constraint[0],
-		   M->p[0], cloog_domain_nbeq (dom2) * cols);
-      rank = cloog_domain_nbeq (dom2);
-      row = 0;
-      for (i = 0; i < cloog_domain_nbeq (dom1); ++i)
-	{
-	  Vector_Copy (p1->Constraint[i], M->p[rank], cols);
-	  if (Gauss (M, rank + 1, cols - 1) > rank)
-	    {
-	      Vector_Copy (p1->Constraint[i], M2->p[row++], cols);
-	      rank++;
-	    }
-	}
-      if (row < cloog_domain_nbeq (dom1))
-	{
-	  Vector_Copy (p1->Constraint[cloog_domain_nbeq (dom1)],
-		       M2->p[row], (nbc - cloog_domain_nbeq (dom1)) * cols);
-	  p1 = Constraints2Polyhedron (M2, MAX_RAYS);
-	}
-      cloog_matrix_free (M2);
-      cloog_matrix_free (M);
-    }
-
-  dom = cloog_domain_alloc (DomainSimplify (p1, p2, MAX_RAYS));
-  Polyhedron_Free (p1);
-  Polyhedron_Free (p2);
-  return print_result ("cloog_domain_simplify", cloog_check_domain (dom));
-}
-
 /* Returns non-zero when the constraint I in MATRIX is the positivity
    constraint: "0 >= 0".  */
 
@@ -1101,10 +1040,6 @@ cloog_domain_simplify (CloogDomain * dom1, CloogDomain * dom2)
     }
 
   return print_result ("cloog_domain_simplify", res);
-
-  if (cloog_check_polyhedral_ops)
-    return print_result ("cloog_domain_simplify", cloog_check_domains
-			 (res, cloog_domain_simplify_1 (dom1, dom2)));
 }
 
 
