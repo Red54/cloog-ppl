@@ -1,8 +1,8 @@
-/* Generated from 4-param.cloog by CLooG  64 bits in 0.09s. */
+/* Generated from ./4-param.cloog by CLooG  64 bits in 0.09s. */
 for (i=p;i<=min(min(q,m-1),n);i++) {
   S2 ;
 }
-for (i=m;i<=min(min(n,p-1),q);i++) {
+for (i=m;i<=min(min(p-1,n),q);i++) {
   S1 ;
 }
 for (i=max(m,q+1);i<=n;i++) {

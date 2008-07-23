@@ -1,10 +1,14 @@
-/* Generated from ./non_optimal/nul_complex1.cloog by CLooG  64 bits in 0.03s. */
+/* Generated from ././non_optimal/nul_complex1.cloog by CLooG  64 bits in 0.01s. */
 for (c1=0;c1<=5*n;c1++) {
   for (c2=max(ceild(2*c1,3),c1-n);c2<=min(c1,floord(2*c1+2*n,3));c2++) {
-    if (c2%2 == 0) {
-      i = (-2*c1+3*c2)/2 ;
-      j = c1-c2 ;
-      S1 ;
+    if ((c1 <= min(floord(3*c2,2),c2+n)) && (c1 >= max(c2,ceild(3*c2-2*n,2)))) {
+      if (c2%2 == 0) {
+        i = (-2*c1+3*c2)/2 ;
+        if ((c1 <= c2+n) && (c1 >= c2)) {
+          j = c1-c2 ;
+          S1 ;
+        }
+      }
     }
   }
 }

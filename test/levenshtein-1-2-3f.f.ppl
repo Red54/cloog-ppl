@@ -1,4 +1,4 @@
-! Generated from levenshtein-1-2-3f.cloog by CLooG  64 bits in 0.58s.
+! Generated from ./levenshtein-1-2-3f.cloog by CLooG  64 bits in 0.23s.
 S1(i = 0,j = 0)
 S2(i = 1,j = 0)
 S3(i = 1,j = 1)
@@ -7,7 +7,9 @@ DO i=2, N
   DO j=1, i-1
     S6
   END DO
-  S3(j = i)
+  IF ((i >= 2) .AND. (i <= N)) THEN
+    S3(j = i)
+  END IF
 END DO
 i = N+1
 S7(j = 0)
@@ -23,15 +25,19 @@ DO i=N+2, 2*M-N-2
     S6
     S8
   END DO
-  IF (MOD(i+N, 2) == 0) THEN
-    j = (i+N)/2
-    S4
-    S8
+  IF ((i >= N+2) .AND. (i <= 2*M-N-2)) THEN
+    IF (MOD(i+N, 2) == 0) THEN
+      j = (i+N)/2
+      S4
+      S8
+    END IF
   END IF
-  IF (MOD(i+N, 2) == 0) THEN
-    j = (i-N)/2
-    S5
-    S8
+  IF ((i >= N+2) .AND. (i <= 2*M-N-2)) THEN
+    IF (MOD(i+N, 2) == 0) THEN
+      j = (i-N)/2
+      S5
+      S8
+    END IF
   END IF
 END DO
 DO i=2*M-N-1, 2*M-2

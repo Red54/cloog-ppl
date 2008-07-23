@@ -1,4 +1,4 @@
-/* Generated from levenshtein-1-2-3.cloog by CLooG  64 bits in 0.63s. */
+/* Generated from ./levenshtein-1-2-3.cloog by CLooG  64 bits in 0.26s. */
 S1(i = 0,j = 0) ;
 S2(i = 1,j = 0) ;
 S3(i = 1,j = 1) ;
@@ -7,7 +7,9 @@ for (i=2;i<=N;i++) {
   for (j=1;j<=i-1;j++) {
     S6 ;
   }
-  S3(j = i) ;
+  if ((i >= 2) && (i <= N)) {
+    S3(j = i) ;
+  }
 }
 i = N+1 ;
 S7(j = 0) ;
@@ -23,15 +25,19 @@ for (i=N+2;i<=2*M-N-2;i++) {
     S6 ;
     S8 ;
   }
-  if ((i+N)%2 == 0) {
-    j = (i+N)/2 ;
-    S4 ;
-    S8 ;
+  if ((i >= N+2) && (i <= 2*M-N-2)) {
+    if ((i+N)%2 == 0) {
+      j = (i+N)/2 ;
+      S4 ;
+      S8 ;
+    }
   }
-  if ((i+N)%2 == 0) {
-    j = (i-N)/2 ;
-    S5 ;
-    S8 ;
+  if ((i >= N+2) && (i <= 2*M-N-2)) {
+    if ((i+N)%2 == 0) {
+      j = (i-N)/2 ;
+      S5 ;
+      S8 ;
+    }
   }
 }
 for (i=2*M-N-1;i<=2*M-2;i++) {

@@ -1,7 +1,9 @@
-/* Generated from rectangle.cloog by CLooG  64 bits in 0.02s. */
+/* Generated from ./rectangle.cloog by CLooG  64 bits in 0.01s. */
 for (c1=0;c1<=2*n;c1++) {
-  for (i=max(0,c1-n);i<=min(c1,n);i++) {
-    j = c1-i ;
-    S1 ;
+  for (i=max(0,c1-n);i<=min(n,c1);i++) {
+    if ((c1 <= i+n) && (c1 >= i)) {
+      j = c1-i ;
+      S1 ;
+    }
   }
 }

@@ -1,8 +1,8 @@
-/* Generated from min-2-1.cloog by CLooG  64 bits in 0.04s. */
+/* Generated from ./min-2-1.cloog by CLooG  64 bits in 0.02s. */
 if (M >= 0) {
   for (i=1;i<=N;i++) {
     for (j=0;j<=min(min(-i+N,M),i);j++) {
-      for (k=0;k<=min(min(M,i),-i+N);k++) {
+      for (k=0;k<=min(min(-i+N,M),i);k++) {
         S1 ;
       }
     }
