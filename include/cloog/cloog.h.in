@@ -41,8 +41,7 @@
 #define CLOOG_H
 
 #ifdef CLOOG_PPL_BACKEND
-/* FIXME: For porting to PPL, temporarily include PolyLib.  */
-# include <polylib/@cl_cv_polylib@.h>
+# define GNUMP
 # include<cloog/ppl_backend.h>
 #else
 # include <polylib/@cl_cv_polylib@.h>

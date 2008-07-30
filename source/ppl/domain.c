@@ -138,18 +138,18 @@ cloog_initialize (void)
 }
 
 static inline Polyhedron *
-u2p (ppl_polyhedra_union * upol)
+u2p (polyhedra_union upol)
 {
-  Polyhedron *res = Polyhedron_Copy (cloog_upol_polyhedron (upol));
+  Polyhedron *res = Polyhedron_Copy (p_c2p (cloog_upol_polyhedron (upol)));
   Polyhedron *p = res;
 
   while (upol)
     {
-      ppl_polyhedra_union *next = cloog_upol_next (upol);
+      polyhedra_union next = cloog_upol_next (upol);
       Polyhedron *n;
 
       if (next)
-	n = Polyhedron_Copy (cloog_upol_polyhedron (next));
+	n = Polyhedron_Copy (p_c2p (cloog_upol_polyhedron (next)));
       else
 	n = NULL;
 
@@ -168,19 +168,19 @@ d2p (CloogDomain * d)
 }
 
 
-static inline ppl_polyhedra_union *
+static inline polyhedra_union 
 p2u (Polyhedron * p)
 {
-  ppl_polyhedra_union *u = cloog_new_upol (p);
-  ppl_polyhedra_union *res = u;
+  polyhedra_union u = cloog_new_upol (p_p2c (p));
+  polyhedra_union res = u;
 
   while (p)
     {
       Polyhedron *next = p->next;
-      ppl_polyhedra_union *n;
+      polyhedra_union n;
 
       if (next)
-	n = cloog_new_upol (next);
+	n = cloog_new_upol (p_p2c (next));
       else
 	n = NULL;
 
@@ -231,9 +231,9 @@ cloog_value_leak_down ()
 }
 
 static inline void
-cloog_domain_polyhedron_set (CloogDomain * d, ppl_polyhedra_union * p)
+cloog_domain_polyhedron_set (CloogDomain * d, polyhedra_union p)
 {
-  d->_polyhedron = p;
+  d->_union = p;
 }
 
 static inline void
@@ -243,10 +243,10 @@ cloog_domain_set_references (CloogDomain * d, int i)
 }
 
 static CloogDomain *
-cloog_new_domain (ppl_polyhedra_union *p)
+cloog_new_domain (polyhedra_union p)
 {
   CloogDomain *domain = (CloogDomain *) malloc (sizeof (CloogDomain));
-  domain->_polyhedron = p;
+  domain->_union = p;
   cloog_domain_set_references (domain, 1);
   return domain;
 }
@@ -275,13 +275,6 @@ cloog_check_domain (CloogDomain *dom)
   if (!dom)
     return dom;
 
-  /* FIXME: Remove this check.  */
-  if (cloog_domain_polyhedron (dom)->next)
-    {
-      fprintf (stderr, "polyhedra of domains should be convex.\n");
-      exit (1);
-    }
-
   return dom;
 }
 
@@ -295,13 +288,13 @@ cloog_check_domain (CloogDomain *dom)
 static CloogDomain *
 cloog_domain_matrix2domain (CloogMatrix * matrix)
 {
-  return print_result ("cloog_domain_matrix2domain", cloog_check_domain (cloog_domain_alloc (Constraints2Polyhedron (matrix, MAX_RAYS))));
+  return print_result ("cloog_domain_matrix2domain", cloog_check_domain (cloog_domain_alloc (Constraints2Polyhedron (m_c2p (matrix), MAX_RAYS))));
 }
 
 static inline CloogMatrix *
-cloog_upol_domain2matrix (ppl_polyhedra_union * upol)
+cloog_upol_domain2matrix (polyhedra_union upol)
 {
-  return Polyhedron2Constraints (cloog_upol_polyhedron (upol));
+  return m_p2c (Polyhedron2Constraints (p_c2p (cloog_upol_polyhedron (upol))));
 }
 
 /* In the matrix representation an equality has a 0 in the first
@@ -532,13 +525,18 @@ cloog_translate_ppl_polyhedron (ppl_Polyhedron_t pol)
 
 void debug_poly (Polyhedron *p)
 {
-  Polyhedron_Print (stderr, P_VALUE_FMT, p);
+  Polyhedron_Print (stderr, "%4s ", p);
+}
+
+void debug_new_poly (polyhedron p)
+{
+  Polyhedron_Print (stderr, "%4s ", p_c2p (p));
 }
 
 void
 debug_ppl_poly (ppl_Polyhedron_t p)
 {
-  debug_poly (cloog_domain_polyhedron (cloog_translate_ppl_polyhedron (p)));
+  debug_poly (p_c2p (cloog_domain_polyhedron (cloog_translate_ppl_polyhedron (p))));
 }
 
 static inline int
@@ -555,11 +553,11 @@ cloog_domain_references (CloogDomain * d)
 void
 cloog_domain_print (FILE * foo, CloogDomain * domain)
 {
-  ppl_polyhedra_union *upol = cloog_domain_upol (domain);
+  polyhedra_union upol = cloog_domain_upol (domain);
 
   while (upol)
     {
-      Polyhedron_Print (foo, P_VALUE_FMT, cloog_upol_polyhedron (upol));
+      Polyhedron_Print (foo, VALUE_FMT, p_c2p (cloog_upol_polyhedron (upol)));
       upol = cloog_upol_next (upol);
     }
 
@@ -585,11 +583,11 @@ cloog_domain_free (CloogDomain * domain)
       if (cloog_domain_references (domain) == 0)
 	{
 
-	  ppl_polyhedra_union *upol = cloog_domain_upol (domain);
+	  polyhedra_union upol = cloog_domain_upol (domain);
 
 	  while (upol)
 	    {
-	      Polyhedron_Free (cloog_upol_polyhedron (upol));
+	      Polyhedron_Free (p_c2p (cloog_upol_polyhedron (upol)));
 	      upol = cloog_upol_next (upol);
 	    }
 
@@ -624,7 +622,7 @@ cloog_domain_convex (CloogDomain * domain)
 {
   CloogDomain *res;
   ppl_Polyhedron_t p2;
-  ppl_polyhedra_union *upol = cloog_domain_upol (domain);
+  polyhedra_union upol = cloog_domain_upol (domain);
   CloogMatrix *m = cloog_upol_domain2matrix (upol);
   ppl_Polyhedron_t p1 = cloog_translate_constraint_matrix (m);
   
@@ -648,36 +646,6 @@ cloog_domain_convex (CloogDomain * domain)
   return print_result ("cloog_domain_convex", res);
 }
 
-static inline unsigned
-cloog_upol_nbc (ppl_polyhedra_union * p)
-{
-  return cloog_upol_polyhedron (p)->NbConstraints;
-}
-
-static inline int
-cloog_domain_nbconstraints (CloogDomain * domain)
-{
-  return cloog_domain_polyhedron (domain)->NbConstraints;
-}
-
-static inline unsigned
-cloog_upol_nbeq (ppl_polyhedra_union * d)
-{
-  return cloog_upol_polyhedron (d)->NbEq;
-}
-
-static inline unsigned
-cloog_domain_nbeq (CloogDomain * d)
-{
-  return cloog_domain_polyhedron (d)->NbEq;
-}
-
-static inline unsigned
-cloog_upol_dim (ppl_polyhedra_union * p)
-{
-  return cloog_upol_polyhedron (p)->Dimension;
-}
-
 int
 cloog_domain_isconvex (CloogDomain * domain)
 {
@@ -685,12 +653,6 @@ cloog_domain_isconvex (CloogDomain * domain)
     return !cloog_upol_next (cloog_domain_upol (domain));
 
   return 1;
-}
-
-unsigned
-cloog_domain_dim (CloogDomain * d)
-{
-  return cloog_domain_polyhedron (d)->Dimension;
 }
 
 /**
@@ -976,7 +938,7 @@ cloog_domain_simplify (CloogDomain * dom1, CloogDomain * dom2)
 {
   int i;
   CloogDomain *res = NULL;
-  ppl_polyhedra_union *u1, *u2;
+  polyhedra_union u1, u2;
   unsigned dim = cloog_domain_dim (dom1);
   CloogDomain *inter = cloog_domain_intersection (dom1, dom2);
 
@@ -1016,15 +978,15 @@ cloog_domain_simplify (CloogDomain * dom1, CloogDomain * dom2)
 }
 
 
-static ppl_polyhedra_union *
-cloog_upol_copy (ppl_polyhedra_union *p)
+static polyhedra_union 
+cloog_upol_copy (polyhedra_union p)
 {
-  ppl_polyhedra_union *res = cloog_new_upol (Polyhedron_Copy (cloog_upol_polyhedron (p)));
-  ppl_polyhedra_union *upol = res;
+  polyhedra_union res = cloog_new_upol (p_p2c (Polyhedron_Copy (p_c2p (cloog_upol_polyhedron (p)))));
+  polyhedra_union upol = res;
 
   while (cloog_upol_next (p))
     {
-      cloog_upol_set_next (upol, cloog_new_upol (Polyhedron_Copy (cloog_upol_polyhedron (p))));
+      cloog_upol_set_next (upol, cloog_new_upol (p_p2c (Polyhedron_Copy (p_c2p (cloog_upol_polyhedron (p))))));
       upol = cloog_upol_next (upol);
       p = cloog_upol_next (p);
     }
@@ -1038,7 +1000,7 @@ cloog_upol_copy (ppl_polyhedra_union *p)
 CloogDomain *
 cloog_domain_add_domain (CloogDomain *d1, CloogDomain *d2)
 {
-  ppl_polyhedra_union *upol;
+  polyhedra_union upol;
 
   if (!d1)
     return d2;
@@ -1064,8 +1026,8 @@ CloogDomain *
 cloog_domain_union (CloogDomain * dom1, CloogDomain * dom2)
 {
   CloogDomain *res;
-  ppl_polyhedra_union *head1, *head2, *tail1, *tail2;
-  ppl_polyhedra_union *d1, *d2;
+  polyhedra_union head1, head2, tail1, tail2;
+  polyhedra_union d1, d2;
 
   if (!dom1)
     return dom2;
@@ -1172,7 +1134,7 @@ CloogDomain *
 cloog_domain_intersection (CloogDomain * dom1, CloogDomain * dom2)
 {
   CloogDomain *res = NULL;
-  ppl_polyhedra_union *p1, *p2;
+  polyhedra_union p1, p2;
   ppl_Polyhedron_t ppl1, ppl2;
 
   for (p1 = cloog_domain_upol (dom1); p1; p1 = cloog_upol_next (p1))
@@ -1198,7 +1160,7 @@ CloogDomain *
 cloog_domain_difference (CloogDomain * d1, CloogDomain * d2)
 {
   CloogDomain *res = NULL, *d = d1;
-  ppl_polyhedra_union *p1, *p2;
+  polyhedra_union p1, p2;
 
   if (cloog_domain_isempty (d2))
     return print_result ("cloog_domain_difference", cloog_domain_copy (d1));
@@ -1272,7 +1234,7 @@ cloog_domain_addconstraints (CloogDomain *domain_source, CloogDomain *domain_tar
 {
   CloogDomain *res;
   ppl_Polyhedron_t ppl;
-  ppl_polyhedra_union *source, *target, *last;
+  polyhedra_union source, target, last;
   int dim = cloog_domain_dim (domain_target);
 
   source = cloog_domain_upol (domain_source);
@@ -1792,7 +1754,7 @@ CloogDomain *
 cloog_domain_project (CloogDomain * domain, int level, int nb_par)
 {
   CloogDomain *res = NULL;
-  ppl_polyhedra_union *upol = cloog_domain_upol (domain);
+  polyhedra_union upol = cloog_domain_upol (domain);
   int i, diff = cloog_domain_dim (domain) - level - nb_par;
   size_t n;
   ppl_dimension_type *to_remove;
@@ -1842,7 +1804,7 @@ CloogDomain *
 cloog_domain_extend (CloogDomain * domain, int dim, int nb_par)
 {
   CloogDomain *res = NULL;
-  ppl_polyhedra_union *upol = cloog_domain_upol (domain);
+  polyhedra_union upol = cloog_domain_upol (domain);
   int i, k, n, diff = dim + nb_par - cloog_domain_dim (domain);
   ppl_dimension_type *map;
   ppl_dimension_type to_add = diff;
@@ -2006,7 +1968,7 @@ cloog_domain_stride (domain, strided_level, nb_par, stride, offset)
   value_set_si (M->p[n_row][n_col], 1);
 
   /* Then look at the general solution to the above equalities. */
-  rank = SolveDiophantine (M, &U, &V);
+  rank = SolveDiophantine (m_c2p (M), &U, &V);
   cloog_matrix_free (M);
 
   if (rank == -1)
@@ -2150,14 +2112,14 @@ cloog_domain_lowerbound_update (domain, level, lower)
   int i;
   int nbc = cloog_domain_nbconstraints (domain);
   int dim = cloog_domain_dim (domain);
-  Polyhedron *polyhedron = cloog_domain_polyhedron (domain);
+  polyhedron p = cloog_domain_polyhedron (domain);
 
   /* There is only one lower bound, the first one is the good one. */
   for (i = 0; i < nbc; i++)
-    if (value_pos_p (polyhedron->Constraint[i][level]))
+    if (value_pos_p (p->Constraint[i][level]))
       {
-	value_set_si (polyhedron->Constraint[i][level], 1);
-	value_oppose (polyhedron->Constraint[i][dim + 1], lower);
+	value_set_si (p->Constraint[i][level], 1);
+	value_oppose (p->Constraint[i][dim + 1], lower);
 	break;
       }
 }
@@ -2181,9 +2143,9 @@ cloog_domain_lowerbound_update (domain, level, lower)
 int
 cloog_domain_lazy_equal (CloogDomain * d1, CloogDomain * d2)
 {
-  int i, nb_elements;
-  ppl_polyhedra_union *u1 = cloog_domain_upol (d1);
-  ppl_polyhedra_union *u2 = cloog_domain_upol (d2);
+  int i, j;
+  polyhedra_union u1 = cloog_domain_upol (d1);
+  polyhedra_union u2 = cloog_domain_upol (d2);
 
   while (u1 && u2)
     {
@@ -2191,13 +2153,11 @@ cloog_domain_lazy_equal (CloogDomain * d1, CloogDomain * d2)
 	  (cloog_upol_dim (u1) != cloog_upol_dim (u2)))
 	return 0;
 
-      nb_elements =
-	cloog_upol_nbc (u1) * (cloog_upol_dim (u1) + 2);
-
-      for (i = 0; i < nb_elements; i++)
-	if (value_ne (cloog_upol_polyhedron (u1)->p_Init[i],
-		      cloog_upol_polyhedron (u2)->p_Init[i]))
-	  return 0;
+      for (i = 0; i < cloog_upol_nbc (u1); i++)
+	for (j = 0; j < cloog_upol_dim (u1) + 2; j++)
+	  if (value_ne (cloog_upol_polyhedron (u1)->Constraint[i][j],
+			cloog_upol_polyhedron (u2)->Constraint[i][j]))
+	    return 0;
 
       u1 = cloog_upol_next (u1);
       u2 = cloog_upol_next (u2);
@@ -2809,7 +2769,7 @@ unsigned
 cloog_domain_nb_polyhedra (CloogDomain * domain)
 {
   unsigned res = 0;
-  ppl_polyhedra_union *upol = cloog_domain_upol (domain);
+  polyhedra_union upol = cloog_domain_upol (domain);
 
   while (upol)
     {
@@ -2823,7 +2783,7 @@ cloog_domain_nb_polyhedra (CloogDomain * domain)
 void
 cloog_domain_print_polyhedra (FILE * foo, CloogDomain * domain)
 {
-  ppl_polyhedra_union *upol = cloog_domain_upol (domain);
+  polyhedra_union upol = cloog_domain_upol (domain);
 
   while (upol != NULL)
     {

@@ -85,7 +85,7 @@ int cloog_matrix_max = 0 ;
  * file (foo, possibly stdout).
  */
 void cloog_matrix_print(FILE * foo, CloogMatrix * matrix)
-{ Matrix_Print(foo,P_VALUE_FMT,matrix) ;
+{ Matrix_Print(foo,"%4s ",matrix) ;
 }
 
 
@@ -96,7 +96,7 @@ void cloog_matrix_print(FILE * foo, CloogMatrix * matrix)
  */
 void cloog_matrix_free(CloogMatrix * matrix)
 {
-  Matrix_Free(matrix) ;
+  Matrix_Free(m_c2p (matrix)) ;
 }
 
 
@@ -105,9 +105,32 @@ void cloog_matrix_free(CloogMatrix * matrix)
  * This function allocates the memory space for a CloogMatrix structure having
  * nb_rows rows and nb_columns columns, it set its elements to 0.
  */
-CloogMatrix * cloog_matrix_alloc(unsigned nb_rows, unsigned nb_columns)
+CloogMatrix *
+cloog_matrix_alloc (unsigned nb_rows, unsigned nb_columns)
 {
-  return Matrix_Alloc(nb_rows,nb_columns) ;
+  int i;
+  CloogMatrix *res = (CloogMatrix *) malloc (sizeof (struct cloog_matrix));
+
+  res->NbRows = nb_rows;
+  res->NbColumns = nb_columns;
+
+  if (nb_rows == 0 || nb_columns == 0)
+    res->p = (Value **) 0;
+
+  else
+    {
+      int n = nb_rows * nb_columns;
+      Value *p = (Value *) malloc (n * sizeof (Value));
+      res->p = (Value **) malloc (nb_rows * sizeof (Value *));
+
+      for (i = 0; i < n; ++i)
+	value_init (p[i]);
+
+      for (i = 0; i < nb_rows; i++, p += nb_columns)
+	res->p[i] = p;
+    }
+
+  return res;
 }
 
 
@@ -140,7 +163,7 @@ void cloog_matrix_print_structure(FILE * file, CloogMatrix * matrix, int level)
     fprintf(file,"[ ") ;
       
     for (j=0; j<matrix->NbColumns; j++)
-      { value_print(file,P_VALUE_FMT,matrix->p[i][j]) ;
+      { value_print(file,VALUE_FMT,matrix->p[i][j]) ;
       fprintf(file," ") ;
     }      
 
@@ -176,7 +199,10 @@ CloogMatrix * cloog_matrix_read(FILE * foo)
   
   matrix = cloog_matrix_alloc(NbRows,NbColumns) ;
 
-  p = matrix->p_Init ;
+  if (!matrix->p)
+    return matrix;
+
+  p = matrix->p[0] ;
   for (i=0;i<matrix->NbRows;i++) 
   { do 
     { c = fgets(s,MAX_STRING,foo) ;
