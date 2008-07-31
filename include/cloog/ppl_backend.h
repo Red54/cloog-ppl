@@ -552,8 +552,25 @@ static inline void cloog_vector_scale (Value * p1, Value * p2,
     value_multiply (*p2++, *p1++, x);
 }
 
-void Vector_Combine(Value *p1, Value *p2, Value *p3, Value lambda, Value mu,
-		    unsigned length);
+static inline void
+cloog_vector_combine (Value * p1, Value * p2, Value * p3, Value x,
+		      Value y, unsigned length)
+{
+  Value tmp;
+  int i;
+
+  value_init (tmp);
+
+  for (i = 0; i < length; i++)
+    {
+      value_multiply (tmp, x, p1[i]);
+      value_addmul (tmp, y, p2[i]);
+      value_assign (p3[i], tmp);
+    }
+
+  value_clear (tmp);
+}
+
 Polyhedron *Constraints2Polyhedron(Matrix *Constraints,unsigned NbMaxRays);
 Matrix *Polyhedron2Constraints(Polyhedron *Pol);
   Polyhedron* Polyhedron_Alloc(unsigned Dimension,unsigned NbConstraints,unsigned NbRays);

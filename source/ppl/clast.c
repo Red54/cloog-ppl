@@ -1077,10 +1077,10 @@ static void insert_modulo_guard(CloogMatrix *matrix, int num, int level,
       value_multiply(val, val, x);
       value_set_si(y, 1);
       /* Add (infos->equal->p[j][i])^{-1} * line[i] times the equality */
-      Vector_Combine(line+1, infos->equal->p[j]+1, line+1, y, val, i);
-      Vector_Combine(line+len-nb_par-1,
-		     infos->equal->p[j]+infos->equal->NbColumns-nb_par-1,
-		     line+len-nb_par-1, y, val, nb_par+1);
+      cloog_vector_combine(line+1, infos->equal->p[j]+1, line+1, y, val, i);
+      cloog_vector_combine(line+len-nb_par-1,
+			   infos->equal->p[j]+infos->equal->NbColumns-nb_par-1,
+			   line+len-nb_par-1, y, val, nb_par+1);
       break;
     }
     if (j >= 0) {
