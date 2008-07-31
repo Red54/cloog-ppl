@@ -432,7 +432,6 @@ extern "C"
       value_swap (p1[len - 1], p2[len - 1]);
   }
 
-  void cloog_pol_print (FILE *, polyhedron);
   polyhedron cloog_pol_from_matrix (CloogMatrix * m);
 
   static inline void cloog_pol_free (polyhedron pol)
@@ -629,7 +628,6 @@ cloog_vector_combine (Value * p1, Value * p2, Value * p3, Value x,
 
   Polyhedron* Polyhedron_Alloc(unsigned Dimension,unsigned NbConstraints,unsigned NbRays);
   Polyhedron *Polyhedron_Copy(Polyhedron *Pol);
-  void Polyhedron_Print(FILE *Dst,char *Format,Polyhedron *Pol);
   void Polyhedron_Free(Polyhedron *Pol);
   void Matrix_Free(Matrix *Mat);
   void Matrix_Print (FILE * Dst, char *Format, CloogMatrix * Mat);

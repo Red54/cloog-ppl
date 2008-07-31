@@ -718,20 +718,54 @@ cloog_translate_ppl_polyhedron (ppl_Polyhedron_t p)
   return print_result ("cloog_translate_ppl_polyhedron", cloog_domain_alloc (res));
 }
 
-void debug_poly (Polyhedron *p)
+static void
+cloog_pol_print (FILE * file, polyhedron pol)
 {
-  Polyhedron_Print (stderr, "%4s ", p);
+  unsigned dim, nbc;
+  int i, j;
+  Value *p;
+
+  if (!pol)
+    {
+      fprintf (file, "<null polyhedron>\n");
+      return;
+    }
+
+  dim = cloog_pol_dim (pol) + 2;
+  nbc = cloog_pol_nbc (pol);
+  fprintf (file, "POLYHEDRON Dimension:%d\n", cloog_pol_dim (pol));
+  fprintf (file,
+	   "           Constraints:%d  Equations:%d\n",
+	   cloog_pol_nbc (pol), cloog_pol_nbeq (pol));
+  fprintf (file, "Constraints %d %d\n", nbc, dim);
+
+  for (i = 0; i < nbc; i++)
+    {
+      p = pol->Constraint[i];
+
+      if (value_notzero_p (*p))
+	fprintf (file, "Inequality: [");
+      else
+	fprintf (file, "Equality:   [");
+
+      p++;
+
+      for (j = 1; j < dim; j++)
+	value_print (file, "%4s ", *p++);
+
+      fprintf (file, " ]\n");
+    }
 }
 
-void debug_new_poly (polyhedron p)
+void debug_poly (polyhedron p)
 {
-  Polyhedron_Print (stderr, "%4s ", p_c2p (p));
+  cloog_pol_print (stderr, p);
 }
 
 void
 debug_ppl_poly (ppl_Polyhedron_t p)
 {
-  debug_poly (p_c2p (cloog_domain_polyhedron (cloog_translate_ppl_polyhedron (p))));
+  debug_poly (cloog_domain_polyhedron (cloog_translate_ppl_polyhedron (p)));
 }
 
 static inline int
@@ -752,7 +786,7 @@ cloog_domain_print (FILE * foo, CloogDomain * domain)
 
   while (upol)
     {
-      Polyhedron_Print (foo, VALUE_FMT, p_c2p (cloog_upol_polyhedron (upol)));
+      cloog_pol_print (foo, cloog_upol_polyhedron (upol));
       upol = cloog_upol_next (upol);
     }
 
