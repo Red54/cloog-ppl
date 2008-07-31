@@ -350,24 +350,6 @@ cloog_vector_gcd (Value * p, unsigned len, Value * gcd)
 }
 
 static inline void
-cloog_vector_normalize (Value * p, unsigned len)
-{
-  int i;
-  Value *ptr, gcd, one;
-
-  value_init (gcd);
-  cloog_vector_gcd (p, len, &gcd);
-  value_init (one);
-  value_set_si (one, 1);
-
-  if (value_gt (gcd, one))
-    for (ptr = p, i = 0; i < len; i++, ptr++)
-      value_division (*ptr, *ptr, gcd);
-
-  value_clear (one), value_clear (gcd);
-}
-
-static inline void
 cloog_matrix_combine (Value * p1, Value * p2, Value * p3, int x, unsigned len)
 {
   Value a1, a2, gcd, b1, b2, n1;

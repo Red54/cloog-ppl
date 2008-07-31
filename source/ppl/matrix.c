@@ -304,7 +304,7 @@ void cloog_matrix_normalize(CloogMatrix * matrix, int level)
       }
     
       /* Normalize (divide by GCD of all elements) the updated vector. */
-      Vector_Normalize(&(matrix->p[i][1]),matrix->NbColumns-1) ;
+      cloog_vector_normalize(&(matrix->p[i][1]),matrix->NbColumns-1) ;
     }
     
     value_clear_c(gcd) ;
@@ -378,7 +378,7 @@ void cloog_matrix_equality_update(CloogMatrix * equal, int level, int nb_par)
   }
   
   /* Normalize (divide by GCD of all elements) the updated equality. */
-  Vector_Normalize(&(equal->p[level-1][1]),equal->NbColumns-1) ;
+  cloog_vector_normalize(&(equal->p[level-1][1]),equal->NbColumns-1) ;
 
   value_clear_c(gcd) ;
   value_clear_c(temp_level) ;
@@ -506,7 +506,7 @@ int length, level, nb_par ;
   }
   
   /* Normalize (divide by GCD of all elements) the updated vector. */
-  Vector_Normalize(&(simplified[1]),length-1) ;
+  cloog_vector_normalize(&(simplified[1]),length-1) ;
 
   value_clear_c(gcd) ;
   value_clear_c(temp_vector) ;

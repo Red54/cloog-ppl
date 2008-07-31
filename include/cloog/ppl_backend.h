@@ -523,6 +523,23 @@ extern "C"
     return cloog_pol_matrix (cloog_upol_polyhedron (upol));
   }
 
+  static inline void
+  cloog_vector_normalize (Value * p, unsigned len)
+  {
+    int i;
+    Value *ptr, gcd, one;
+
+    value_init (gcd);
+    cloog_vector_gcd (p, len, &gcd);
+    value_init (one);
+    value_set_si (one, 1);
+
+    if (value_gt (gcd, one))
+      for (ptr = p, i = 0; i < len; i++, ptr++)
+	value_division (*ptr, *ptr, gcd);
+
+    value_clear (one), value_clear (gcd);
+  }
 
   // sepdke
 
@@ -617,7 +634,6 @@ cloog_vector_combine (Value * p1, Value * p2, Value * p3, Value x,
   Polyhedron *Empty_Polyhedron(unsigned Dimension);
   void Matrix_Free(Matrix *Mat);
   void Matrix_Print (FILE * Dst, char *Format, CloogMatrix * Mat);
-  void Vector_Normalize(Value *p,unsigned length);
 
 
   static inline polyhedron
