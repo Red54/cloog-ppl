@@ -1,4 +1,4 @@
-/* Generated from ././reservoir/QR.cloog by CLooG  64 bits in 0.80s. */
+/* Generated from ././reservoir/QR.cloog by CLooG  64 bits in 0.66s. */
 if (N >= 1) {
   S1(i = 0) ;
 }
@@ -20,14 +20,14 @@ if ((M >= 1) && (N >= 2)) {
 }
 for (c2=2;c2<=min(M,N-1);c2++) {
   for (c4=c2-1;c4<=N-1;c4++) {
-    if ((c2 >= 2) && (c2 <= min(min(c4+1,M),N-1))) {
+    if ((c2 <= min(min(N-1,M),c4+1)) && (c2 >= 2)) {
       i = c2-2 ;
       if ((c2 <= c4+1) && (c4 <= N-1)) {
         S6(j = c4) ;
       }
     }
     for (c6=c2-2;c6<=M-1;c6++) {
-      if ((c2 >= 2) && (c2 <= min(min(min(c4+1,c6+2),M),N-1))) {
+      if ((c2 <= min(min(min(N-1,M),c6+2),c4+1)) && (c2 >= 2)) {
         i = c2-2 ;
         if ((c2 <= c4+1) && (c4 <= N-1)) {
           if ((c2 <= c6+2) && (c6 <= M-1)) {
@@ -36,14 +36,14 @@ for (c2=2;c2<=min(M,N-1);c2++) {
         }
       }
     }
-    if ((c2 >= 2) && (c2 <= min(min(c4+1,M),N-1))) {
+    if ((c2 <= min(min(N-1,M),c4+1)) && (c2 >= 2)) {
       i = c2-2 ;
       if ((c2 <= c4+1) && (c4 <= N-1)) {
         S8(j = c4) ;
       }
     }
     for (c6=c2-2;c6<=M-1;c6++) {
-      if ((c2 >= 2) && (c2 <= min(min(min(c4+1,c6+2),M),N-1))) {
+      if ((c2 <= min(min(min(N-1,M),c6+2),c4+1)) && (c2 >= 2)) {
         i = c2-2 ;
         if ((c2 <= c4+1) && (c4 <= N-1)) {
           if ((c2 <= c6+2) && (c6 <= M-1)) {
@@ -54,33 +54,33 @@ for (c2=2;c2<=min(M,N-1);c2++) {
     }
   }
   for (c4=c2-1;c4<=M-1;c4++) {
-    if ((c2 >= 2) && (c2 <= min(c4+1,N-1))) {
+    if ((c2 <= min(c4+1,N-1)) && (c2 >= 2)) {
       i = c2-1 ;
       if ((c2 <= c4+1) && (c4 <= M-1)) {
         S2(j = c4) ;
       }
     }
   }
-  if ((c2 >= 2) && (c2 <= min(M,N-1))) {
+  if ((c2 <= min(M,N-1)) && (c2 >= 2)) {
     i = c2-1 ;
     S3 ;
   }
   for (c4=c2-1;c4<=M-1;c4++) {
-    if ((c2 >= 2) && (c2 <= min(c4+1,N-1))) {
+    if ((c2 <= min(c4+1,N-1)) && (c2 >= 2)) {
       i = c2-1 ;
       if ((c2 <= c4+1) && (c4 <= M-1)) {
         S4(j = c4) ;
       }
     }
   }
-  if ((c2 >= 2) && (c2 <= min(M,N-1))) {
+  if ((c2 <= min(M,N-1)) && (c2 >= 2)) {
     i = c2-1 ;
     S10 ;
   }
-  if ((c2 >= 2) && (c2 <= min(M,N-1))) {
+  if ((c2 <= min(M,N-1)) && (c2 >= 2)) {
     S1(i = c2) ;
   }
-  if ((c2 >= 2) && (c2 <= min(M,N-1))) {
+  if ((c2 <= min(M,N-1)) && (c2 >= 2)) {
     i = c2-1 ;
     S5 ;
   }
@@ -123,31 +123,31 @@ if ((M <= 0) && (N >= 2)) {
 }
 for (c2=max(2,M+2);c2<=N-1;c2++) {
   for (c4=c2-1;c4<=N-1;c4++) {
-    if ((c2 >= max(2,M+2)) && (c2 <= min(c4+1,N-1))) {
+    if ((c2 <= min(N-1,c4+1)) && (c2 >= max(M+2,2))) {
       i = c2-2 ;
       if ((c2 <= c4+1) && (c4 <= N-1)) {
         S6(j = c4) ;
       }
     }
-    if ((c2 >= max(2,M+2)) && (c2 <= min(c4+1,N-1))) {
+    if ((c2 <= min(N-1,c4+1)) && (c2 >= max(M+2,2))) {
       i = c2-2 ;
       if ((c2 <= c4+1) && (c4 <= N-1)) {
         S8(j = c4) ;
       }
     }
   }
-  if ((c2 >= max(2,M+2)) && (c2 <= N-1)) {
+  if ((c2 <= N-1) && (c2 >= max(2,M+2))) {
     i = c2-1 ;
     S3 ;
   }
-  if ((c2 >= max(2,M+2)) && (c2 <= N-1)) {
+  if ((c2 <= N-1) && (c2 >= max(2,M+2))) {
     i = c2-1 ;
     S10 ;
   }
-  if ((c2 >= max(2,M+2)) && (c2 <= N-1)) {
+  if ((c2 <= N-1) && (c2 >= max(2,M+2))) {
     S1(i = c2) ;
   }
-  if ((c2 >= max(2,M+2)) && (c2 <= N-1)) {
+  if ((c2 <= N-1) && (c2 >= max(2,M+2))) {
     i = c2-1 ;
     S5 ;
   }

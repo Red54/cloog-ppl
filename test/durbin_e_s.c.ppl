@@ -1,4 +1,4 @@
-/* Generated from ./durbin_e_s.cloog by CLooG  64 bits in 0.18s. */
+/* Generated from ./durbin_e_s.cloog by CLooG  64 bits in 0.16s. */
 S4(i = 1,j = 0,k = 0) ;
 S7(i = 1,j = 0,k = 0) ;
 S8(i = 1,j = 0,k = 3) ;

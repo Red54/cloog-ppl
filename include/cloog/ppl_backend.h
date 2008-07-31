@@ -456,24 +456,7 @@ extern "C"
   polyhedron cloog_pol_copy (polyhedron pol);
   void cloog_vector_gcd (Value *, unsigned, Value *);
   int cloog_solve_diophantine (CloogMatrix *, CloogMatrix **, Vector **);
-
-  static inline void
-  cloog_exchange_rows (CloogMatrix * m, int row1, int row2)
-  {
-    int i;
-    
-    for (i = 0; i < (int) m->NbColumns; i++)
-      value_swap (m->p[row1][i], m->p[row2][i]);
-  }
-
-  static inline void
-  cloog_pol_exchange_rows (polyhedron p, int row1, int row2)
-  {
-    int i;
-    
-    for (i = 0; i < (int) cloog_pol_dim (p) + 2; i++)
-      value_swap (p->Constraint[row1][i], p->Constraint[row2][i]);
-  }
+  void cloog_exchange_rows (CloogMatrix * M, int Row1, int Row2);
 
 static inline int
 cloog_matrix_lexico_lt (CloogMatrix *m, int i, int j)
@@ -500,30 +483,6 @@ cloog_matrix_sort_rows (CloogMatrix *m)
 	cloog_exchange_rows (m, i, j);
 }
 
-static inline int
-cloog_pol_lexico_lt (polyhedron p, int i, int j)
-{
-  int k;
-
-  for (k = 0; k < cloog_pol_dim (p) + 2; k++)
-    if (value_lt (p->Constraint[i][k], p->Constraint[j][k]))
-      return 1;
-    else if (value_gt (p->Constraint[i][k], p->Constraint[j][k]))
-      return 0;
-
-  return 0;
-}
-
-static inline void
-cloog_pol_sort_rows (polyhedron p)
-{
-  int i, j;
-
-  for (i = 0; i < cloog_pol_nbc (p); i++)
-    for (j = i + 1; j < cloog_pol_nbc (p); j++)
-      if (cloog_pol_lexico_lt (p, i, j))
-	cloog_pol_exchange_rows (p, i, j);
-}
 
 
   // sepdke
@@ -643,7 +602,7 @@ Matrix *Polyhedron2Constraints(Polyhedron *Pol);
   p_c2p (polyhedron p)
   {
     int i, j;
-    Polyhedron *res = Polyhedron_Alloc (p->Dimension, p->NbConstraints, 0);
+    Polyhedron *res = Polyhedron_Alloc (p->Dimension, p->NbConstraints, 200);
 
     for (i = 0; i < p->NbConstraints; i++)
       for (j = 0; j < p->Dimension + 2; j++)

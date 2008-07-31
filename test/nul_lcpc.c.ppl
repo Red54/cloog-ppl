@@ -1,4 +1,4 @@
-/* Generated from ./nul_lcpc.cloog by CLooG  64 bits in 0.06s. */
+/* Generated from ./nul_lcpc.cloog by CLooG  64 bits in 0.04s. */
 for (i=1;i<=6;i+=2) {
   if ((i >= 1) && (i <= 6)) {
     k = (i-1)/2 ;

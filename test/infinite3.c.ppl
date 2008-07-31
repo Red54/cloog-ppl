@@ -2,7 +2,7 @@
 for (;i<=0;i++) {
   S1 ;
 }
-for (i=1;i<=min(M,N);i++) {
+for (i=1;i<=min(N,M);i++) {
   S1 ;
   for (j=1;j<=M;j++) {
     S2 ;

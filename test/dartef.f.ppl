@@ -1,9 +1,9 @@
-! Generated from ./dartef.cloog by CLooG  64 bits in 0.88s.
+! Generated from ./dartef.cloog by CLooG  64 bits in 0.67s.
 IF (n >= 1) THEN
   t1 = -n+1
   t2 = n+1
   DO t3=n+3, 3*n+1
-    IF ((t3 <= 3*n+1) .AND. (t3 >= n+3)) THEN
+    IF ((t3 >= n+3) .AND. (t3 <= 3*n+1)) THEN
       IF (MOD(t3+n+1, 2) == 0) THEN
         k = (t3-n-1)/2
         S1(i = 1,j = n)
@@ -11,73 +11,15 @@ IF (n >= 1) THEN
     END IF
   END DO
 END IF
-IF (n >= 2) THEN
-  t1 = -n+2
-  DO t2=MAX(-n+4,n), MIN(3*n-2,n+2)
-    DO t3=t2+2, t2+2*n
-      IF ((t2 >= MAX(t3-2*n,-n+4,n)) .AND. (t2 <= MIN(3*n-2,n+2,t3-2))) THEN
-        IF (MOD(t2+n, 2) == 0) THEN
-          i = (t2-n+2)/2
-          IF ((t2 >= MAX(t3-2*n,-n+4,n)) .AND. (t2 <= MIN(3*n-2,n+2,t3-2))) THEN
-            j = (t2+n-2)/2
-            IF ((t2 <= t3-2) .AND. (t2 >= t3-2*n)) THEN
-              IF (MOD(t3+n, 2) == 0) THEN
-                k = (-t2+t3)/2
-                S1
-              END IF
-            END IF
-          END IF
-        END IF
-      END IF
-    END DO
-  END DO
-  t2 = n+3
-  DO t3=1, n
-    IF ((t3 >= 1) .AND. (t3 <= n)) THEN
-      S2(i = 1,j = n,k = t3)
-    END IF
-  END DO
-END IF
-DO t1=CEILING(REAL(-2*n+5)/REAL(2)), MIN(0,-n+6)
-  DO t2=-t1+5, t1+2*n
-    DO t3=1, n
-      IF ((t1 >= MAX(-t2+5,t2-2*n)) .AND. (t1 <= MIN(0,-n+6))) THEN
-        IF (MOD(t1+t2+1, 2) == 0) THEN
-          i = (t1+t2-3)/2
-          IF ((t1 >= t2-2*n) .AND. (t1 <= MIN(0,-n+6))) THEN
-            j = (-t1+t2-1)/2
-            IF ((t3 >= 1) .AND. (t3 <= n)) THEN
-              S2(k = t3)
-            END IF
-          END IF
-        END IF
-      END IF
-    END DO
-    DO t3=t2+2, t2+2*n
-      IF ((t1 >= MAX(-t2+5,t2-2*n)) .AND. (t1 <= MIN(0,-n+6))) THEN
-        IF (MOD(t1+t2, 2) == 0) THEN
-          i = (t1+t2)/2
-          IF ((t1 >= t2-2*n) .AND. (t1 <= MIN(0,-n+6)) .AND. (t2 >= t3-2*n) .AND. (t2 <= t3-2)) THEN
-            j = (-t1+t2)/2
-            IF ((t2 <= t3-2) .AND. (t2 >= t3-2*n)) THEN
-              IF (MOD(t1+t3, 2) == 0) THEN
-                k = (-t2+t3)/2
-                S1
-              END IF
-            END IF
-          END IF
-        END IF
-      END IF
-    END DO
-  END DO
+DO t1=-n+2, MIN(FLOOR(REAL(-2*n+5)/REAL(2)),-1)
   DO t2=-t1+2, -t1+4
     DO t3=t2+2, t2+2*n
-      IF ((t1 >= MAX(CEILING(REAL(-2*n+5)/REAL(2)),-t2+2)) .AND. (t1 <= MIN(0,-n+6,-t2+4))) THEN
+      IF ((t1 <= MIN(FLOOR(REAL(-2*n+5)/REAL(2)),-1,-t2+4)) .AND. (t1 >= MAX(-n+2,-t2+2))) THEN
         IF (MOD(t1+t2, 2) == 0) THEN
           i = (t1+t2)/2
-          IF ((t1 >= CEILING(REAL(-2*n+5)/REAL(2))) .AND. (t1 <= MIN(0,-n+6)) .AND. (t2 >= t3-2*n) .AND. (t2 <= t3-2)) THEN
+          IF ((t1 <= MIN(FLOOR(REAL(-2*n+5)/REAL(2)),-1)) .AND. (t1 >= -n+2) .AND. (t2 >= t3-2*n) .AND. (t2 <= t3-2)) THEN
             j = (-t1+t2)/2
-            IF ((t2 <= t3-2) .AND. (t2 >= t3-2*n)) THEN
+            IF ((t2 >= t3-2*n) .AND. (t2 <= t3-2)) THEN
               IF (MOD(t1+t3, 2) == 0) THEN
                 k = (-t2+t3)/2
                 S1
@@ -88,10 +30,10 @@ DO t1=CEILING(REAL(-2*n+5)/REAL(2)), MIN(0,-n+6)
       END IF
     END DO
   END DO
-  IF ((t1 >= CEILING(REAL(-2*n+5)/REAL(2))) .AND. (t1 <= MIN(0,-n+6))) THEN
+  IF ((t1 <= MIN(FLOOR(REAL(-2*n+5)/REAL(2)),-1)) .AND. (t1 >= -n+2)) THEN
     t2 = t1+2*n+1
     DO t3=1, n
-      IF ((t1 >= CEILING(REAL(-2*n+5)/REAL(2))) .AND. (t1 <= MIN(0,-n+6))) THEN
+      IF ((t1 <= MIN(FLOOR(REAL(-2*n+5)/REAL(2)),-1)) .AND. (t1 >= -n+2)) THEN
         i = t1+n-1
         IF ((t3 >= 1) .AND. (t3 <= n)) THEN
           S2(j = n,k = t3)
@@ -100,13 +42,93 @@ DO t1=CEILING(REAL(-2*n+5)/REAL(2)), MIN(0,-n+6)
     END DO
   END IF
 END DO
-DO t1=-n+7, 0
-  DO t2=-t1+5, n-2
-    DO t3=1, t2+1
-      IF ((t1 >= -t2+5) .AND. (t1 <= 0)) THEN
+DO t1=CEILING(REAL(-2*n+5)/REAL(2)), MIN(-n+6,-1)
+  DO t2=-t1+2, -t1+4
+    DO t3=t2+2, t2+2*n
+      IF ((t1 <= MIN(-n+6,-1,-t2+4)) .AND. (t1 >= MAX(-t2+2,CEILING(REAL(-2*n+5)/REAL(2))))) THEN
+        IF (MOD(t1+t2, 2) == 0) THEN
+          i = (t1+t2)/2
+          IF ((t1 <= MIN(-n+6,-1)) .AND. (t1 >= CEILING(REAL(-2*n+5)/REAL(2))) .AND. (t2 >= t3-2*n) .AND. (t2 <= t3-2)) THEN
+            j = (-t1+t2)/2
+            IF ((t2 >= t3-2*n) .AND. (t2 <= t3-2)) THEN
+              IF (MOD(t1+t3, 2) == 0) THEN
+                k = (-t2+t3)/2
+                S1
+              END IF
+            END IF
+          END IF
+        END IF
+      END IF
+    END DO
+  END DO
+  DO t2=-t1+5, t1+2*n
+    DO t3=1, n
+      IF ((t1 <= MIN(-n+6,-1)) .AND. (t1 >= MAX(-t2+5,t2-2*n))) THEN
         IF (MOD(t1+t2+1, 2) == 0) THEN
           i = (t1+t2-3)/2
-          IF ((t1 <= 0) .AND. (t2 >= t3-1) .AND. (t2 <= n-2)) THEN
+          IF ((t1 <= MIN(-n+6,-1)) .AND. (t1 >= t2-2*n)) THEN
+            j = (-t1+t2-1)/2
+            IF ((t3 <= n) .AND. (t3 >= 1)) THEN
+              S2(k = t3)
+            END IF
+          END IF
+        END IF
+      END IF
+    END DO
+    DO t3=t2+2, t2+2*n
+      IF ((t1 <= MIN(-n+6,-1)) .AND. (t1 >= MAX(-t2+5,t2-2*n))) THEN
+        IF (MOD(t1+t2, 2) == 0) THEN
+          i = (t1+t2)/2
+          IF ((t1 <= MIN(-n+6,-1)) .AND. (t1 >= t2-2*n) .AND. (t2 <= t3-2) .AND. (t2 >= t3-2*n)) THEN
+            j = (-t1+t2)/2
+            IF ((t2 >= t3-2*n) .AND. (t2 <= t3-2)) THEN
+              IF (MOD(t1+t3, 2) == 0) THEN
+                k = (-t2+t3)/2
+                S1
+              END IF
+            END IF
+          END IF
+        END IF
+      END IF
+    END DO
+  END DO
+  IF ((t1 <= MIN(-n+6,-1)) .AND. (t1 >= CEILING(REAL(-2*n+5)/REAL(2)))) THEN
+    t2 = t1+2*n+1
+    DO t3=1, n
+      IF ((t1 <= MIN(-n+6,-1)) .AND. (t1 >= CEILING(REAL(-2*n+5)/REAL(2)))) THEN
+        i = t1+n-1
+        IF ((t3 >= 1) .AND. (t3 <= n)) THEN
+          S2(j = n,k = t3)
+        END IF
+      END IF
+    END DO
+  END IF
+END DO
+DO t1=-n+7, -1
+  DO t2=-t1+2, -t1+4
+    DO t3=t2+2, t2+2*n
+      IF ((t1 <= MIN(-1,-t2+4)) .AND. (t1 >= MAX(-n+7,-t2+2))) THEN
+        IF (MOD(t1+t2, 2) == 0) THEN
+          i = (t1+t2)/2
+          IF ((t1 <= -1) .AND. (t1 >= -n+7) .AND. (t2 >= t3-2*n) .AND. (t2 <= t3-2)) THEN
+            j = (-t1+t2)/2
+            IF ((t2 >= t3-2*n) .AND. (t2 <= t3-2)) THEN
+              IF (MOD(t1+t3, 2) == 0) THEN
+                k = (-t2+t3)/2
+                S1
+              END IF
+            END IF
+          END IF
+        END IF
+      END IF
+    END DO
+  END DO
+  DO t2=-t1+5, n-2
+    DO t3=1, t2+1
+      IF ((t1 <= -1) .AND. (t1 >= -t2+5)) THEN
+        IF (MOD(t1+t2+1, 2) == 0) THEN
+          i = (t1+t2-3)/2
+          IF ((t1 <= -1) .AND. (t2 <= n-2) .AND. (t2 >= t3-1)) THEN
             j = (-t1+t2-1)/2
             IF ((t2 >= t3-1) .AND. (t3 >= 1)) THEN
               S2(k = t3)
@@ -116,10 +138,10 @@ DO t1=-n+7, 0
       END IF
     END DO
     DO t3=t2+2, n
-      IF ((t1 >= -t2+5) .AND. (t1 <= 0)) THEN
+      IF ((t1 <= -1) .AND. (t1 >= -t2+5)) THEN
         IF (MOD(t1+t2+1, 2) == 0) THEN
           i = (t1+t2-3)/2
-          IF ((t1 <= 0) .AND. (t2 <= t3-2)) THEN
+          IF ((t1 <= -1) .AND. (t2 <= t3-2)) THEN
             j = (-t1+t2-1)/2
             IF ((t2 <= t3-2) .AND. (t3 <= n)) THEN
               S2(k = t3)
@@ -127,10 +149,10 @@ DO t1=-n+7, 0
           END IF
         END IF
       END IF
-      IF ((t1 >= -t2+5) .AND. (t1 <= 0)) THEN
+      IF ((t1 <= -1) .AND. (t1 >= -t2+5)) THEN
         IF (MOD(t1+t2, 2) == 0) THEN
           i = (t1+t2)/2
-          IF ((t1 <= 0) .AND. (t2 <= t3-2)) THEN
+          IF ((t1 <= -1) .AND. (t2 <= t3-2)) THEN
             j = (-t1+t2)/2
             IF ((t2 <= t3-2) .AND. (t3 <= n)) THEN
               IF (MOD(t1+t3, 2) == 0) THEN
@@ -143,10 +165,10 @@ DO t1=-n+7, 0
       END IF
     END DO
     DO t3=n+1, t2+2*n
-      IF ((t1 >= -t2+5) .AND. (t1 <= 0)) THEN
+      IF ((t1 <= -1) .AND. (t1 >= -t2+5)) THEN
         IF (MOD(t1+t2, 2) == 0) THEN
           i = (t1+t2)/2
-          IF ((t1 <= 0) .AND. (t2 >= t3-2*n) .AND. (t2 <= n-2)) THEN
+          IF ((t1 <= -1) .AND. (t2 <= n-2) .AND. (t2 >= t3-2*n)) THEN
             j = (-t1+t2)/2
             IF ((t2 >= t3-2*n) .AND. (t3 >= n+1)) THEN
               IF (MOD(t1+t3, 2) == 0) THEN
@@ -161,12 +183,12 @@ DO t1=-n+7, 0
   END DO
   DO t2=n-1, t1+2*n
     DO t3=1, n
-      IF ((t1 >= MAX(-n+7,t2-2*n)) .AND. (t1 <= 0)) THEN
+      IF ((t1 <= -1) .AND. (t1 >= MAX(-n+7,t2-2*n))) THEN
         IF (MOD(t1+t2+1, 2) == 0) THEN
           i = (t1+t2-3)/2
-          IF ((t1 >= MAX(-n+7,t2-2*n)) .AND. (t1 <= 0) .AND. (t2 >= n-1)) THEN
+          IF ((t1 <= -1) .AND. (t1 >= MAX(-n+7,t2-2*n)) .AND. (t2 >= n-1)) THEN
             j = (-t1+t2-1)/2
-            IF ((t3 >= 1) .AND. (t3 <= n)) THEN
+            IF ((t3 <= n) .AND. (t3 >= 1)) THEN
               S2(k = t3)
             END IF
           END IF
@@ -174,12 +196,12 @@ DO t1=-n+7, 0
       END IF
     END DO
     DO t3=t2+2, t2+2*n
-      IF ((t1 >= MAX(-n+7,t2-2*n)) .AND. (t1 <= 0)) THEN
+      IF ((t1 <= -1) .AND. (t1 >= MAX(-n+7,t2-2*n))) THEN
         IF (MOD(t1+t2, 2) == 0) THEN
           i = (t1+t2)/2
-          IF ((t1 >= MAX(-n+7,t2-2*n)) .AND. (t1 <= 0) .AND. (t2 >= MAX(n-1,t3-2*n)) .AND. (t2 <= t3-2)) THEN
+          IF ((t1 <= -1) .AND. (t1 >= MAX(-n+7,t2-2*n)) .AND. (t2 <= t3-2) .AND. (t2 >= MAX(t3-2*n,n-1))) THEN
             j = (-t1+t2)/2
-            IF ((t2 <= t3-2) .AND. (t2 >= t3-2*n)) THEN
+            IF ((t2 >= t3-2*n) .AND. (t2 <= t3-2)) THEN
               IF (MOD(t1+t3, 2) == 0) THEN
                 k = (-t2+t3)/2
                 S1
@@ -190,28 +212,10 @@ DO t1=-n+7, 0
       END IF
     END DO
   END DO
-  DO t2=-t1+2, -t1+4
-    DO t3=t2+2, t2+2*n
-      IF ((t1 >= MAX(-t2+2,-n+7)) .AND. (t1 <= MIN(0,-t2+4))) THEN
-        IF (MOD(t1+t2, 2) == 0) THEN
-          i = (t1+t2)/2
-          IF ((t1 >= -n+7) .AND. (t1 <= 0) .AND. (t2 >= t3-2*n) .AND. (t2 <= t3-2)) THEN
-            j = (-t1+t2)/2
-            IF ((t2 <= t3-2) .AND. (t2 >= t3-2*n)) THEN
-              IF (MOD(t1+t3, 2) == 0) THEN
-                k = (-t2+t3)/2
-                S1
-              END IF
-            END IF
-          END IF
-        END IF
-      END IF
-    END DO
-  END DO
-  IF ((t1 >= -n+7) .AND. (t1 <= 0)) THEN
+  IF ((t1 <= -1) .AND. (t1 >= -n+7)) THEN
     t2 = t1+2*n+1
     DO t3=1, n
-      IF ((t1 >= -n+7) .AND. (t1 <= 0)) THEN
+      IF ((t1 <= -1) .AND. (t1 >= -n+7)) THEN
         i = t1+n-1
         IF ((t3 >= 1) .AND. (t3 <= n)) THEN
           S2(j = n,k = t3)
@@ -220,92 +224,80 @@ DO t1=-n+7, 0
     END DO
   END IF
 END DO
-IF (n >= 3) THEN
-  DO t1=1, MIN(1,-n+6)
-    DO t2=-t1+5, -t1+2*n
-      DO t3=1, n
-        IF ((t1 >= MAX(1,-t2+5)) .AND. (t1 <= MIN(1,-n+6,-t2+2*n))) THEN
-          IF (MOD(t1+t2+1, 2) == 0) THEN
-            i = (t1+t2-3)/2
-            IF ((t1 >= 1) .AND. (t1 <= MIN(1,-n+6))) THEN
-              j = (-t1+t2-1)/2
-              IF ((t3 >= 1) .AND. (t3 <= n)) THEN
-                S2(k = t3)
+DO t1=MAX(0,-n+2), MIN(FLOOR(REAL(-2*n+5)/REAL(2)),FLOOR(REAL(2*n-3)/REAL(2)))
+  DO t2=t1+3, MIN(-t1+2*n,-t1+4)
+    DO t3=t2+2, t2+2*n
+      IF ((t1 <= MIN(FLOOR(REAL(-2*n+5)/REAL(2)),-t2+2*n,t2-3,-t2+4)) .AND. (t1 >= MAX(0,-n+2))) THEN
+        IF (MOD(t1+t2, 2) == 0) THEN
+          i = (t1+t2)/2
+          IF ((t1 <= MIN(FLOOR(REAL(-2*n+5)/REAL(2)),t2-3)) .AND. (t1 >= MAX(0,-n+2)) .AND. (t2 >= t3-2*n) .AND. (t2 <= t3-2)) THEN
+            j = (-t1+t2)/2
+            IF ((t2 >= t3-2*n) .AND. (t2 <= t3-2)) THEN
+              IF (MOD(t1+t3, 2) == 0) THEN
+                k = (-t2+t3)/2
+                S1
               END IF
             END IF
           END IF
         END IF
-      END DO
-      DO t3=t2+2, t2+2*n
-        IF ((t1 >= MAX(1,-t2+5)) .AND. (t1 <= MIN(1,-n+6,-t2+2*n))) THEN
-          IF (MOD(t1+t2, 2) == 0) THEN
-            i = (t1+t2)/2
-            IF ((t1 >= 1) .AND. (t1 <= MIN(1,-n+6)) .AND. (t2 >= t3-2*n) .AND. (t2 <= t3-2)) THEN
-              j = (-t1+t2)/2
-              IF ((t2 <= t3-2) .AND. (t2 >= t3-2*n)) THEN
-                IF (MOD(t1+t3, 2) == 0) THEN
-                  k = (-t2+t3)/2
-                  S1
-                END IF
-              END IF
-            END IF
-          END IF
-        END IF
-      END DO
+      END IF
     END DO
-    DO t2=t1+2, -t1+4
-      DO t3=t2+2, t2+2*n
-        IF ((t1 >= 1) .AND. (t1 <= MIN(t2-2,-n+6,-t2+4))) THEN
-          IF (MOD(t1+t2, 2) == 0) THEN
-            i = (t1+t2)/2
-            IF ((t1 >= 1) .AND. (t1 <= MIN(t2-2,-n+6)) .AND. (t2 >= t3-2*n) .AND. (t2 <= t3-2)) THEN
-              j = (-t1+t2)/2
-              IF ((t2 <= t3-2) .AND. (t2 >= t3-2*n)) THEN
-                IF (MOD(t1+t3, 2) == 0) THEN
-                  k = (-t2+t3)/2
-                  S1
-                END IF
-              END IF
-            END IF
-          END IF
-        END IF
-      END DO
-    END DO
-    DO t2=-t1+2*n+1, t1+2*n
-      DO t3=1, n
-        IF ((t1 >= MAX(-t2+2*n+1,t2-2*n)) .AND. (t1 <= MIN(1,-n+6))) THEN
-          IF (MOD(t1+t2+1, 2) == 0) THEN
-            i = (t1+t2-3)/2
-            IF ((t1 >= t2-2*n) .AND. (t1 <= MIN(1,-n+6))) THEN
-              j = (-t1+t2-1)/2
-              IF ((t3 >= 1) .AND. (t3 <= n)) THEN
-                S2(k = t3)
-              END IF
-            END IF
-          END IF
-        END IF
-      END DO
-    END DO
-    IF ((t1 >= 1) .AND. (t1 <= MIN(1,-n+6))) THEN
-      t2 = t1+2*n+1
-      DO t3=1, n
-        IF ((t1 >= 1) .AND. (t1 <= MIN(1,-n+6))) THEN
-          i = t1+n-1
-          IF ((t3 >= 1) .AND. (t3 <= n)) THEN
-            S2(j = n,k = t3)
-          END IF
-        END IF
-      END DO
-    END IF
   END DO
-END IF
-DO t1=MAX(1,-n+7), 1
-  DO t2=-t1+5, n-2
-    DO t3=1, t2+1
-      IF ((t1 >= MAX(1,-t2+5)) .AND. (t1 <= 1)) THEN
+  IF ((t1 <= MIN(FLOOR(REAL(-2*n+5)/REAL(2)),FLOOR(REAL(2*n-3)/REAL(2)))) .AND. (t1 >= MAX(-n+2,0))) THEN
+    t2 = t1+2
+    DO t3=t1+4, t1+2*n+2
+      IF ((t1 <= MIN(FLOOR(REAL(-2*n+5)/REAL(2)),FLOOR(REAL(2*n-3)/REAL(2)),t3-4)) .AND. (t1 >= MAX(t3-2*n-2,0,-n+2))) THEN
+        i = t1+1
+        IF ((t1 >= t3-2*n-2) .AND. (t1 <= t3-4)) THEN
+          IF (MOD(t1+t3, 2) == 0) THEN
+            k = (-t1+t3-2)/2
+            S1(j = 1)
+          END IF
+        END IF
+      END IF
+    END DO
+  END IF
+  DO t2=MAX(-t1+5,-t1+2*n+1), t1+2*n+1
+    DO t3=1, n
+      IF ((t1 <= MIN(FLOOR(REAL(-2*n+5)/REAL(2)),FLOOR(REAL(2*n-3)/REAL(2)))) .AND. (t1 >= MAX(t2-2*n-1,-t2+5,-t2+2*n+1))) THEN
         IF (MOD(t1+t2+1, 2) == 0) THEN
           i = (t1+t2-3)/2
-          IF ((t1 >= 1) .AND. (t1 <= 1) .AND. (t2 >= t3-1) .AND. (t2 <= n-2)) THEN
+          IF ((t1 <= MIN(FLOOR(REAL(-2*n+5)/REAL(2)),FLOOR(REAL(2*n-3)/REAL(2)))) .AND. (t1 >= t2-2*n-1)) THEN
+            j = (-t1+t2-1)/2
+            IF ((t3 <= n) .AND. (t3 >= 1)) THEN
+              S2(k = t3)
+            END IF
+          END IF
+        END IF
+      END IF
+    END DO
+  END DO
+END DO
+DO t1=MAX(0,-n+7), 0
+  DO t2=t1+3, -t1+4
+    DO t3=t2+2, t2+2*n
+      IF ((t1 <= MIN(t2-3,-t2+4)) .AND. (t1 >= MAX(0,-n+7))) THEN
+        IF (MOD(t1+t2, 2) == 0) THEN
+          i = (t1+t2)/2
+          IF ((t1 <= t2-3) .AND. (t1 >= MAX(0,-n+7)) .AND. (t2 >= t3-2*n) .AND. (t2 <= t3-2)) THEN
+            j = (-t1+t2)/2
+            IF ((t2 >= t3-2*n) .AND. (t2 <= t3-2)) THEN
+              IF (MOD(t1+t3, 2) == 0) THEN
+                k = (-t2+t3)/2
+                S1
+              END IF
+            END IF
+          END IF
+        END IF
+      END IF
+    END DO
+  END DO
+  DO t2=-t1+5, n-2
+    DO t3=1, t2+1
+      IF ((t1 <= 0) .AND. (t1 >= MAX(0,-t2+5))) THEN
+        IF (MOD(t1+t2+1, 2) == 0) THEN
+          i = (t1+t2-3)/2
+          IF ((t1 <= 0) .AND. (t1 >= 0) .AND. (t2 <= n-2) .AND. (t2 >= t3-1)) THEN
             j = (-t1+t2-1)/2
             IF ((t2 >= t3-1) .AND. (t3 >= 1)) THEN
               S2(k = t3)
@@ -315,10 +307,10 @@ DO t1=MAX(1,-n+7), 1
       END IF
     END DO
     DO t3=t2+2, n
-      IF ((t1 >= MAX(1,-t2+5)) .AND. (t1 <= 1)) THEN
+      IF ((t1 <= 0) .AND. (t1 >= MAX(0,-t2+5))) THEN
         IF (MOD(t1+t2+1, 2) == 0) THEN
           i = (t1+t2-3)/2
-          IF ((t1 >= 1) .AND. (t1 <= 1) .AND. (t2 <= t3-2)) THEN
+          IF ((t1 <= 0) .AND. (t1 >= 0) .AND. (t2 <= t3-2)) THEN
             j = (-t1+t2-1)/2
             IF ((t2 <= t3-2) .AND. (t3 <= n)) THEN
               S2(k = t3)
@@ -326,10 +318,10 @@ DO t1=MAX(1,-n+7), 1
           END IF
         END IF
       END IF
-      IF ((t1 >= MAX(1,-t2+5)) .AND. (t1 <= 1)) THEN
+      IF ((t1 <= 0) .AND. (t1 >= MAX(0,-t2+5))) THEN
         IF (MOD(t1+t2, 2) == 0) THEN
           i = (t1+t2)/2
-          IF ((t1 >= 1) .AND. (t1 <= 1) .AND. (t2 <= t3-2)) THEN
+          IF ((t1 <= 0) .AND. (t1 >= 0) .AND. (t2 <= t3-2)) THEN
             j = (-t1+t2)/2
             IF ((t2 <= t3-2) .AND. (t3 <= n)) THEN
               IF (MOD(t1+t3, 2) == 0) THEN
@@ -342,10 +334,10 @@ DO t1=MAX(1,-n+7), 1
       END IF
     END DO
     DO t3=n+1, t2+2*n
-      IF ((t1 >= MAX(1,-t2+5)) .AND. (t1 <= 1)) THEN
+      IF ((t1 <= 0) .AND. (t1 >= MAX(0,-t2+5))) THEN
         IF (MOD(t1+t2, 2) == 0) THEN
           i = (t1+t2)/2
-          IF ((t1 >= 1) .AND. (t1 <= 1) .AND. (t2 >= t3-2*n) .AND. (t2 <= n-2)) THEN
+          IF ((t1 <= 0) .AND. (t1 >= 0) .AND. (t2 <= n-2) .AND. (t2 >= t3-2*n)) THEN
             j = (-t1+t2)/2
             IF ((t2 >= t3-2*n) .AND. (t3 >= n+1)) THEN
               IF (MOD(t1+t3, 2) == 0) THEN
@@ -360,12 +352,12 @@ DO t1=MAX(1,-n+7), 1
   END DO
   DO t2=n-1, -t1+2*n
     DO t3=1, n
-      IF ((t1 >= MAX(1,-n+7)) .AND. (t1 <= MIN(1,-t2+2*n))) THEN
+      IF ((t1 <= MIN(0,-t2+2*n)) .AND. (t1 >= MAX(0,-n+7))) THEN
         IF (MOD(t1+t2+1, 2) == 0) THEN
           i = (t1+t2-3)/2
-          IF ((t1 >= MAX(1,-n+7)) .AND. (t1 <= 1) .AND. (t2 >= n-1)) THEN
+          IF ((t1 <= 0) .AND. (t1 >= MAX(0,-n+7)) .AND. (t2 >= n-1)) THEN
             j = (-t1+t2-1)/2
-            IF ((t3 >= 1) .AND. (t3 <= n)) THEN
+            IF ((t3 <= n) .AND. (t3 >= 1)) THEN
               S2(k = t3)
             END IF
           END IF
@@ -373,12 +365,12 @@ DO t1=MAX(1,-n+7), 1
       END IF
     END DO
     DO t3=t2+2, t2+2*n
-      IF ((t1 >= MAX(1,-n+7)) .AND. (t1 <= MIN(1,-t2+2*n))) THEN
+      IF ((t1 <= MIN(0,-t2+2*n)) .AND. (t1 >= MAX(0,-n+7))) THEN
         IF (MOD(t1+t2, 2) == 0) THEN
           i = (t1+t2)/2
-          IF ((t1 >= MAX(1,-n+7)) .AND. (t1 <= 1) .AND. (t2 >= MAX(n-1,t3-2*n)) .AND. (t2 <= t3-2)) THEN
+          IF ((t1 <= 0) .AND. (t1 >= MAX(0,-n+7)) .AND. (t2 >= MAX(t3-2*n,n-1)) .AND. (t2 <= t3-2)) THEN
             j = (-t1+t2)/2
-            IF ((t2 <= t3-2) .AND. (t2 >= t3-2*n)) THEN
+            IF ((t2 >= t3-2*n) .AND. (t2 <= t3-2)) THEN
               IF (MOD(t1+t3, 2) == 0) THEN
                 k = (-t2+t3)/2
                 S1
@@ -389,58 +381,12 @@ DO t1=MAX(1,-n+7), 1
       END IF
     END DO
   END DO
-  DO t2=t1+2, -t1+4
-    DO t3=t2+2, t2+2*n
-      IF ((t1 >= MAX(1,-n+7)) .AND. (t1 <= MIN(t2-2,-t2+4))) THEN
-        IF (MOD(t1+t2, 2) == 0) THEN
-          i = (t1+t2)/2
-          IF ((t1 >= MAX(1,-n+7)) .AND. (t1 <= t2-2) .AND. (t2 >= t3-2*n) .AND. (t2 <= t3-2)) THEN
-            j = (-t1+t2)/2
-            IF ((t2 <= t3-2) .AND. (t2 >= t3-2*n)) THEN
-              IF (MOD(t1+t3, 2) == 0) THEN
-                k = (-t2+t3)/2
-                S1
-              END IF
-            END IF
-          END IF
-        END IF
-      END IF
-    END DO
-  END DO
-  DO t2=-t1+2*n+1, t1+2*n
-    DO t3=1, n
-      IF ((t1 >= MAX(-t2+2*n+1,-n+7,t2-2*n)) .AND. (t1 <= 1)) THEN
-        IF (MOD(t1+t2+1, 2) == 0) THEN
-          i = (t1+t2-3)/2
-          IF ((t1 >= MAX(-n+7,t2-2*n)) .AND. (t1 <= 1)) THEN
-            j = (-t1+t2-1)/2
-            IF ((t3 >= 1) .AND. (t3 <= n)) THEN
-              S2(k = t3)
-            END IF
-          END IF
-        END IF
-      END IF
-    END DO
-  END DO
-  IF ((t1 >= MAX(1,-n+7)) .AND. (t1 <= 1)) THEN
-    t2 = t1+2*n+1
-    DO t3=1, n
-      IF ((t1 >= MAX(1,-n+7)) .AND. (t1 <= 1)) THEN
-        i = t1+n-1
-        IF ((t3 >= 1) .AND. (t3 <= n)) THEN
-          S2(j = n,k = t3)
-        END IF
-      END IF
-    END DO
-  END IF
-END DO
-DO t1=MAX(2,n-4), FLOOR(REAL(2*n-3)/REAL(2))
-  IF ((t1 >= MAX(2,n-4)) .AND. (t1 <= FLOOR(REAL(2*n-3)/REAL(2)))) THEN
+  IF ((t1 <= 0) .AND. (t1 >= MAX(-n+7,0))) THEN
     t2 = t1+2
     DO t3=t1+4, t1+2*n+2
-      IF ((t1 >= MAX(2,n-4,t3-2*n-2)) .AND. (t1 <= MIN(t3-4,FLOOR(REAL(2*n-3)/REAL(2))))) THEN
+      IF ((t1 <= MIN(0,t3-4)) .AND. (t1 >= MAX(t3-2*n-2,0,-n+7))) THEN
         i = t1+1
-        IF ((t1 <= t3-4) .AND. (t1 >= t3-2*n-2)) THEN
+        IF ((t1 >= t3-2*n-2) .AND. (t1 <= t3-4)) THEN
           IF (MOD(t1+t3, 2) == 0) THEN
             k = (-t1+t3-2)/2
             S1(j = 1)
@@ -449,45 +395,14 @@ DO t1=MAX(2,n-4), FLOOR(REAL(2*n-3)/REAL(2))
       END IF
     END DO
   END IF
-  DO t2=t1+3, -t1+2*n
+  DO t2=-t1+2*n+1, t1+2*n+1
     DO t3=1, n
-      IF ((t1 >= MAX(2,n-4)) .AND. (t1 <= MIN(t2-3,-t2+2*n))) THEN
+      IF ((t1 <= 0) .AND. (t1 >= MAX(t2-2*n-1,-n+7,-t2+2*n+1))) THEN
         IF (MOD(t1+t2+1, 2) == 0) THEN
           i = (t1+t2-3)/2
-          IF ((t1 >= MAX(2,n-4)) .AND. (t1 <= t2-3)) THEN
+          IF ((t1 <= 0) .AND. (t1 >= MAX(-n+7,t2-2*n-1))) THEN
             j = (-t1+t2-1)/2
-            IF ((t3 >= 1) .AND. (t3 <= n)) THEN
-              S2(k = t3)
-            END IF
-          END IF
-        END IF
-      END IF
-    END DO
-    DO t3=t2+2, t2+2*n
-      IF ((t1 >= MAX(2,n-4)) .AND. (t1 <= MIN(t2-3,-t2+2*n))) THEN
-        IF (MOD(t1+t2, 2) == 0) THEN
-          i = (t1+t2)/2
-          IF ((t1 >= MAX(2,n-4)) .AND. (t1 <= t2-3) .AND. (t2 >= t3-2*n) .AND. (t2 <= t3-2)) THEN
-            j = (-t1+t2)/2
-            IF ((t2 <= t3-2) .AND. (t2 >= t3-2*n)) THEN
-              IF (MOD(t1+t3, 2) == 0) THEN
-                k = (-t2+t3)/2
-                S1
-              END IF
-            END IF
-          END IF
-        END IF
-      END IF
-    END DO
-  END DO
-  DO t2=-t1+2*n+1, -t1+2*n+3
-    DO t3=1, n
-      IF ((t1 >= MAX(-t2+2*n+1,2,n-4)) .AND. (t1 <= MIN(-t2+2*n+3,FLOOR(REAL(2*n-3)/REAL(2))))) THEN
-        IF (MOD(t1+t2+1, 2) == 0) THEN
-          i = (t1+t2-3)/2
-          IF ((t1 >= MAX(2,n-4)) .AND. (t1 <= FLOOR(REAL(2*n-3)/REAL(2)))) THEN
-            j = (-t1+t2-1)/2
-            IF ((t3 >= 1) .AND. (t3 <= n)) THEN
+            IF ((t3 <= n) .AND. (t3 >= 1)) THEN
               S2(k = t3)
             END IF
           END IF
@@ -497,6 +412,270 @@ DO t1=MAX(2,n-4), FLOOR(REAL(2*n-3)/REAL(2))
   END DO
 END DO
 IF (n >= 3) THEN
+  DO t1=0, MIN(0,-n+6)
+    DO t2=t1+3, -t1+4
+      DO t3=t2+2, t2+2*n
+        IF ((t1 <= MIN(-n+6,t2-3,-t2+4)) .AND. (t1 >= 0)) THEN
+          IF (MOD(t1+t2, 2) == 0) THEN
+            i = (t1+t2)/2
+            IF ((t1 <= MIN(-n+6,t2-3)) .AND. (t1 >= 0) .AND. (t2 >= t3-2*n) .AND. (t2 <= t3-2)) THEN
+              j = (-t1+t2)/2
+              IF ((t2 >= t3-2*n) .AND. (t2 <= t3-2)) THEN
+                IF (MOD(t1+t3, 2) == 0) THEN
+                  k = (-t2+t3)/2
+                  S1
+                END IF
+              END IF
+            END IF
+          END IF
+        END IF
+      END DO
+    END DO
+    DO t2=-t1+5, -t1+2*n
+      DO t3=1, n
+        IF ((t1 <= MIN(0,-n+6,-t2+2*n)) .AND. (t1 >= MAX(0,-t2+5))) THEN
+          IF (MOD(t1+t2+1, 2) == 0) THEN
+            i = (t1+t2-3)/2
+            IF ((t1 <= MIN(0,-n+6)) .AND. (t1 >= 0)) THEN
+              j = (-t1+t2-1)/2
+              IF ((t3 <= n) .AND. (t3 >= 1)) THEN
+                S2(k = t3)
+              END IF
+            END IF
+          END IF
+        END IF
+      END DO
+      DO t3=t2+2, t2+2*n
+        IF ((t1 <= MIN(0,-n+6,-t2+2*n)) .AND. (t1 >= MAX(0,-t2+5))) THEN
+          IF (MOD(t1+t2, 2) == 0) THEN
+            i = (t1+t2)/2
+            IF ((t1 <= MIN(0,-n+6)) .AND. (t1 >= 0) .AND. (t2 >= t3-2*n) .AND. (t2 <= t3-2)) THEN
+              j = (-t1+t2)/2
+              IF ((t2 >= t3-2*n) .AND. (t2 <= t3-2)) THEN
+                IF (MOD(t1+t3, 2) == 0) THEN
+                  k = (-t2+t3)/2
+                  S1
+                END IF
+              END IF
+            END IF
+          END IF
+        END IF
+      END DO
+    END DO
+    IF ((t1 <= MIN(0,-n+6)) .AND. (t1 >= 0)) THEN
+      t2 = t1+2
+      DO t3=t1+4, t1+2*n+2
+        IF ((t1 <= MIN(0,-n+6,t3-4)) .AND. (t1 >= MAX(t3-2*n-2,0))) THEN
+          i = t1+1
+          IF ((t1 >= t3-2*n-2) .AND. (t1 <= t3-4)) THEN
+            IF (MOD(t1+t3, 2) == 0) THEN
+              k = (-t1+t3-2)/2
+              S1(j = 1)
+            END IF
+          END IF
+        END IF
+      END DO
+    END IF
+    DO t2=-t1+2*n+1, t1+2*n+1
+      DO t3=1, n
+        IF ((t1 <= MIN(0,-n+6)) .AND. (t1 >= MAX(t2-2*n-1,-t2+2*n+1))) THEN
+          IF (MOD(t1+t2+1, 2) == 0) THEN
+            i = (t1+t2-3)/2
+            IF ((t1 <= MIN(0,-n+6)) .AND. (t1 >= t2-2*n-1)) THEN
+              j = (-t1+t2-1)/2
+              IF ((t3 <= n) .AND. (t3 >= 1)) THEN
+                S2(k = t3)
+              END IF
+            END IF
+          END IF
+        END IF
+      END DO
+    END DO
+  END DO
+END IF
+DO t1=1, n-5
+  DO t2=t1+3, n-2
+    DO t3=1, t2+1
+      IF ((t1 >= 1) .AND. (t1 <= t2-3)) THEN
+        IF (MOD(t1+t2+1, 2) == 0) THEN
+          i = (t1+t2-3)/2
+          IF ((t1 <= t2-3) .AND. (t1 >= 1) .AND. (t2 <= n-2) .AND. (t2 >= t3-1)) THEN
+            j = (-t1+t2-1)/2
+            IF ((t2 >= t3-1) .AND. (t3 >= 1)) THEN
+              S2(k = t3)
+            END IF
+          END IF
+        END IF
+      END IF
+    END DO
+    DO t3=t2+2, n
+      IF ((t1 >= 1) .AND. (t1 <= t2-3)) THEN
+        IF (MOD(t1+t2+1, 2) == 0) THEN
+          i = (t1+t2-3)/2
+          IF ((t1 >= 1) .AND. (t1 <= t2-3) .AND. (t2 <= t3-2)) THEN
+            j = (-t1+t2-1)/2
+            IF ((t2 <= t3-2) .AND. (t3 <= n)) THEN
+              S2(k = t3)
+            END IF
+          END IF
+        END IF
+      END IF
+      IF ((t1 >= 1) .AND. (t1 <= t2-3)) THEN
+        IF (MOD(t1+t2, 2) == 0) THEN
+          i = (t1+t2)/2
+          IF ((t1 >= 1) .AND. (t1 <= t2-3) .AND. (t2 <= t3-2)) THEN
+            j = (-t1+t2)/2
+            IF ((t2 <= t3-2) .AND. (t3 <= n)) THEN
+              IF (MOD(t1+t3, 2) == 0) THEN
+                k = (-t2+t3)/2
+                S1
+              END IF
+            END IF
+          END IF
+        END IF
+      END IF
+    END DO
+    DO t3=n+1, t2+2*n
+      IF ((t1 >= 1) .AND. (t1 <= t2-3)) THEN
+        IF (MOD(t1+t2, 2) == 0) THEN
+          i = (t1+t2)/2
+          IF ((t1 <= t2-3) .AND. (t1 >= 1) .AND. (t2 <= n-2) .AND. (t2 >= t3-2*n)) THEN
+            j = (-t1+t2)/2
+            IF ((t2 >= t3-2*n) .AND. (t3 >= n+1)) THEN
+              IF (MOD(t1+t3, 2) == 0) THEN
+                k = (-t2+t3)/2
+                S1
+              END IF
+            END IF
+          END IF
+        END IF
+      END IF
+    END DO
+  END DO
+  DO t2=n-1, -t1+2*n
+    DO t3=1, n
+      IF ((t1 <= MIN(n-5,-t2+2*n)) .AND. (t1 >= 1)) THEN
+        IF (MOD(t1+t2+1, 2) == 0) THEN
+          i = (t1+t2-3)/2
+          IF ((t1 <= n-5) .AND. (t1 >= 1) .AND. (t2 >= n-1)) THEN
+            j = (-t1+t2-1)/2
+            IF ((t3 <= n) .AND. (t3 >= 1)) THEN
+              S2(k = t3)
+            END IF
+          END IF
+        END IF
+      END IF
+    END DO
+    DO t3=t2+2, t2+2*n
+      IF ((t1 <= MIN(n-5,-t2+2*n)) .AND. (t1 >= 1)) THEN
+        IF (MOD(t1+t2, 2) == 0) THEN
+          i = (t1+t2)/2
+          IF ((t1 <= n-5) .AND. (t1 >= 1) .AND. (t2 >= MAX(t3-2*n,n-1)) .AND. (t2 <= t3-2)) THEN
+            j = (-t1+t2)/2
+            IF ((t2 >= t3-2*n) .AND. (t2 <= t3-2)) THEN
+              IF (MOD(t1+t3, 2) == 0) THEN
+                k = (-t2+t3)/2
+                S1
+              END IF
+            END IF
+          END IF
+        END IF
+      END IF
+    END DO
+  END DO
+  IF ((t1 <= n-5) .AND. (t1 >= 1)) THEN
+    t2 = t1+2
+    DO t3=t1+4, t1+2*n+2
+      IF ((t1 <= MIN(n-5,t3-4)) .AND. (t1 >= MAX(t3-2*n-2,1))) THEN
+        i = t1+1
+        IF ((t1 >= t3-2*n-2) .AND. (t1 <= t3-4)) THEN
+          IF (MOD(t1+t3, 2) == 0) THEN
+            k = (-t1+t3-2)/2
+            S1(j = 1)
+          END IF
+        END IF
+      END IF
+    END DO
+  END IF
+  DO t2=-t1+2*n+1, -t1+2*n+3
+    DO t3=1, n
+      IF ((t1 <= MIN(n-5,-t2+2*n+3)) .AND. (t1 >= MAX(1,-t2+2*n+1))) THEN
+        IF (MOD(t1+t2+1, 2) == 0) THEN
+          i = (t1+t2-3)/2
+          IF ((t1 <= n-5) .AND. (t1 >= 1)) THEN
+            j = (-t1+t2-1)/2
+            IF ((t3 <= n) .AND. (t3 >= 1)) THEN
+              S2(k = t3)
+            END IF
+          END IF
+        END IF
+      END IF
+    END DO
+  END DO
+END DO
+DO t1=MAX(n-4,1), FLOOR(REAL(2*n-3)/REAL(2))
+  DO t2=t1+3, -t1+2*n
+    DO t3=1, n
+      IF ((t1 <= MIN(t2-3,-t2+2*n)) .AND. (t1 >= MAX(n-4,1))) THEN
+        IF (MOD(t1+t2+1, 2) == 0) THEN
+          i = (t1+t2-3)/2
+          IF ((t1 >= MAX(n-4,1)) .AND. (t1 <= t2-3)) THEN
+            j = (-t1+t2-1)/2
+            IF ((t3 <= n) .AND. (t3 >= 1)) THEN
+              S2(k = t3)
+            END IF
+          END IF
+        END IF
+      END IF
+    END DO
+    DO t3=t2+2, t2+2*n
+      IF ((t1 <= MIN(t2-3,-t2+2*n)) .AND. (t1 >= MAX(n-4,1))) THEN
+        IF (MOD(t1+t2, 2) == 0) THEN
+          i = (t1+t2)/2
+          IF ((t1 <= t2-3) .AND. (t1 >= MAX(n-4,1)) .AND. (t2 >= t3-2*n) .AND. (t2 <= t3-2)) THEN
+            j = (-t1+t2)/2
+            IF ((t2 >= t3-2*n) .AND. (t2 <= t3-2)) THEN
+              IF (MOD(t1+t3, 2) == 0) THEN
+                k = (-t2+t3)/2
+                S1
+              END IF
+            END IF
+          END IF
+        END IF
+      END IF
+    END DO
+  END DO
+  IF ((t1 <= FLOOR(REAL(2*n-3)/REAL(2))) .AND. (t1 >= MAX(n-4,1))) THEN
+    t2 = t1+2
+    DO t3=t1+4, t1+2*n+2
+      IF ((t1 <= MIN(FLOOR(REAL(2*n-3)/REAL(2)),t3-4)) .AND. (t1 >= MAX(t3-2*n-2,n-4,1))) THEN
+        i = t1+1
+        IF ((t1 >= t3-2*n-2) .AND. (t1 <= t3-4)) THEN
+          IF (MOD(t1+t3, 2) == 0) THEN
+            k = (-t1+t3-2)/2
+            S1(j = 1)
+          END IF
+        END IF
+      END IF
+    END DO
+  END IF
+  DO t2=-t1+2*n+1, -t1+2*n+3
+    DO t3=1, n
+      IF ((t1 <= MIN(FLOOR(REAL(2*n-3)/REAL(2)),-t2+2*n+3)) .AND. (t1 >= MAX(n-4,1,-t2+2*n+1))) THEN
+        IF (MOD(t1+t2+1, 2) == 0) THEN
+          i = (t1+t2-3)/2
+          IF ((t1 <= FLOOR(REAL(2*n-3)/REAL(2))) .AND. (t1 >= MAX(n-4,1))) THEN
+            j = (-t1+t2-1)/2
+            IF ((t3 <= n) .AND. (t3 >= 1)) THEN
+              S2(k = t3)
+            END IF
+          END IF
+        END IF
+      END IF
+    END DO
+  END DO
+END DO
+IF (n >= 2) THEN
   t1 = n-1
   t2 = n+1
   DO t3=n+3, 3*n+1
@@ -507,170 +686,20 @@ IF (n >= 3) THEN
       END IF
     END IF
   END DO
-  DO t2=n+2, n+4
+  DO t2=MAX(n+2,-n+6), MIN(3*n,n+4)
     DO t3=1, n
-      IF ((t2 >= n+2) .AND. (t2 <= n+4)) THEN
+      IF ((t2 <= MIN(3*n,n+4)) .AND. (t2 >= MAX(-n+6,n+2))) THEN
         IF (MOD(t2+n, 2) == 0) THEN
           i = (t2+n-4)/2
-          IF ((t2 >= n+2) .AND. (t2 <= n+4)) THEN
+          IF ((t2 <= MIN(3*n,n+4)) .AND. (t2 >= MAX(-n+6,n+2))) THEN
             j = (t2-n)/2
-            IF ((t3 >= 1) .AND. (t3 <= n)) THEN
+            IF ((t3 <= n) .AND. (t3 >= 1)) THEN
               S2(k = t3)
             END IF
           END IF
         END IF
       END IF
     END DO
-  END DO
-END IF
-DO t1=2, n-5
-  IF ((t1 >= 2) .AND. (t1 <= n-5)) THEN
-    t2 = t1+2
-    DO t3=t1+4, t1+2*n+2
-      IF ((t1 >= MAX(2,t3-2*n-2)) .AND. (t1 <= MIN(t3-4,n-5))) THEN
-        i = t1+1
-        IF ((t1 <= t3-4) .AND. (t1 >= t3-2*n-2)) THEN
-          IF (MOD(t1+t3, 2) == 0) THEN
-            k = (-t1+t3-2)/2
-            S1(j = 1)
-          END IF
-        END IF
-      END IF
-    END DO
-  END IF
-  DO t2=t1+3, n-2
-    DO t3=1, t2+1
-      IF ((t1 >= 2) .AND. (t1 <= t2-3)) THEN
-        IF (MOD(t1+t2+1, 2) == 0) THEN
-          i = (t1+t2-3)/2
-          IF ((t1 >= 2) .AND. (t1 <= t2-3) .AND. (t2 >= t3-1) .AND. (t2 <= n-2)) THEN
-            j = (-t1+t2-1)/2
-            IF ((t2 >= t3-1) .AND. (t3 >= 1)) THEN
-              S2(k = t3)
-            END IF
-          END IF
-        END IF
-      END IF
-    END DO
-    DO t3=t2+2, n
-      IF ((t1 >= 2) .AND. (t1 <= t2-3)) THEN
-        IF (MOD(t1+t2+1, 2) == 0) THEN
-          i = (t1+t2-3)/2
-          IF ((t1 >= 2) .AND. (t1 <= t2-3) .AND. (t2 <= t3-2)) THEN
-            j = (-t1+t2-1)/2
-            IF ((t2 <= t3-2) .AND. (t3 <= n)) THEN
-              S2(k = t3)
-            END IF
-          END IF
-        END IF
-      END IF
-      IF ((t1 >= 2) .AND. (t1 <= t2-3)) THEN
-        IF (MOD(t1+t2, 2) == 0) THEN
-          i = (t1+t2)/2
-          IF ((t1 >= 2) .AND. (t1 <= t2-3) .AND. (t2 <= t3-2)) THEN
-            j = (-t1+t2)/2
-            IF ((t2 <= t3-2) .AND. (t3 <= n)) THEN
-              IF (MOD(t1+t3, 2) == 0) THEN
-                k = (-t2+t3)/2
-                S1
-              END IF
-            END IF
-          END IF
-        END IF
-      END IF
-    END DO
-    DO t3=n+1, t2+2*n
-      IF ((t1 >= 2) .AND. (t1 <= t2-3)) THEN
-        IF (MOD(t1+t2, 2) == 0) THEN
-          i = (t1+t2)/2
-          IF ((t1 >= 2) .AND. (t1 <= t2-3) .AND. (t2 >= t3-2*n) .AND. (t2 <= n-2)) THEN
-            j = (-t1+t2)/2
-            IF ((t2 >= t3-2*n) .AND. (t3 >= n+1)) THEN
-              IF (MOD(t1+t3, 2) == 0) THEN
-                k = (-t2+t3)/2
-                S1
-              END IF
-            END IF
-          END IF
-        END IF
-      END IF
-    END DO
-  END DO
-  DO t2=n-1, -t1+2*n
-    DO t3=1, n
-      IF ((t1 >= 2) .AND. (t1 <= MIN(n-5,-t2+2*n))) THEN
-        IF (MOD(t1+t2+1, 2) == 0) THEN
-          i = (t1+t2-3)/2
-          IF ((t1 >= 2) .AND. (t1 <= n-5) .AND. (t2 >= n-1)) THEN
-            j = (-t1+t2-1)/2
-            IF ((t3 >= 1) .AND. (t3 <= n)) THEN
-              S2(k = t3)
-            END IF
-          END IF
-        END IF
-      END IF
-    END DO
-    DO t3=t2+2, t2+2*n
-      IF ((t1 >= 2) .AND. (t1 <= MIN(n-5,-t2+2*n))) THEN
-        IF (MOD(t1+t2, 2) == 0) THEN
-          i = (t1+t2)/2
-          IF ((t1 >= 2) .AND. (t1 <= n-5) .AND. (t2 >= MAX(n-1,t3-2*n)) .AND. (t2 <= t3-2)) THEN
-            j = (-t1+t2)/2
-            IF ((t2 <= t3-2) .AND. (t2 >= t3-2*n)) THEN
-              IF (MOD(t1+t3, 2) == 0) THEN
-                k = (-t2+t3)/2
-                S1
-              END IF
-            END IF
-          END IF
-        END IF
-      END IF
-    END DO
-  END DO
-  DO t2=-t1+2*n+1, -t1+2*n+3
-    DO t3=1, n
-      IF ((t1 >= MAX(-t2+2*n+1,2)) .AND. (t1 <= MIN(n-5,-t2+2*n+3))) THEN
-        IF (MOD(t1+t2+1, 2) == 0) THEN
-          i = (t1+t2-3)/2
-          IF ((t1 >= 2) .AND. (t1 <= n-5)) THEN
-            j = (-t1+t2-1)/2
-            IF ((t3 >= 1) .AND. (t3 <= n)) THEN
-              S2(k = t3)
-            END IF
-          END IF
-        END IF
-      END IF
-    END DO
-  END DO
-END DO
-IF (n == 2) THEN
-  DO t3=5, 7
-    IF ((t3 >= 5) .AND. (t3 <= 7)) THEN
-      IF (MOD(t3+1, 2) == 0) THEN
-        k = (t3-3)/2
-        S1(i = 2,j = 1)
-      END IF
-    END IF
-  END DO
-  DO t2=4, 5
-    DO t3=1, 2
-      IF ((t2 >= 4) .AND. (t2 <= 5)) THEN
-        IF (MOD(t2, 2) == 0) THEN
-          i = (t2-2)/2
-          IF ((t2 >= 4) .AND. (t2 <= 5)) THEN
-            j = (t2-2)/2
-            IF ((t3 >= 1) .AND. (t3 <= 2)) THEN
-              S2(k = t3)
-            END IF
-          END IF
-        END IF
-      END IF
-    END DO
-  END DO
-  DO t3=1, 2
-    IF ((t3 >= 1) .AND. (t3 <= 2)) THEN
-      S2(i = 2,j = 2,k = t3)
-    END IF
   END DO
 END IF
 IF (n >= 1) THEN

@@ -1,4 +1,4 @@
-/* Generated from ././reservoir/pingali5.cloog by CLooG  64 bits in 0.07s. */
+/* Generated from ././reservoir/pingali5.cloog by CLooG  64 bits in 0.06s. */
 for (c2=3;c2<=2*M-3;c2++) {
   for (c4=ceild(c2+3,2);c4<=M;c4++) {
     if ((c2 <= 2*c4-3) && (c4 <= M)) {
@@ -13,9 +13,9 @@ for (c2=3;c2<=2*M-3;c2++) {
     }
   }
   for (c4=max(1,c2-M);c4<=floord(c2-1,2);c4++) {
-    if ((c2 >= 2*c4+1) && (c2 <= min(c4+M,2*M-3))) {
+    if ((c2 <= min(2*M-3,c4+M)) && (c2 >= 2*c4+1)) {
       i = c2-c4 ;
-      if ((c2 >= 2*c4+1) && (c2 <= 2*M-3) && (c4 >= 1)) {
+      if ((c2 <= 2*M-3) && (c2 >= 2*c4+1) && (c4 >= 1)) {
         S2(j = c4) ;
       }
     }
@@ -33,11 +33,11 @@ for (c2=3;c2<=2*M-3;c2++) {
     }
   }
 }
-for (c2=max(3,2*M-2);c2<=2*M-1;c2++) {
+for (c2=max(2*M-2,3);c2<=2*M-1;c2++) {
   for (c4=max(1,c2-M);c4<=floord(c2-1,2);c4++) {
-    if ((c2 >= max(2*M-2,2*c4+1)) && (c2 <= c4+M)) {
+    if ((c2 >= max(2*c4+1,2*M-2)) && (c2 <= c4+M)) {
       i = c2-c4 ;
-      if ((c2 >= max(2*M-2,2*c4+1)) && (c4 >= 1)) {
+      if ((c2 >= max(2*c4+1,2*M-2)) && (c4 >= 1)) {
         S2(j = c4) ;
       }
     }

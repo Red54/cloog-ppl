@@ -1,4 +1,4 @@
-/* Generated from ./classen.cloog by CLooG  64 bits in 6.25s. */
+/* Generated from ./classen.cloog by CLooG  64 bits in 5.20s. */
 S1(coordT1 = 0,coordP1 = 1,other1 = 1,other2 = 1) ;
 S2(coordT1 = 0,coordP1 = 1,other1 = 1,other2 = 1,other3 = 1,other4 = 1,other5 = 2,other6 = 1) ;
 S3(coordT1 = 0,coordP1 = 1,other1 = 1,other2 = 2,other3 = 1,other4 = 1,other5 = 1,other6 = 2) ;
@@ -20,18 +20,18 @@ for (coordP1=1;coordP1<=2;coordP1++) {
 }
 for (glT1=2;glT1<=m-2;glT1++) {
   for (rp1=2;rp1<=glT1;rp1++) {
-    if ((glT1 >= rp1) && (glT1 <= m-2)) {
+    if ((glT1 <= m-2) && (glT1 >= rp1)) {
       local1 = glT1-rp1+1 ;
       if ((glT1 <= m-2) && (rp1 >= 2)) {
-        if ((glT1 >= rp1) && (glT1 <= m-2)) {
+        if ((glT1 <= m-2) && (glT1 >= rp1)) {
           coordT1 = glT1-1 ;
           if ((glT1 >= rp1) && (rp1 >= 2)) {
-            if ((glT1 >= rp1) && (glT1 <= m-2)) {
+            if ((glT1 <= m-2) && (glT1 >= rp1)) {
               if ((glT1 >= rp1) && (rp1 >= 2)) {
-                if ((glT1 >= rp1) && (glT1 <= m-2)) {
+                if ((glT1 <= m-2) && (glT1 >= rp1)) {
                   other3 = glT1-rp1+1 ;
                   if ((glT1 <= m-2) && (rp1 >= 2)) {
-                    if ((glT1 >= rp1) && (glT1 <= m-2)) {
+                    if ((glT1 <= m-2) && (glT1 >= rp1)) {
                       other5 = glT1-rp1+2 ;
                       if ((glT1 <= m-2) && (rp1 >= 2)) {
                         S5(coordP1 = rp1,other1 = glT1,other2 = rp1,other4 = rp1,other6 = rp1) ;
@@ -45,21 +45,21 @@ for (glT1=2;glT1<=m-2;glT1++) {
         }
       }
     }
-    if ((glT1 >= rp1) && (glT1 <= m-2)) {
+    if ((glT1 <= m-2) && (glT1 >= rp1)) {
       local1 = glT1-rp1+2 ;
       if ((glT1 <= m-2) && (rp1 >= 2)) {
         local2 = rp1-1 ;
-        if ((glT1 >= rp1) && (glT1 <= m-2)) {
+        if ((glT1 <= m-2) && (glT1 >= rp1)) {
           coordT1 = glT1-1 ;
           if ((glT1 >= rp1) && (rp1 >= 2)) {
             coordP1 = rp1-1 ;
-            if ((glT1 >= rp1) && (glT1 <= m-2)) {
+            if ((glT1 <= m-2) && (glT1 >= rp1)) {
               if ((glT1 >= rp1) && (rp1 >= 2)) {
-                if ((glT1 >= rp1) && (glT1 <= m-2)) {
+                if ((glT1 <= m-2) && (glT1 >= rp1)) {
                   other3 = glT1-rp1+2 ;
                   if ((glT1 <= m-2) && (rp1 >= 2)) {
                     other4 = rp1-1 ;
-                    if ((glT1 >= rp1) && (glT1 <= m-2)) {
+                    if ((glT1 <= m-2) && (glT1 >= rp1)) {
                       other5 = glT1-rp1+2 ;
                       if ((glT1 <= m-2) && (rp1 >= 2)) {
                         S6(other1 = glT1,other2 = rp1,other6 = rp1) ;
@@ -69,14 +69,14 @@ for (glT1=2;glT1<=m-2;glT1++) {
                 }
               }
             }
-            if ((glT1 >= rp1) && (glT1 <= m-2)) {
+            if ((glT1 <= m-2) && (glT1 >= rp1)) {
               other1 = glT1+1 ;
               if ((glT1 >= rp1) && (rp1 >= 2)) {
-                if ((glT1 >= rp1) && (glT1 <= m-2)) {
+                if ((glT1 <= m-2) && (glT1 >= rp1)) {
                   other3 = glT1-rp1+2 ;
                   if ((glT1 <= m-2) && (rp1 >= 2)) {
                     other4 = rp1-1 ;
-                    if ((glT1 >= rp1) && (glT1 <= m-2)) {
+                    if ((glT1 <= m-2) && (glT1 >= rp1)) {
                       other5 = glT1-rp1+3 ;
                       if ((glT1 <= m-2) && (rp1 >= 2)) {
                         S7(other2 = rp1,other6 = rp1) ;
@@ -90,9 +90,9 @@ for (glT1=2;glT1<=m-2;glT1++) {
         }
       }
     }
-    if ((glT1 >= rp1) && (glT1 <= m-2)) {
+    if ((glT1 <= m-2) && (glT1 >= rp1)) {
       if ((glT1 >= rp1) && (rp1 >= 2)) {
-        if ((glT1 >= rp1) && (glT1 <= m-2)) {
+        if ((glT1 <= m-2) && (glT1 >= rp1)) {
           other1 = glT1-rp1+2 ;
           if ((glT1 <= m-2) && (rp1 >= 2)) {
             S1(coordT1 = glT1,coordP1 = rp1,other2 = rp1) ;
@@ -100,18 +100,18 @@ for (glT1=2;glT1<=m-2;glT1++) {
         }
       }
     }
-    if ((glT1 >= rp1) && (glT1 <= m-2)) {
+    if ((glT1 <= m-2) && (glT1 >= rp1)) {
       local1 = glT1-rp1+2 ;
       if ((glT1 <= m-2) && (rp1 >= 2)) {
-        if ((glT1 >= rp1) && (glT1 <= m-2)) {
+        if ((glT1 <= m-2) && (glT1 >= rp1)) {
           if ((glT1 >= rp1) && (rp1 >= 2)) {
-            if ((glT1 >= rp1) && (glT1 <= m-2)) {
+            if ((glT1 <= m-2) && (glT1 >= rp1)) {
               other1 = glT1+1 ;
               if ((glT1 >= rp1) && (rp1 >= 2)) {
-                if ((glT1 >= rp1) && (glT1 <= m-2)) {
+                if ((glT1 <= m-2) && (glT1 >= rp1)) {
                   other3 = glT1-rp1+2 ;
                   if ((glT1 <= m-2) && (rp1 >= 2)) {
-                    if ((glT1 >= rp1) && (glT1 <= m-2)) {
+                    if ((glT1 <= m-2) && (glT1 >= rp1)) {
                       other5 = glT1-rp1+3 ;
                       if ((glT1 <= m-2) && (rp1 >= 2)) {
                         S2(coordT1 = glT1,coordP1 = rp1,other2 = rp1,other4 = rp1,other6 = rp1) ;
@@ -122,10 +122,10 @@ for (glT1=2;glT1<=m-2;glT1++) {
               }
               if ((glT1 >= rp1) && (rp1 >= 2)) {
                 other2 = rp1+1 ;
-                if ((glT1 >= rp1) && (glT1 <= m-2)) {
+                if ((glT1 <= m-2) && (glT1 >= rp1)) {
                   other3 = glT1-rp1+2 ;
                   if ((glT1 <= m-2) && (rp1 >= 2)) {
-                    if ((glT1 >= rp1) && (glT1 <= m-2)) {
+                    if ((glT1 <= m-2) && (glT1 >= rp1)) {
                       other5 = glT1-rp1+2 ;
                       if ((glT1 <= m-2) && (rp1 >= 2)) {
                         other6 = rp1+1 ;
@@ -136,14 +136,14 @@ for (glT1=2;glT1<=m-2;glT1++) {
                 }
               }
             }
-            if ((glT1 >= rp1) && (glT1 <= m-2)) {
+            if ((glT1 <= m-2) && (glT1 >= rp1)) {
               other1 = glT1+2 ;
               if ((glT1 >= rp1) && (rp1 >= 2)) {
                 other2 = rp1+1 ;
-                if ((glT1 >= rp1) && (glT1 <= m-2)) {
+                if ((glT1 <= m-2) && (glT1 >= rp1)) {
                   other3 = glT1-rp1+2 ;
                   if ((glT1 <= m-2) && (rp1 >= 2)) {
-                    if ((glT1 >= rp1) && (glT1 <= m-2)) {
+                    if ((glT1 <= m-2) && (glT1 >= rp1)) {
                       other5 = glT1-rp1+3 ;
                       if ((glT1 <= m-2) && (rp1 >= 2)) {
                         other6 = rp1+1 ;
@@ -296,7 +296,7 @@ for (glT1=2;glT1<=m-2;glT1++) {
       }
     }
   }
-  if ((glT1 >= 2) && (glT1 <= m-2)) {
+  if ((glT1 <= m-2) && (glT1 >= 2)) {
     for (coordP1=1;coordP1<=glT1+1;coordP1++) {
       S8(coordT1 = glT1) ;
     }
@@ -313,19 +313,19 @@ S1(coordP1 = 1,other1 = m,other2 = 1) ;
 coordT1 = m-1 ;
 S3(coordP1 = 1,other1 = m,other2 = 2,other3 = m,other4 = 1,other5 = m,other6 = 2) ;
 for (rp1=2;rp1<=m-1;rp1++) {
-  if ((rp1 >= 2) && (rp1 <= m-1)) {
+  if ((rp1 <= m-1) && (rp1 >= 2)) {
     local1 = -rp1+m ;
-    if ((rp1 >= 2) && (rp1 <= m-1)) {
+    if ((rp1 <= m-1) && (rp1 >= 2)) {
       coordT1 = m-2 ;
-      if ((rp1 >= 2) && (rp1 <= m-1)) {
+      if ((rp1 <= m-1) && (rp1 >= 2)) {
         other1 = m-1 ;
-        if ((rp1 >= 2) && (rp1 <= m-1)) {
-          if ((rp1 >= 2) && (rp1 <= m-1)) {
+        if ((rp1 <= m-1) && (rp1 >= 2)) {
+          if ((rp1 <= m-1) && (rp1 >= 2)) {
             other3 = -rp1+m ;
-            if ((rp1 >= 2) && (rp1 <= m-1)) {
-              if ((rp1 >= 2) && (rp1 <= m-1)) {
+            if ((rp1 <= m-1) && (rp1 >= 2)) {
+              if ((rp1 <= m-1) && (rp1 >= 2)) {
                 other5 = -rp1+m+1 ;
-                if ((rp1 >= 2) && (rp1 <= m-1)) {
+                if ((rp1 <= m-1) && (rp1 >= 2)) {
                   S5(coordP1 = rp1,other2 = rp1,other4 = rp1,other6 = rp1) ;
                 }
               }
@@ -335,36 +335,36 @@ for (rp1=2;rp1<=m-1;rp1++) {
       }
     }
   }
-  if ((rp1 >= 2) && (rp1 <= m-1)) {
+  if ((rp1 <= m-1) && (rp1 >= 2)) {
     local1 = -rp1+m+1 ;
-    if ((rp1 >= 2) && (rp1 <= m-1)) {
+    if ((rp1 <= m-1) && (rp1 >= 2)) {
       local2 = rp1-1 ;
       coordT1 = m-2 ;
-      if ((rp1 >= 2) && (rp1 <= m-1)) {
+      if ((rp1 <= m-1) && (rp1 >= 2)) {
         coordP1 = rp1-1 ;
         other1 = m-1 ;
-        if ((rp1 >= 2) && (rp1 <= m-1)) {
-          if ((rp1 >= 2) && (rp1 <= m-1)) {
+        if ((rp1 <= m-1) && (rp1 >= 2)) {
+          if ((rp1 <= m-1) && (rp1 >= 2)) {
             other3 = -rp1+m+1 ;
-            if ((rp1 >= 2) && (rp1 <= m-1)) {
+            if ((rp1 <= m-1) && (rp1 >= 2)) {
               other4 = rp1-1 ;
-              if ((rp1 >= 2) && (rp1 <= m-1)) {
+              if ((rp1 <= m-1) && (rp1 >= 2)) {
                 other5 = -rp1+m+1 ;
-                if ((rp1 >= 2) && (rp1 <= m-1)) {
+                if ((rp1 <= m-1) && (rp1 >= 2)) {
                   S6(other2 = rp1,other6 = rp1) ;
                 }
               }
             }
           }
         }
-        if ((rp1 >= 2) && (rp1 <= m-1)) {
-          if ((rp1 >= 2) && (rp1 <= m-1)) {
+        if ((rp1 <= m-1) && (rp1 >= 2)) {
+          if ((rp1 <= m-1) && (rp1 >= 2)) {
             other3 = -rp1+m+1 ;
-            if ((rp1 >= 2) && (rp1 <= m-1)) {
+            if ((rp1 <= m-1) && (rp1 >= 2)) {
               other4 = rp1-1 ;
-              if ((rp1 >= 2) && (rp1 <= m-1)) {
+              if ((rp1 <= m-1) && (rp1 >= 2)) {
                 other5 = -rp1+m+2 ;
-                if ((rp1 >= 2) && (rp1 <= m-1)) {
+                if ((rp1 <= m-1) && (rp1 >= 2)) {
                   S7(other1 = m,other2 = rp1,other6 = rp1) ;
                 }
               }
@@ -375,40 +375,40 @@ for (rp1=2;rp1<=m-1;rp1++) {
     }
   }
   coordT1 = m-1 ;
-  if ((rp1 >= 2) && (rp1 <= m-1)) {
-    if ((rp1 >= 2) && (rp1 <= m-1)) {
+  if ((rp1 <= m-1) && (rp1 >= 2)) {
+    if ((rp1 <= m-1) && (rp1 >= 2)) {
       other1 = -rp1+m+1 ;
-      if ((rp1 >= 2) && (rp1 <= m-1)) {
+      if ((rp1 <= m-1) && (rp1 >= 2)) {
         S1(coordP1 = rp1,other2 = rp1) ;
       }
     }
   }
-  if ((rp1 >= 2) && (rp1 <= m-1)) {
+  if ((rp1 <= m-1) && (rp1 >= 2)) {
     local1 = -rp1+m+1 ;
-    if ((rp1 >= 2) && (rp1 <= m-1)) {
+    if ((rp1 <= m-1) && (rp1 >= 2)) {
       coordT1 = m-1 ;
-      if ((rp1 >= 2) && (rp1 <= m-1)) {
-        if ((rp1 >= 2) && (rp1 <= m-1)) {
-          if ((rp1 >= 2) && (rp1 <= m-1)) {
+      if ((rp1 <= m-1) && (rp1 >= 2)) {
+        if ((rp1 <= m-1) && (rp1 >= 2)) {
+          if ((rp1 <= m-1) && (rp1 >= 2)) {
             other3 = -rp1+m+1 ;
-            if ((rp1 >= 2) && (rp1 <= m-1)) {
-              if ((rp1 >= 2) && (rp1 <= m-1)) {
+            if ((rp1 <= m-1) && (rp1 >= 2)) {
+              if ((rp1 <= m-1) && (rp1 >= 2)) {
                 other5 = -rp1+m+2 ;
-                if ((rp1 >= 2) && (rp1 <= m-1)) {
+                if ((rp1 <= m-1) && (rp1 >= 2)) {
                   S2(coordP1 = rp1,other1 = m,other2 = rp1,other4 = rp1,other6 = rp1) ;
                 }
               }
             }
           }
         }
-        if ((rp1 >= 2) && (rp1 <= m-1)) {
+        if ((rp1 <= m-1) && (rp1 >= 2)) {
           other2 = rp1+1 ;
-          if ((rp1 >= 2) && (rp1 <= m-1)) {
+          if ((rp1 <= m-1) && (rp1 >= 2)) {
             other3 = -rp1+m+1 ;
-            if ((rp1 >= 2) && (rp1 <= m-1)) {
-              if ((rp1 >= 2) && (rp1 <= m-1)) {
+            if ((rp1 <= m-1) && (rp1 >= 2)) {
+              if ((rp1 <= m-1) && (rp1 >= 2)) {
                 other5 = -rp1+m+1 ;
-                if ((rp1 >= 2) && (rp1 <= m-1)) {
+                if ((rp1 <= m-1) && (rp1 >= 2)) {
                   other6 = rp1+1 ;
                   S3(coordP1 = rp1,other1 = m,other4 = rp1) ;
                 }
@@ -417,14 +417,14 @@ for (rp1=2;rp1<=m-1;rp1++) {
           }
         }
         other1 = m+1 ;
-        if ((rp1 >= 2) && (rp1 <= m-1)) {
+        if ((rp1 <= m-1) && (rp1 >= 2)) {
           other2 = rp1+1 ;
-          if ((rp1 >= 2) && (rp1 <= m-1)) {
+          if ((rp1 <= m-1) && (rp1 >= 2)) {
             other3 = -rp1+m+1 ;
-            if ((rp1 >= 2) && (rp1 <= m-1)) {
-              if ((rp1 >= 2) && (rp1 <= m-1)) {
+            if ((rp1 <= m-1) && (rp1 >= 2)) {
+              if ((rp1 <= m-1) && (rp1 >= 2)) {
                 other5 = -rp1+m+2 ;
-                if ((rp1 >= 2) && (rp1 <= m-1)) {
+                if ((rp1 <= m-1) && (rp1 >= 2)) {
                   other6 = rp1+1 ;
                   S4(coordP1 = rp1,other4 = rp1) ;
                 }
@@ -593,22 +593,22 @@ for (glT1=m;glT1<=2*m-4;glT1++) {
       }
     }
   }
-  if ((glT1 <= 2*m-4) && (glT1 >= m)) {
+  if ((glT1 >= m) && (glT1 <= 2*m-4)) {
     rp1 = glT1-m+2 ;
     local1 = m-1 ;
-    if ((glT1 <= 2*m-4) && (glT1 >= m)) {
+    if ((glT1 >= m) && (glT1 <= 2*m-4)) {
       local2 = glT1-m+2 ;
-      if ((glT1 <= 2*m-4) && (glT1 >= m)) {
+      if ((glT1 >= m) && (glT1 <= 2*m-4)) {
         coordT1 = glT1-1 ;
-        if ((glT1 <= 2*m-4) && (glT1 >= m)) {
+        if ((glT1 >= m) && (glT1 <= 2*m-4)) {
           coordP1 = glT1-m+2 ;
-          if ((glT1 <= 2*m-4) && (glT1 >= m)) {
-            if ((glT1 <= 2*m-4) && (glT1 >= m)) {
+          if ((glT1 >= m) && (glT1 <= 2*m-4)) {
+            if ((glT1 >= m) && (glT1 <= 2*m-4)) {
               other2 = glT1-m+2 ;
               other3 = m-1 ;
-              if ((glT1 <= 2*m-4) && (glT1 >= m)) {
+              if ((glT1 >= m) && (glT1 <= 2*m-4)) {
                 other4 = glT1-m+2 ;
-                if ((glT1 <= 2*m-4) && (glT1 >= m)) {
+                if ((glT1 >= m) && (glT1 <= 2*m-4)) {
                   other6 = glT1-m+2 ;
                   S5(other1 = glT1,other5 = m) ;
                 }
@@ -618,18 +618,18 @@ for (glT1=m;glT1<=2*m-4;glT1++) {
         }
       }
     }
-    if ((glT1 <= 2*m-4) && (glT1 >= m)) {
+    if ((glT1 >= m) && (glT1 <= 2*m-4)) {
       local2 = glT1-m+1 ;
-      if ((glT1 <= 2*m-4) && (glT1 >= m)) {
+      if ((glT1 >= m) && (glT1 <= 2*m-4)) {
         coordT1 = glT1-1 ;
-        if ((glT1 <= 2*m-4) && (glT1 >= m)) {
+        if ((glT1 >= m) && (glT1 <= 2*m-4)) {
           coordP1 = glT1-m+1 ;
-          if ((glT1 <= 2*m-4) && (glT1 >= m)) {
-            if ((glT1 <= 2*m-4) && (glT1 >= m)) {
+          if ((glT1 >= m) && (glT1 <= 2*m-4)) {
+            if ((glT1 >= m) && (glT1 <= 2*m-4)) {
               other2 = glT1-m+2 ;
-              if ((glT1 <= 2*m-4) && (glT1 >= m)) {
+              if ((glT1 >= m) && (glT1 <= 2*m-4)) {
                 other4 = glT1-m+1 ;
-                if ((glT1 <= 2*m-4) && (glT1 >= m)) {
+                if ((glT1 >= m) && (glT1 <= 2*m-4)) {
                   other6 = glT1-m+2 ;
                   S6(other1 = glT1,other3 = m,other5 = m) ;
                 }
@@ -639,27 +639,27 @@ for (glT1=m;glT1<=2*m-4;glT1++) {
         }
       }
     }
-    if ((glT1 <= 2*m-4) && (glT1 >= m)) {
-      if ((glT1 <= 2*m-4) && (glT1 >= m)) {
+    if ((glT1 >= m) && (glT1 <= 2*m-4)) {
+      if ((glT1 >= m) && (glT1 <= 2*m-4)) {
         coordP1 = glT1-m+2 ;
-        if ((glT1 <= 2*m-4) && (glT1 >= m)) {
+        if ((glT1 >= m) && (glT1 <= 2*m-4)) {
           other2 = glT1-m+2 ;
           S1(coordT1 = glT1,other1 = m) ;
         }
       }
     }
-    if ((glT1 <= 2*m-4) && (glT1 >= m)) {
+    if ((glT1 >= m) && (glT1 <= 2*m-4)) {
       local2 = glT1-m+2 ;
-      if ((glT1 <= 2*m-4) && (glT1 >= m)) {
-        if ((glT1 <= 2*m-4) && (glT1 >= m)) {
+      if ((glT1 >= m) && (glT1 <= 2*m-4)) {
+        if ((glT1 >= m) && (glT1 <= 2*m-4)) {
           coordP1 = glT1-m+2 ;
-          if ((glT1 <= 2*m-4) && (glT1 >= m)) {
+          if ((glT1 >= m) && (glT1 <= 2*m-4)) {
             other1 = glT1+1 ;
-            if ((glT1 <= 2*m-4) && (glT1 >= m)) {
+            if ((glT1 >= m) && (glT1 <= 2*m-4)) {
               other2 = glT1-m+3 ;
-              if ((glT1 <= 2*m-4) && (glT1 >= m)) {
+              if ((glT1 >= m) && (glT1 <= 2*m-4)) {
                 other4 = glT1-m+2 ;
-                if ((glT1 <= 2*m-4) && (glT1 >= m)) {
+                if ((glT1 >= m) && (glT1 <= 2*m-4)) {
                   other6 = glT1-m+3 ;
                   S3(coordT1 = glT1,other3 = m,other5 = m) ;
                 }
@@ -670,14 +670,14 @@ for (glT1=m;glT1<=2*m-4;glT1++) {
       }
     }
   }
-  if ((glT1 <= 2*m-4) && (glT1 >= m)) {
+  if ((glT1 >= m) && (glT1 <= 2*m-4)) {
     local1 = glT1-m+1 ;
-    if ((glT1 <= 2*m-4) && (glT1 >= m)) {
+    if ((glT1 >= m) && (glT1 <= 2*m-4)) {
       coordT1 = glT1-1 ;
-      if ((glT1 <= 2*m-4) && (glT1 >= m)) {
-        if ((glT1 <= 2*m-4) && (glT1 >= m)) {
+      if ((glT1 >= m) && (glT1 <= 2*m-4)) {
+        if ((glT1 >= m) && (glT1 <= 2*m-4)) {
           other3 = glT1-m+1 ;
-          if ((glT1 <= 2*m-4) && (glT1 >= m)) {
+          if ((glT1 >= m) && (glT1 <= 2*m-4)) {
             other5 = glT1-m+2 ;
             S5(coordP1 = m,other1 = glT1,other2 = m,other4 = m,other6 = m) ;
           }
@@ -685,28 +685,28 @@ for (glT1=m;glT1<=2*m-4;glT1++) {
       }
     }
   }
-  if ((glT1 <= 2*m-4) && (glT1 >= m)) {
+  if ((glT1 >= m) && (glT1 <= 2*m-4)) {
     local1 = glT1-m+2 ;
     local2 = m-1 ;
-    if ((glT1 <= 2*m-4) && (glT1 >= m)) {
+    if ((glT1 >= m) && (glT1 <= 2*m-4)) {
       coordT1 = glT1-1 ;
       coordP1 = m-1 ;
-      if ((glT1 <= 2*m-4) && (glT1 >= m)) {
-        if ((glT1 <= 2*m-4) && (glT1 >= m)) {
+      if ((glT1 >= m) && (glT1 <= 2*m-4)) {
+        if ((glT1 >= m) && (glT1 <= 2*m-4)) {
           other3 = glT1-m+2 ;
           other4 = m-1 ;
-          if ((glT1 <= 2*m-4) && (glT1 >= m)) {
+          if ((glT1 >= m) && (glT1 <= 2*m-4)) {
             other5 = glT1-m+2 ;
             S6(other1 = glT1,other2 = m,other6 = m) ;
           }
         }
       }
-      if ((glT1 <= 2*m-4) && (glT1 >= m)) {
+      if ((glT1 >= m) && (glT1 <= 2*m-4)) {
         other1 = glT1+1 ;
-        if ((glT1 <= 2*m-4) && (glT1 >= m)) {
+        if ((glT1 >= m) && (glT1 <= 2*m-4)) {
           other3 = glT1-m+2 ;
           other4 = m-1 ;
-          if ((glT1 <= 2*m-4) && (glT1 >= m)) {
+          if ((glT1 >= m) && (glT1 <= 2*m-4)) {
             other5 = glT1-m+3 ;
             S7(other2 = m,other6 = m) ;
           }
@@ -715,19 +715,19 @@ for (glT1=m;glT1<=2*m-4;glT1++) {
     }
   }
   if ((glT1 >= m) && (glT1 <= 2*m-4)) {
-    if ((glT1 <= 2*m-4) && (glT1 >= m)) {
+    if ((glT1 >= m) && (glT1 <= 2*m-4)) {
       other1 = glT1-m+2 ;
       S1(coordT1 = glT1,coordP1 = m,other2 = m) ;
     }
   }
-  if ((glT1 <= 2*m-4) && (glT1 >= m)) {
+  if ((glT1 >= m) && (glT1 <= 2*m-4)) {
     local1 = glT1-m+2 ;
-    if ((glT1 <= 2*m-4) && (glT1 >= m)) {
-      if ((glT1 <= 2*m-4) && (glT1 >= m)) {
+    if ((glT1 >= m) && (glT1 <= 2*m-4)) {
+      if ((glT1 >= m) && (glT1 <= 2*m-4)) {
         other1 = glT1+1 ;
-        if ((glT1 <= 2*m-4) && (glT1 >= m)) {
+        if ((glT1 >= m) && (glT1 <= 2*m-4)) {
           other3 = glT1-m+2 ;
-          if ((glT1 <= 2*m-4) && (glT1 >= m)) {
+          if ((glT1 >= m) && (glT1 <= 2*m-4)) {
             other5 = glT1-m+3 ;
             S2(coordT1 = glT1,coordP1 = m,other2 = m,other4 = m,other6 = m) ;
           }
