@@ -517,6 +517,12 @@ extern "C"
 	  cloog_pol_exchange_rows (p, i, j);
   }
 
+  static inline CloogMatrix *
+  cloog_upol_domain2matrix (polyhedra_union upol)
+  {
+    return cloog_pol_matrix (cloog_upol_polyhedron (upol));
+  }
+
 
   // sepdke
 
@@ -604,7 +610,6 @@ cloog_vector_combine (Value * p1, Value * p2, Value * p3, Value x,
   value_clear (tmp);
 }
 
-Matrix *Polyhedron2Constraints(Polyhedron *Pol);
   Polyhedron* Polyhedron_Alloc(unsigned Dimension,unsigned NbConstraints,unsigned NbRays);
   Polyhedron *Polyhedron_Copy(Polyhedron *Pol);
   void Polyhedron_Print(FILE *Dst,char *Format,Polyhedron *Pol);
@@ -644,6 +649,8 @@ Matrix *Polyhedron2Constraints(Polyhedron *Pol);
 
 
   //defoejcfoerd
+
+
 
 
 #if defined(__cplusplus)

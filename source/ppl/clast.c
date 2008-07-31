@@ -1380,7 +1380,8 @@ cloog_simplify_domain_matrix_with_equalities (CloogDomain *domain, int level,
   /* FIXME: the access to ->_polyhedron is a hack to avoid exporting
      the CloogMatrix in a .h file: the whole clast.c file should be
      rewritten specifically to Polylib and PPL.  */
-  temp = m_p2c (Polyhedron2Constraints(p_c2p (cloog_domain_polyhedron (domain))));
+
+  temp = cloog_upol_domain2matrix (cloog_domain_upol (domain));
   cloog_matrix_normalize (temp, level);
   res = cloog_matrix_simplify (temp, equal, level, nb_parameters);
   cloog_matrix_free(temp);

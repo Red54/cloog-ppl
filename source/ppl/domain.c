@@ -393,12 +393,6 @@ cloog_matrix_combine (Value * p1, Value * p2, Value * p3, int x, unsigned len)
     value_clear (b1), value_clear (b2), value_clear (n1);
 }
 
-static inline CloogMatrix *
-cloog_upol_domain2matrix (polyhedra_union upol)
-{
-  return m_p2c (Polyhedron2Constraints (p_c2p (cloog_upol_polyhedron (upol))));
-}
-
 /* In the matrix representation an equality has a 0 in the first
    column.  When the value of the first column is 1, the row
    represents an inequality.  */
