@@ -3,7 +3,7 @@ for (i=1;i<=n;i++) {
   if (i <= 2*m) {
     S1 ;
   }
-  if (i >= max(m,2*m+1)) {
+  if (i >= max(2*m+1,m)) {
     S1 ;
   }
 }

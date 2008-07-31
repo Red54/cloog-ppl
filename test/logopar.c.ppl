@@ -1,4 +1,4 @@
-/* Generated from ./logopar.cloog by CLooG  64 bits in 0.04s. */
+/* Generated from ./logopar.cloog by CLooG  64 bits in 0.10s. */
 for (j=0;j<=m;j++) {
   S1(i = 1) ;
 }

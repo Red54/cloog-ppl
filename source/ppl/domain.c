@@ -520,6 +520,9 @@ cloog_translate_ppl_polyhedron (ppl_Polyhedron_t pol)
   ppl_delete_Constraint_System_const_iterator (end);
 
   res = cloog_domain_matrix2domain (matrix);
+
+  cloog_pol_sort_rows (cloog_upol_polyhedron (cloog_domain_upol (res)));
+
   return print_result ("cloog_translate_ppl_polyhedron", cloog_check_domain (res));
 }
 

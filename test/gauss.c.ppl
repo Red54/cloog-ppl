@@ -1,4 +1,4 @@
-/* Generated from ./gauss.cloog by CLooG  64 bits in 0.03s. */
+/* Generated from ./gauss.cloog by CLooG  64 bits in 0.09s. */
 if (M >= 2) {
   for (c2=2;c2<=M;c2++) {
     for (j=2;j<=M;j++) {
@@ -10,7 +10,7 @@ if (M >= 2) {
 }
 for (c1=2;c1<=M-1;c1++) {
   for (c2=c1+1;c2<=M;c2++) {
-    if ((c1 >= 2) && (c1 <= c2-1)) {
+    if ((c1 <= c2-1) && (c1 >= 2)) {
       for (j=1;j<=c1-1;j++) {
         if ((c1 <= c2-1) && (c2 <= M)) {
           S1(i = c1,k = c2) ;

@@ -1,10 +1,10 @@
-/* Generated from ./emploi.cloog by CLooG  64 bits in 0.02s. */
+/* Generated from ./emploi.cloog by CLooG  64 bits in 0.04s. */
 if (m >= 1) {
   for (i=1;i<=n;i++) {
-    if (i >= m) {
+    if (i <= 2*m) {
       S1 ;
     }
-    if (i <= min(2*m,m-1)) {
+    if (i >= max(2*m+1,m)) {
       S1 ;
     }
     for (j=1;j<=m;j++) {

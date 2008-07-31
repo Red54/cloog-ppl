@@ -286,10 +286,9 @@ extern "C"
     return cloog_pol_nbc (cloog_domain_polyhedron (domain));
   }
 
-  static inline unsigned cloog_domain_nbeq (CloogDomain * d)
+  static inline unsigned cloog_pol_nbeq (polyhedron p)
   {
     int i, res = 0;
-    polyhedron p = d->_union->_polyhedron;
 
     for (i = 0; i < p->NbConstraints; i++)
       res += value_zero_p (p->Constraint[i][0]) ? 1 : 0;
@@ -297,6 +296,10 @@ extern "C"
     return res;
   }
 
+  static inline unsigned cloog_domain_nbeq (CloogDomain * d)
+  {
+    return cloog_pol_nbeq (cloog_upol_polyhedron (cloog_domain_upol (d)));
+  }
 
 
 
@@ -458,31 +461,65 @@ extern "C"
   int cloog_solve_diophantine (CloogMatrix *, CloogMatrix **, Vector **);
   void cloog_exchange_rows (CloogMatrix * M, int Row1, int Row2);
 
-static inline int
-cloog_matrix_lexico_lt (CloogMatrix *m, int i, int j)
-{
-  int k;
+  static inline int
+  cloog_pol_lexico_lt (polyhedron p, int i, int j)
+  {
+    int k;
+    Value a, b;
 
-  for (k = 0; k < m->NbColumns; k++)
-    if (value_lt (m->p[i][k], m->p[j][k]))
-      return 1;
-    else if (value_gt (m->p[i][k], m->p[j][k]))
-      return 0;
+    value_init (a), value_init (b);
 
-  return 0;
-}
+    for (k = 1; k < cloog_pol_dim (p) + 2; k++)
+      {
+	value_absolute (a, p->Constraint[i][k]);
+	value_absolute (b, p->Constraint[j][k]);
 
-static inline void
-cloog_matrix_sort_rows (CloogMatrix *m)
-{
-  int i, j;
+	if (value_lt (a, b))
+	  return 1;
 
-  for (i = 0; i < m->NbRows; i++)
-    for (j = i + 1; j < m->NbRows; j++)
-      if (cloog_matrix_lexico_lt (m, i, j))
-	cloog_exchange_rows (m, i, j);
-}
+	if (value_gt (a, b))
+	  return 0;
 
+	if (value_lt (p->Constraint[i][k], p->Constraint[j][k]))
+	  return 1;
+
+	if (value_gt (p->Constraint[i][k], p->Constraint[j][k]))
+	  return 0;
+      }
+
+    value_clear (a), value_clear (b);
+
+    return 0;
+  }
+
+  static inline void
+  cloog_pol_exchange_rows (polyhedron p, int row1, int row2)
+  {
+    int i;
+    
+    for (i = 0; i < (int) cloog_pol_dim (p) + 2; i++)
+      value_swap (p->Constraint[row1][i], p->Constraint[row2][i]);
+  }
+
+  static inline void
+  cloog_pol_sort_rows (polyhedron p)
+  {
+    int i, j;
+    int nbeq = cloog_pol_nbeq (p);
+
+    /* First sort the equalities.  The equalities should be the first
+       rows in the matrix.  */
+    for (i = 0; i < nbeq; i++)
+      for (j = i + 1; j < nbeq; j++)
+	if (cloog_pol_lexico_lt (p, i, j))
+	  cloog_pol_exchange_rows (p, i, j);
+
+    /* Sort inequalities.  */
+    for (i = nbeq; i < cloog_pol_nbc (p); i++)
+      for (j = i + 1; j < cloog_pol_nbc (p); j++)
+	if (cloog_pol_lexico_lt (p, i, j))
+	  cloog_pol_exchange_rows (p, i, j);
+  }
 
 
   // sepdke

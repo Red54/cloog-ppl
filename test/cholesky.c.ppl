@@ -1,4 +1,4 @@
-/* Generated from ./cholesky.cloog by CLooG  64 bits in 0.25s. */
+/* Generated from ./cholesky.cloog by CLooG  64 bits in 0.31s. */
 if (n >= 2) {
   S1(i = 1) ;
   S3(i = 1) ;
@@ -26,13 +26,13 @@ for (c1=2;c1<=n-1;c1++) {
     S3(i = c1) ;
   }
   for (c3=c1+1;c3<=n;c3++) {
-    if ((c1 >= 2) && (c1 <= c3-1)) {
+    if ((c1 <= c3-1) && (c1 >= 2)) {
       if ((c1 <= c3-1) && (c3 <= n)) {
         S4(i = c1,j = c3) ;
       }
     }
     for (c5=1;c5<=c1-1;c5++) {
-      if ((c1 >= c5+1) && (c1 <= c3-1)) {
+      if ((c1 <= c3-1) && (c1 >= c5+1)) {
         if ((c1 <= c3-1) && (c3 <= n)) {
           if ((c1 >= c5+1) && (c5 >= 1)) {
             S5(i = c1,j = c3,k = c5) ;
@@ -40,7 +40,7 @@ for (c1=2;c1<=n-1;c1++) {
         }
       }
     }
-    if ((c1 >= 2) && (c1 <= c3-1)) {
+    if ((c1 <= c3-1) && (c1 >= 2)) {
       if ((c1 <= c3-1) && (c3 <= n)) {
         S6(i = c1,j = c3) ;
       }

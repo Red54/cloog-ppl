@@ -1,6 +1,6 @@
-/* Generated from ./nul_lcpc.cloog by CLooG  64 bits in 0.04s. */
+/* Generated from ./nul_lcpc.cloog by CLooG  64 bits in 0.12s. */
 for (i=1;i<=6;i+=2) {
-  if ((i >= 1) && (i <= 6)) {
+  if ((i <= 6) && (i >= 1)) {
     k = (i-1)/2 ;
     for (j=1;j<=i;j++) {
       S1 ;
@@ -12,7 +12,7 @@ for (i=1;i<=6;i+=2) {
   }
 }
 for (i=7;i<=m;i+=2) {
-  if ((i >= 7) && (i <= m)) {
+  if ((i <= m) && (i >= 7)) {
     k = (i-1)/2 ;
     for (j=1;j<=p;j++) {
       S1 ;
