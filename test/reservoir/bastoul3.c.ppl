@@ -1,7 +1,7 @@
-/* Generated from ./reservoir/bastoul3.cloog by CLooG  64 bits in 0.00s. */
+/* Generated from ./reservoir/bastoul3.cloog by CLooG  64 bits in 0.01s. */
 for (i=3;i<=9;i++) {
-  for (j=max(i-6,1);j<=min(3,i-2);j++) {
-    if ((i <= j+6) && (i >= j+2)) {
+  for (j=max(1,i-6);j<=min(i-2,3);j++) {
+    if ((i >= j+2) && (i <= j+6)) {
       if ((i+j)%2 == 0) {
         k = (i-j)/2 ;
         S1 ;

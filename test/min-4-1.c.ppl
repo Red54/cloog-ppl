@@ -1,4 +1,4 @@
 /* Generated from ./min-4-1.cloog by CLooG  64 bits in 0.00s. */
-for (i=max(-N,-M);i<=min(N,O);i++) {
+for (i=max(-M,-N);i<=min(N,O);i++) {
   S1 ;
 }

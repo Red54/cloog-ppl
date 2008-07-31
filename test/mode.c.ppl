@@ -1,4 +1,4 @@
-/* Generated from ./mode.cloog by CLooG  64 bits in 0.03s. */
+/* Generated from ./mode.cloog by CLooG  64 bits in 0.04s. */
 if ((M >= N) && (N >= 0)) {
   for (j=0;j<=N;j++) {
     S1(i = N) ;
@@ -16,7 +16,7 @@ if (N >= 0) {
     }
   }
 }
-for (i=0;i<=min(N-1,M);i++) {
+for (i=0;i<=min(M,N-1);i++) {
   for (j=0;j<=i;j++) {
     S1 ;
     S2 ;

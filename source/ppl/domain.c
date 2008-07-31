@@ -519,6 +519,10 @@ cloog_translate_ppl_polyhedron (ppl_Polyhedron_t pol)
   ppl_delete_Constraint_System_const_iterator (cit);
   ppl_delete_Constraint_System_const_iterator (end);
 
+  /* If we do not sort the matrices, Cloog is a random loop
+     generator.  */
+  cloog_matrix_sort_rows (matrix);
+
   res = cloog_domain_matrix2domain (matrix);
   return print_result ("cloog_translate_ppl_polyhedron", cloog_check_domain (res));
 }
