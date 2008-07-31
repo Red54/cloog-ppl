@@ -542,7 +542,16 @@ typedef struct polyhedron1 {
   unsigned flags;
 } Polyhedron;
 
-void Vector_Scale(Value *p1,Value *p2,Value lambda,unsigned length);
+static inline void cloog_vector_scale (Value * p1, Value * p2,
+				       Value x,
+				       unsigned length)
+{
+  int i;
+
+  for (i = 0; i < length; i++)
+    value_multiply (*p2++, *p1++, x);
+}
+
 void Vector_Combine(Value *p1, Value *p2, Value *p3, Value lambda, Value mu,
 		    unsigned length);
 Polyhedron *Constraints2Polyhedron(Matrix *Constraints,unsigned NbMaxRays);
