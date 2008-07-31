@@ -1,4 +1,4 @@
-/* Generated from ././reservoir/mg-interp2.cloog by CLooG  64 bits in 0.36s. */
+/* Generated from ././reservoir/mg-interp2.cloog by CLooG  64 bits in 0.24s. */
 if ((M >= P+1) && (N >= Q+1)) {
   for (c2=1;c2<=O-1;c2++) {
     for (c4=Q;c4<=N-1;c4++) {

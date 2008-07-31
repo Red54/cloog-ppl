@@ -1,4 +1,4 @@
-/* Generated from ./4-param.cloog by CLooG  64 bits in 0.08s. */
+/* Generated from ./4-param.cloog by CLooG  64 bits in 0.04s. */
 for (i=p;i<=min(m-1,q);i++) {
   S2 ;
 }

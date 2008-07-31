@@ -1,4 +1,4 @@
-/* Generated from ././reservoir/mg-rprj3.cloog by CLooG  64 bits in 2.91s. */
+/* Generated from ././reservoir/mg-rprj3.cloog by CLooG  64 bits in 1.93s. */
 if ((M >= 4) && (N >= 4)) {
   for (c2=2;c2<=O-1;c2++) {
     for (c6=2;c6<=M;c6++) {

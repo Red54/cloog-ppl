@@ -1,4 +1,4 @@
-/* Generated from ././reservoir/loechner4.cloog by CLooG  64 bits in 0.08s. */
+/* Generated from ././reservoir/loechner4.cloog by CLooG  64 bits in 0.06s. */
 for (c2=2;c2<=2*M;c2++) {
   for (c4=1;c4<=M;c4++) {
     for (c6=1;c6<=M;c6++) {

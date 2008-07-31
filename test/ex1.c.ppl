@@ -1,4 +1,4 @@
-/* Generated from ./ex1.cloog by CLooG  64 bits in 0.05s. */
+/* Generated from ./ex1.cloog by CLooG  64 bits in 0.03s. */
 for (i=0;i<=14;i++) {
   for (j=0;j<=n-15;j++) {
     S1 ;

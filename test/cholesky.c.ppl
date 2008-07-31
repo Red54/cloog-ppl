@@ -1,4 +1,4 @@
-/* Generated from ./cholesky.cloog by CLooG  64 bits in 0.31s. */
+/* Generated from ./cholesky.cloog by CLooG  64 bits in 0.17s. */
 if (n >= 2) {
   S1(i = 1) ;
   S3(i = 1) ;

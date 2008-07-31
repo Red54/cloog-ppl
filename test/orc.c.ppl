@@ -1,4 +1,4 @@
-/* Generated from ./orc.cloog by CLooG  64 bits in 0.56s. */
+/* Generated from ./orc.cloog by CLooG  64 bits in 0.32s. */
 S1(i = 0) ;
 S2(i = 0,j = 0) ;
 for (p2=1;p2<=22;p2++) {

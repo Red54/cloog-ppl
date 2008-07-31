@@ -1,4 +1,4 @@
-/* Generated from ./lineality-2-1-2.cloog by CLooG  64 bits in 0.09s. */
+/* Generated from ./lineality-2-1-2.cloog by CLooG  64 bits in 0.05s. */
 for (i=1;i<=M-3;i++) {
   for (j=1;j<=i+1;j++) {
     S1 ;

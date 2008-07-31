@@ -1,4 +1,4 @@
-/* Generated from ./thomasset.cloog by CLooG  64 bits in 0.56s. */
+/* Generated from ./thomasset.cloog by CLooG  64 bits in 0.45s. */
 if (n >= 2) {
   for (c1=max(ceild(n-4,3),0);c1<=0;c1++) {
     if ((c1 >= max(ceild(n-4,3),0)) && (c1 <= 0)) {

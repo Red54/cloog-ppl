@@ -1,4 +1,4 @@
-/* Generated from ./min-2-1.cloog by CLooG  64 bits in 0.02s. */
+/* Generated from ./min-2-1.cloog by CLooG  64 bits in 0.01s. */
 if (M >= 0) {
   for (i=1;i<=N;i++) {
     for (j=0;j<=min(min(i,-i+N),M);j++) {

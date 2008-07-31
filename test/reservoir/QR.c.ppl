@@ -1,4 +1,4 @@
-/* Generated from ././reservoir/QR.cloog by CLooG  64 bits in 1.80s. */
+/* Generated from ././reservoir/QR.cloog by CLooG  64 bits in 1.08s. */
 if (N >= 1) {
   S1(i = 0) ;
 }
@@ -209,29 +209,22 @@ if ((M >= 1) && (N == 1)) {
   S5(i = 0) ;
 }
 if ((M == N-1) && (N >= 2)) {
-  c4 = N-1 ;
-  i = N-2 ;
-  j = N-1 ;
-  S6 ;
-  c6 = N-2 ;
-  i = N-2 ;
-  j = N-1 ;
-  k = N-2 ;
-  S7 ;
-  i = N-2 ;
-  j = N-1 ;
-  S8 ;
-  c6 = N-2 ;
-  i = N-2 ;
-  j = N-1 ;
-  k = N-2 ;
-  S9 ;
-  i = N-1 ;
-  S3 ;
-  i = N-1 ;
-  S10 ;
-  i = N-1 ;
-  S5 ;
+  c2 = M+1 ;
+  i = M-1 ;
+  S6(j = M) ;
+  c6 = M-1 ;
+  i = M-1 ;
+  k = M-1 ;
+  S7(j = M) ;
+  i = M-1 ;
+  S8(j = M) ;
+  c6 = M-1 ;
+  i = M-1 ;
+  k = M-1 ;
+  S9(j = M) ;
+  S3(i = M) ;
+  S10(i = M) ;
+  S5(i = M) ;
 }
 if ((M <= N-2) && (N >= 2)) {
   c4 = N-1 ;

@@ -1,4 +1,4 @@
-/* Generated from ./yosr2.cloog by CLooG  64 bits in 0.11s. */
+/* Generated from ./yosr2.cloog by CLooG  64 bits in 0.06s. */
 for (i=1;i<=M;i++) {
   S2 ;
 }

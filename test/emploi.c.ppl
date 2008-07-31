@@ -1,4 +1,4 @@
-/* Generated from ./emploi.cloog by CLooG  64 bits in 0.04s. */
+/* Generated from ./emploi.cloog by CLooG  64 bits in 0.01s. */
 if (m >= 1) {
   for (i=1;i<=n;i++) {
     if (i <= 2*m) {

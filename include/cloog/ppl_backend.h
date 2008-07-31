@@ -301,10 +301,6 @@ extern "C"
     return cloog_pol_nbeq (cloog_upol_polyhedron (cloog_domain_upol (d)));
   }
 
-
-
-
-
   static inline Vector *Vector_Alloc (unsigned length)
   {
     int i;
@@ -401,7 +397,7 @@ extern "C"
   {
     polyhedron res = cloog_new_pol (dim, 1);
 
-    cloog_vector_set (res->Constraint[1], 0, dim + 2);
+    cloog_vector_set (res->Constraint[0], 0, dim + 2);
     value_set_si (res->Constraint[0][0], 1);
     value_set_si (res->Constraint[0][dim + 1], 1);
 
@@ -608,15 +604,12 @@ cloog_vector_combine (Value * p1, Value * p2, Value * p3, Value x,
   value_clear (tmp);
 }
 
-Polyhedron *Constraints2Polyhedron(Matrix *Constraints,unsigned NbMaxRays);
 Matrix *Polyhedron2Constraints(Polyhedron *Pol);
   Polyhedron* Polyhedron_Alloc(unsigned Dimension,unsigned NbConstraints,unsigned NbRays);
   Polyhedron *Polyhedron_Copy(Polyhedron *Pol);
   void Polyhedron_Print(FILE *Dst,char *Format,Polyhedron *Pol);
   void Polyhedron_Free(Polyhedron *Pol);
   Polyhedron *Empty_Polyhedron(unsigned Dimension);
-  void Vector_Gcd(Value *p,unsigned length,Value *min);
-  int First_Non_Zero(Value *p,unsigned length);
   void Matrix_Free(Matrix *Mat);
   void Matrix_Print (FILE * Dst, char *Format, CloogMatrix * Mat);
   void Vector_Normalize(Value *p,unsigned length);
@@ -639,7 +632,7 @@ Matrix *Polyhedron2Constraints(Polyhedron *Pol);
   p_c2p (polyhedron p)
   {
     int i, j;
-    Polyhedron *res = Polyhedron_Alloc (p->Dimension, p->NbConstraints, 200);
+    Polyhedron *res = Polyhedron_Alloc (p->Dimension, p->NbConstraints, 0);
 
     for (i = 0; i < p->NbConstraints; i++)
       for (j = 0; j < p->Dimension + 2; j++)

@@ -1,4 +1,4 @@
-/* Generated from ././reservoir/liu-zhuge1.cloog by CLooG  64 bits in 0.51s. */
+/* Generated from ././reservoir/liu-zhuge1.cloog by CLooG  64 bits in 0.30s. */
 if ((M >= 0) && (N >= 0)) {
   for (c2=-4;c2<=min(3*M+N-4,-1);c2++) {
     for (c4=max(c2-3*M+4,0);c4<=min(c2+4,N);c4++) {

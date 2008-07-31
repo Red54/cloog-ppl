@@ -1,4 +1,4 @@
-/* Generated from ././reservoir/mg-resid.cloog by CLooG  64 bits in 0.36s. */
+/* Generated from ././reservoir/mg-resid.cloog by CLooG  64 bits in 0.25s. */
 if ((M >= 3) && (N >= 4)) {
   for (c2=2;c2<=O-1;c2++) {
     for (c6=1;c6<=M;c6++) {

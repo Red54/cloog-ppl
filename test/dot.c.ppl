@@ -1,4 +1,4 @@
-/* Generated from ./dot.cloog by CLooG  64 bits in 0.02s. */
+/* Generated from ./dot.cloog by CLooG  64 bits in 0.01s. */
 for (j=1;j<=M;j++) {
   S1(i = 0) ;
 }

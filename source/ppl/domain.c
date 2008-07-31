@@ -278,17 +278,119 @@ cloog_check_domain (CloogDomain *dom)
   return dom;
 }
 
-/**
- * cloog_domain_matrix2domain function:
- * Given a matrix of constraints (matrix), this function constructs and returns
- * the corresponding domain (i.e. the CloogDomain structure including the
- * polyhedron with its double representation: constraint matrix and the set of
- * rays).
- */
-static CloogDomain *
-cloog_domain_matrix2domain (CloogMatrix * matrix)
+static inline void
+cloog_vector_min_not_zero (Value * p, unsigned len, int *index, Value * min)
 {
-  return print_result ("cloog_domain_matrix2domain", cloog_check_domain (cloog_domain_alloc (Constraints2Polyhedron (m_c2p (matrix), MAX_RAYS))));
+  Value x;
+  int i = cloog_first_non_zero (p, len);
+
+  if (i == -1)
+    {
+      value_set_si (*min, 1);
+      return;
+    }
+
+  *index = i;
+  value_absolute (*min, p[i]);
+  value_init (x);
+
+  for (i = i + 1; i < len; i++)
+    {
+      if (value_zero_p (p[i]))
+	continue;
+
+      value_absolute (x, p[i]);
+      if (value_lt (x, *min))
+	{
+	  value_assign (*min, x);
+	  *index = i;
+	}
+    }
+
+  value_clear (x);
+}
+
+void
+cloog_vector_gcd (Value * p, unsigned len, Value * gcd)
+{
+  Value *q, *cq, *cp;
+  int i, non_zero, min_index = 0;
+
+  q = (Value *) malloc (len * sizeof (Value));
+
+  for (i = 0; i < len; i++)
+    value_init (q[i]);
+
+  for (cp = p, cq = q, i = 0; i < len; i++, cq++, cp++)
+    value_absolute (*cq, *cp);
+
+  do
+    {
+      cloog_vector_min_not_zero (q, len, &min_index, gcd);
+
+      if (value_notone_p (*gcd))
+	{
+	  for (cq = q, non_zero = 0, i = 0; i < len; i++, cq++)
+	    if (i != min_index)
+	      {
+		value_modulus (*cq, *cq, *gcd);
+		non_zero |= value_notzero_p (*cq);
+	      }
+	}
+      else
+	break;
+
+    }
+  while (non_zero);
+
+  for (i = 0; i < len; i++)
+    value_clear (q[i]);
+
+  free (q);
+}
+
+static inline void
+cloog_vector_normalize (Value * p, unsigned len)
+{
+  int i;
+  Value *ptr, gcd, one;
+
+  value_init (gcd);
+  cloog_vector_gcd (p, len, &gcd);
+  value_init (one);
+  value_set_si (one, 1);
+
+  if (value_gt (gcd, one))
+    for (ptr = p, i = 0; i < len; i++, ptr++)
+      value_division (*ptr, *ptr, gcd);
+
+  value_clear (one), value_clear (gcd);
+}
+
+static inline void
+cloog_matrix_combine (Value * p1, Value * p2, Value * p3, int x, unsigned len)
+{
+  Value a1, a2, gcd, b1, b2, n1;
+
+  value_init (a1), value_init (a2), value_init (gcd),
+    value_init (b1), value_init (b2), value_init (n1);
+
+  value_assign (a1, p1[x]);
+  value_assign (a2, p2[x]);
+
+  value_absolute (b1, a1);
+  value_absolute (b2, a2);
+
+  Gcd (b1, b2, &gcd);
+
+  value_division (a1, a1, gcd);
+  value_division (a2, a2, gcd);
+  value_oppose (n1, a1);
+  cloog_vector_combine (p1 + 1, p2 + 1, p3 + 1, a2, n1, len);
+  cloog_vector_normalize (p3 + 1, len);
+
+  value_clear (a1), value_clear (a2), value_clear (gcd),
+    value_clear (b1), value_clear (b2), value_clear (n1);
 }
 
 static inline CloogMatrix *
@@ -423,7 +525,7 @@ cloog_translate_constraint_matrix_1 (ppl_Polyhedron_t ppl, CloogMatrix *matrix)
   for (i = 0; i < matrix->NbRows; i++)
     {
       ppl_Constraint_t c = cloog_translate_constraint (matrix, i, 0, -1);
-      ppl_Polyhedron_add_constraint (ppl, c);
+      ppl_Polyhedron_add_constraint_and_minimize (ppl, c);
       ppl_delete_Constraint (c);
     }
 }
@@ -439,32 +541,87 @@ cloog_translate_constraint_matrix (CloogMatrix *matrix)
   return ppl;
 }
 
-static CloogDomain *
-cloog_translate_ppl_polyhedron (ppl_Polyhedron_t pol)
+/* Put the constraint matrix of polyhedron RES under Cloog's normal
+   form: Cloog expects to see
+
+   0    1    1   -9 
+   1    0    1   -1 
+
+   instead of this:
+
+   0    1    1   -9 
+   1   -1    0    8 
+
+   These two forms are equivalent but the expected form uses rightmost
+   indices for inequalities.  */
+
+static void
+cloog_pol_normal_form (polyhedron res)
 {
-  CloogDomain *res;
-  CloogMatrix *matrix ;
+  int dim = cloog_pol_dim (res);
+  int nrows = cloog_pol_nbc (res);
+  int i, j;
+  int neqs = cloog_pol_nbeq (res);
+
+  for (j = 1; j <= dim; j++)
+    {
+      int rank;
+
+      for (rank = 0; rank < neqs; rank++)
+	if (j - 1 == cloog_first_non_zero (res->Constraint[rank] + 1, dim))
+	  {
+	    for (i = neqs; i < nrows; i++)
+	      if (value_notzero_p (res->Constraint[i][j]))
+		cloog_matrix_combine (res->Constraint[i],
+				      res->Constraint[rank],
+				      res->Constraint[i], j, dim + 1);
+
+	    break;
+	  }
+    }
+}
+
+static polyhedron
+cloog_translate_ppl_polyhedron_1 (ppl_Polyhedron_t pol)
+{
+  polyhedron res;
   ppl_dimension_type dim;
   ppl_const_Constraint_System_t pcs;
   ppl_Constraint_System_const_iterator_t cit, end;
-  int row;
+  int eqs, orig_ineqs, ineqs, row, i;
+  ppl_const_Constraint_t pc;
 
-  ppl_Polyhedron_constraints (pol, &pcs);
+  ppl_Polyhedron_minimized_constraints (pol, &pcs);
   ppl_new_Constraint_System_const_iterator (&cit);
   ppl_new_Constraint_System_const_iterator (&end);
 
-  for (row = 0, ppl_Constraint_System_begin (pcs, cit), ppl_Constraint_System_end (pcs, end);
+  for (eqs = 0, ineqs = 0,
+	 ppl_Constraint_System_begin (pcs, cit),
+	 ppl_Constraint_System_end (pcs, end);
        !ppl_Constraint_System_const_iterator_equal_test (cit, end);
-       ppl_Constraint_System_const_iterator_increment (cit), row++);
+       ppl_Constraint_System_const_iterator_increment (cit))
+    {
+      ppl_Constraint_System_const_iterator_dereference (cit, &pc);
+      (ppl_Constraint_type (pc) == PPL_CONSTRAINT_TYPE_EQUAL) ? eqs++ : ineqs++;
+    }
 
   ppl_Polyhedron_space_dimension (pol, &dim);
-  matrix = cloog_matrix_alloc (row, dim + 2);
 
-  for (row = 0, ppl_Constraint_System_begin (pcs, cit), ppl_Constraint_System_end (pcs, end);
+  orig_ineqs = ineqs;
+  if (1 || orig_ineqs == 0)
+    res = cloog_new_pol (dim, eqs + ineqs + 1);
+  else
+    res = cloog_new_pol (dim, eqs + ineqs);
+
+
+  /* Sort constraints: Cloog expects to see in matrices the equalities
+     followed by inequalities.  */
+  ineqs = eqs;
+  eqs = 0;
+  for (ppl_Constraint_System_begin (pcs, cit), ppl_Constraint_System_end (pcs, end);
        !ppl_Constraint_System_const_iterator_equal_test (cit, end);
-       ppl_Constraint_System_const_iterator_increment (cit), row++)
+       ppl_Constraint_System_const_iterator_increment (cit))
     {
-      ppl_const_Constraint_t pc;
       ppl_Coefficient_t coef;
       ppl_dimension_type col;
       Value val;
@@ -476,6 +633,7 @@ cloog_translate_ppl_polyhedron (ppl_Polyhedron_t pol)
 
       neg = (ppl_Constraint_type (pc) == PPL_CONSTRAINT_TYPE_LESS_THAN
 	     || ppl_Constraint_type (pc) == PPL_CONSTRAINT_TYPE_LESS_THAN_OR_EQUAL) ? 1 : 0;
+      row = (ppl_Constraint_type (pc) == PPL_CONSTRAINT_TYPE_EQUAL) ? eqs++ : ineqs++;
 
       for (col = 0; col < dim; col++)
 	{
@@ -485,29 +643,30 @@ cloog_translate_ppl_polyhedron (ppl_Polyhedron_t pol)
 	  if (neg)
 	    value_oppose (val, val);
 
-	  value_assign (matrix->p[row][col+1], val);
+	  value_assign (res->Constraint[row][col + 1], val);
 	}
 
       ppl_Constraint_inhomogeneous_term (pc, coef);
       ppl_Coefficient_to_mpz_t (coef, val);
-      value_assign (matrix->p[row][dim + 1], val);
+      value_assign (res->Constraint[row][dim + 1], val);
       ppl_delete_Coefficient (coef);
 
       switch (ppl_Constraint_type (pc))
 	{
 	case PPL_CONSTRAINT_TYPE_EQUAL:
-	  value_set_si (matrix->p[row][0], 0);
+	  value_set_si (res->Constraint[row][0], 0);
 	  break;
 
 	case PPL_CONSTRAINT_TYPE_LESS_THAN:
 	case PPL_CONSTRAINT_TYPE_GREATER_THAN:
-	  value_decrement (matrix->p[row][dim + 1], matrix->p[row][dim + 1]);
-	  value_set_si (matrix->p[row][0], 1);
+	  value_decrement (res->Constraint[row][dim + 1],
+			   res->Constraint[row][dim + 1]);
+	  value_set_si (res->Constraint[row][0], 1);
 	  break;
 
 	case PPL_CONSTRAINT_TYPE_LESS_THAN_OR_EQUAL:
 	case PPL_CONSTRAINT_TYPE_GREATER_THAN_OR_EQUAL:
-	  value_set_si (matrix->p[row][0], 1);
+	  value_set_si (res->Constraint[row][0], 1);
 	  break;
 
 	default:
@@ -519,11 +678,68 @@ cloog_translate_ppl_polyhedron (ppl_Polyhedron_t pol)
   ppl_delete_Constraint_System_const_iterator (cit);
   ppl_delete_Constraint_System_const_iterator (end);
 
-  res = cloog_domain_matrix2domain (matrix);
+  if (cloog_pol_nbeq (res) == 2 && cloog_pol_nbc (res) == 2
+      && cloog_first_non_zero (res->Constraint[0], dim + 2) == dim + 1)
+    {
+      cloog_pol_free (res);
+      return cloog_empty_polyhedron (dim);
+    }
 
-  cloog_pol_sort_rows (cloog_upol_polyhedron (cloog_domain_upol (res)));
+  /* Add the positivity constraint.  */ 
+  if (1 || orig_ineqs == 0)
+    {
+      row = ineqs;
+      value_set_si (res->Constraint[row][0], 1);
+      for (i = 0; i < dim; i++)
+	value_set_si (res->Constraint[row][i + 1], 0);
+      value_set_si (res->Constraint[row][dim + 1], 1);
+    }
 
-  return print_result ("cloog_translate_ppl_polyhedron", cloog_check_domain (res));
+  /* Put the matrix of RES in normal form.  */
+  cloog_pol_normal_form (res);
+
+  /* If we do not sort the matrices, Cloog is a random loop
+     generator.  */
+  cloog_pol_sort_rows (res);
+
+  return res;
+}
+
+polyhedron
+cloog_pol_from_matrix (CloogMatrix * m)
+{
+  polyhedron res;
+  int ncolumns = cloog_matrix_ncolumns (m);
+  int nrows = cloog_matrix_nrows (m);
+  ppl_Polyhedron_t p;
+
+  if (nrows == 0)
+    return cloog_universe_polyhedron (ncolumns - 2);
+
+
+  p = cloog_translate_constraint_matrix (m);
+  res = cloog_translate_ppl_polyhedron_1 (p);
+  if (cloog_pol_nbc (res) < cloog_matrix_nrows (m))
+    return res;
+
+  cloog_pol_free (res);
+  res = cloog_new_pol (ncolumns - 2, nrows);
+  cloog_vector_copy (m->p[0], res->Constraint[0], m->NbRows * m->NbColumns);
+
+  return res;
+}
+
+static CloogDomain *
+cloog_domain_matrix2domain (CloogMatrix * matrix)
+{
+  return print_result ("cloog_domain_matrix2domain", cloog_domain_alloc (p_c2p (cloog_pol_from_matrix (matrix))));
+}
+
+static CloogDomain *
+cloog_translate_ppl_polyhedron (ppl_Polyhedron_t p)
+{
+  polyhedron res = cloog_translate_ppl_polyhedron_1 (p);
+  return print_result ("cloog_translate_ppl_polyhedron", cloog_domain_alloc (p_c2p (res)));
 }
 
 void debug_poly (Polyhedron *p)
@@ -1886,7 +2102,7 @@ cloog_domain_never_integral (CloogDomain * domain)
 				 * unknown vector (including iterators and parameters) or not. If not,
 				 * there is no integer point in the polyhedron and we return 1.
 				 */
-	  Vector_Gcd (&(polyhedron->Constraint[i][1]), dimension - 2, &gcd);
+	  cloog_vector_gcd (&(polyhedron->Constraint[i][1]), dimension - 2, &gcd);
 	  value_modulus (modulo,
 			 polyhedron->Constraint[i][dimension - 1],
 			 gcd);
@@ -1952,14 +2168,14 @@ cloog_domain_stride (domain, strided_level, nb_par, stride, offset)
    */
   n_col = (1 + dimension - nb_par) - strided_level;
   for (i = 0, n_row = 0; i < nbeq; i++)
-    if (First_Non_Zero
+    if (cloog_first_non_zero
 	(polyhedron->Constraint[i] + strided_level, n_col) != -1)
       ++n_row;
 
   M = cloog_matrix_alloc (n_row + 1, n_col + 1);
   for (i = 0, n_row = 0; i < nbeq; i++)
     {
-      if (First_Non_Zero
+      if (cloog_first_non_zero
 	  (polyhedron->Constraint[i] + strided_level, n_col) == -1)
 	continue;
       cloog_vector_copy (polyhedron->Constraint[i] + strided_level,
@@ -1988,7 +2204,7 @@ cloog_domain_stride (domain, strided_level, nb_par, stride, offset)
   else
     {
       /* Compute the gcd of the coefficients defining strided_level. */
-      Vector_Gcd (U->p[0], U->NbColumns, stride);
+      cloog_vector_gcd (U->p[0], U->NbColumns, stride);
       value_oppose (*offset, V->p[0]);
       value_pmodulus (*offset, *offset, *stride);
     }
