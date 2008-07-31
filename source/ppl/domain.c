@@ -252,13 +252,13 @@ cloog_new_domain (polyhedra_union p)
 }
 
 static CloogDomain *
-cloog_domain_alloc (Polyhedron *p)
+cloog_domain_alloc (polyhedron p)
 {
-  return print_result ("cloog_domain_alloc", cloog_new_domain (p2u (p)));
+  return print_result ("cloog_domain_alloc", cloog_new_domain (cloog_new_upol (p)));
 }
 
 void
-debug_polyhedron (Polyhedron *p)
+debug_polyhedron (polyhedron p)
 {
   debug_cloog_domain (cloog_domain_alloc (p));
 }
@@ -708,14 +708,14 @@ cloog_pol_from_matrix (CloogMatrix * m)
 static CloogDomain *
 cloog_domain_matrix2domain (CloogMatrix * matrix)
 {
-  return print_result ("cloog_domain_matrix2domain", cloog_domain_alloc (p_c2p (cloog_pol_from_matrix (matrix))));
+  return print_result ("cloog_domain_matrix2domain", cloog_domain_alloc (cloog_pol_from_matrix (matrix)));
 }
 
 static CloogDomain *
 cloog_translate_ppl_polyhedron (ppl_Polyhedron_t p)
 {
   polyhedron res = cloog_translate_ppl_polyhedron_1 (p);
-  return print_result ("cloog_translate_ppl_polyhedron", cloog_domain_alloc (p_c2p (res)));
+  return print_result ("cloog_translate_ppl_polyhedron", cloog_domain_alloc (res));
 }
 
 void debug_poly (Polyhedron *p)
@@ -1716,7 +1716,7 @@ cloog_domain_sort (CloogDomain **doms, unsigned nb_pols, unsigned level,
 CloogDomain *
 cloog_domain_empty (int dimension)
 {
-  return (cloog_domain_alloc (Empty_Polyhedron (dimension)));
+  return (cloog_domain_alloc (cloog_empty_polyhedron (dimension)));
 }
 
 
