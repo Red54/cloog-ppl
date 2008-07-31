@@ -85,7 +85,28 @@ int cloog_matrix_max = 0 ;
  * file (foo, possibly stdout).
  */
 void cloog_matrix_print(FILE * foo, CloogMatrix * matrix)
-{ Matrix_Print(foo,"%4s ",matrix) ;
+{
+  Value *p;
+  int i, j;
+  unsigned NbRows = matrix->NbRows;
+  unsigned NbColumns = matrix->NbColumns;
+
+  fprintf (foo, "%d %d\n", NbRows, NbColumns);
+  if (NbColumns == 0)
+    {
+      fprintf (foo, "\n");
+      return;
+    }
+
+  for (i = 0; i < NbRows; i++)
+    {
+      p = *(matrix->p + i);
+
+      for (j = 0; j < NbColumns; j++)
+	value_print (foo, " " "%4s " " ", *p++);
+
+      fprintf (foo, "\n");
+    }
 }
 
 

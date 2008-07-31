@@ -630,7 +630,6 @@ cloog_vector_combine (Value * p1, Value * p2, Value * p3, Value x,
   Polyhedron *Polyhedron_Copy(Polyhedron *Pol);
   void Polyhedron_Free(Polyhedron *Pol);
   void Matrix_Free(Matrix *Mat);
-  void Matrix_Print (FILE * Dst, char *Format, CloogMatrix * Mat);
 
 
   static inline polyhedron
