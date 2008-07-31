@@ -1959,8 +1959,8 @@ cloog_domain_stride (domain, strided_level, nb_par, stride, offset)
       if (First_Non_Zero
 	  (polyhedron->Constraint[i] + strided_level, n_col) == -1)
 	continue;
-      Vector_Copy (polyhedron->Constraint[i] + strided_level,
-		   M->p[n_row], n_col);
+      cloog_vector_copy (polyhedron->Constraint[i] + strided_level,
+			 M->p[n_row], n_col);
       value_assign (M->p[n_row][n_col],
 		    polyhedron->Constraint[i][1 + dimension]);
       ++n_row;

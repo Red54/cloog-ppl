@@ -542,11 +542,10 @@ typedef struct polyhedron1 {
   unsigned flags;
 } Polyhedron;
 
-Polyhedron *Constraints2Polyhedron(Matrix *Constraints,unsigned NbMaxRays);
-void Vector_Copy(Value *p1,Value *p2,unsigned length);
 void Vector_Scale(Value *p1,Value *p2,Value lambda,unsigned length);
 void Vector_Combine(Value *p1, Value *p2, Value *p3, Value lambda, Value mu,
 		    unsigned length);
+Polyhedron *Constraints2Polyhedron(Matrix *Constraints,unsigned NbMaxRays);
 Matrix *Polyhedron2Constraints(Polyhedron *Pol);
   Polyhedron* Polyhedron_Alloc(unsigned Dimension,unsigned NbConstraints,unsigned NbRays);
   Polyhedron *Polyhedron_Copy(Polyhedron *Pol);

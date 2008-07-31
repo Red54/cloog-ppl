@@ -1029,7 +1029,7 @@ static void insert_modulo_guard(CloogMatrix *matrix, int num, int level,
   line_vector = Vector_Alloc(len);
   line = line_vector->p;
   if (value_neg_p(matrix->p[num][level]))
-    Vector_Copy(matrix->p[num]+1, line+1, len-1);
+    cloog_vector_copy(matrix->p[num]+1, line+1, len-1);
   else {
     value_set_si(val, -1);
     Vector_Scale(matrix->p[num]+1, line+1, val, len-1);
