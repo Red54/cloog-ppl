@@ -299,9 +299,6 @@ if test "x$with_ppl" != "x"; then
 		        [AC_MSG_ERROR(Can't find PPL headers.)])
 	LIBS="$LIBS -lppl_c -lppl -lgmpxx"
 
-	dnl FIXME: Temporarily for PPL porting, ask for a GMP Polylib.
-	cl_cv_polylib="polylibgmp"
-	LIBS="-l$cl_cv_polylib $LIBS"
 else
 	AC_MSG_RESULT(not using PPL)
 fi

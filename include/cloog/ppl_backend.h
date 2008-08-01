@@ -108,34 +108,6 @@ extern "C"
 #define value_substract(ref,val1,val2) (value_subtract((ref),(val1),(val2)))
 
   static inline void
-  debug_value (Value v)
-  {
-    value_print (stderr, VALUE_FMT, v);
-  }
-
-  static inline void
-  debug_values (Value *p, int length)
-  {
-    int i;
-    for (i = 0; i < length; i++)
-      debug_value (p[i]);
-  }
-
-  static inline void
-  check_values (Value *p3, Value *p4, int length)
-  {
-    int i;
-
-    for (i = 0; i < length; i++)
-      if (value_ne (p3[i], p4[i]))
-	{
-	  fprintf (stderr, "vectors not the same\n");
-	  debug_values (p3, length);
-	  debug_values (p4, length);
-	}
-  }
-
-  static inline void
   cloog_vector_set (Value * ptr, int n, unsigned length)
   {
     int i;
@@ -453,8 +425,6 @@ extern "C"
 
   polyhedron cloog_pol_copy (polyhedron pol);
   void cloog_vector_gcd (Value *, unsigned, Value *);
-  int cloog_solve_diophantine (CloogMatrix *, CloogMatrix **, Vector **);
-  void cloog_exchange_rows (CloogMatrix * M, int Row1, int Row2);
 
   static inline int
   cloog_pol_lexico_lt (polyhedron p, int i, int j)
@@ -568,71 +538,6 @@ extern "C"
 
     value_clear (tmp);
   }
-
-  // sepdke
-
-  typedef struct matrix {
-    unsigned NbRows, NbColumns;
-    Value **p;
-    Value *p_Init;
-    int p_Init_size;	/* needed to free the memory allocated by mpz_init */
-  } Matrix;
-
-  int SolveDiophantine(Matrix *M, Matrix **U, Vector **X);
-  Matrix *Matrix_Alloc(unsigned NbRows,unsigned NbColumns);
-
-  static inline Matrix *
-  m_c2p (CloogMatrix *m)
-  {
-    Matrix *res = Matrix_Alloc (m->NbRows, m->NbColumns);
-    int i, j;
-    
-    for (i = 0; i < m->NbRows; i++)
-      for (j = 0; j < m->NbColumns; j++)
-	value_assign (res->p[i][j], m->p[i][j]);
-
-    return res;
-  }
-
-  static inline CloogMatrix *
-  m_p2c (Matrix *m)
-  {
-    CloogMatrix *res = cloog_matrix_alloc (m->NbRows, m->NbColumns);
-    int i, j;
-    
-    for (i = 0; i < m->NbRows; i++)
-      for (j = 0; j < m->NbColumns; j++)
-	value_assign (res->p[i][j], m->p[i][j]);
-
-    return res;
-  }
-
-
-typedef struct polyhedron1 { 
-  unsigned Dimension, NbConstraints, NbRays, NbEq, NbBid;
-  Value **Constraint;
-  Value **Ray;
-  Value *p_Init;
-  int p_Init_size;
-  struct polyhedron1 *next;
-#define    POL_INEQUALITIES	0x00000001
-#define    POL_FACETS		0x00000002
-#define    POL_POINTS		0x00000004
-#define    POL_VERTICES		0x00000008
-/* The flags field contains "valid" information,
- * i.e., the structure was created by PolyLib.
- */
-#define	   POL_VALID		0x00000010
-  unsigned flags;
-} Polyhedron;
-
-
-  void Matrix_Free(Matrix *Mat);
-
-  //defoejcfoerd
-
-
-
 
 #if defined(__cplusplus)
 }

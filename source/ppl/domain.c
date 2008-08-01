@@ -2092,6 +2092,822 @@ cloog_domain_never_integral (CloogDomain * domain)
   return (0);
 }
 
+static int
+cloog_vector_matrix_smallest_column (Value * a, int n, int p, int q)
+{
+  int res, numero = 0, k, allzero;
+  Value minus, comp;
+  Value *c;
+
+  value_init (minus);
+  value_init (comp);
+  c = a + q - 1 + p * (n - 1);
+  allzero = 1;
+  value_absolute (comp, *c);
+
+  for (k = n; k > q; k--, c -= p, value_absolute (comp, *c))
+    {
+      if (value_notzero_p (comp))
+	{
+	  if (allzero == 1)
+	    {
+	      value_assign (minus, comp);
+	      numero = k;
+	      allzero = 0;
+	    }
+	  else if (value_ge (minus, comp))
+	    {
+	      value_assign (minus, comp);
+	      numero = k;
+	    }
+	}
+    }
+
+  if (allzero)
+    res = 0;
+  else
+    {
+      value_absolute (comp, *c);
+      if ((value_notzero_p (comp)) && (value_ge (minus, comp)))
+	res = q;
+      else
+	res = numero;
+    }
+
+  value_clear (minus);
+  value_clear (comp);
+
+  return res;
+}
+
+static void
+cloog_vector_matrix_swap_rows (Value * a, int i, int j, int n, int p)
+{
+  int k;
+  Value *c1 = a + (i - 1) * p;
+  Value *c2 = a + (j - 1) * p;
+  Value s;
+
+  value_init (s);
+
+  for (k = 1; k <= p; k++)
+    {
+      value_assign (s, *c1);
+      value_assign (*c1, *c2);
+      value_assign (*c2, s);
+      c1++;
+      c2++;
+    }
+  value_clear (s);
+  return;
+}
+
+static void
+cloog_vector_matrix_swap_columns (Value * a, int i, int j, int n, int p)
+{
+  int k;
+  Value s;
+  Value *c1, *c2;
+
+  value_init (s);
+  c1 = a + (i - 1);
+  c2 = a + (j - 1);
+
+  for (k = 1; k <= n; k++)
+    {
+      value_assign (s, *c1);
+      value_assign (*c1, *c2);
+      value_assign (*c2, s);
+      c1 = c1 + p;
+      c2 = c2 + p;
+    }
+  value_clear (s);
+  return;
+}
+
+static void
+cloog_vector_matrix_oppose_line (Value * a, int i, int n, int p)
+{
+  int k;
+  Value *c = a + (i - 1) * p;
+
+  for (k = 1; k <= p; k++, c++)
+    value_oppose (*c, *c);
+}
+
+static void
+cloog_vector_matrix_oppose_column (Value * a, int i, int n, int p)
+{
+  int k;
+  Value *c = a + (i - 1);
+
+  for (k = 1; k <= n; k++, c += p)
+    value_oppose (*c, *c);
+}
+
+static void
+cloog_vector_matrix_combine_line (Value * a, int i, int j,
+				  Value x, int n, int p)
+{
+  int k;
+  Value *c1 = a + (i - 1) * p;
+  Value *c2 = a + (j - 1) * p;
+
+  for (k = 1; k <= p; k++, c1++, c2++)
+    value_addmul (*c1, x, *c2);
+}
+
+static void
+cloog_vector_matrix_combine_column (Value * a, int i, int j, Value x, int n, int p)
+{
+  int k;
+  Value *c1 = a + (i - 1);
+  Value *c2 = a + (j - 1);
+
+  for (k = 1; k <= n; k++, c1 = c1 + p, c2 = c2 + p)
+    value_addmul (*c1, x, *c2);
+}
+
+static void
+cloog_matrix_hermite_combine (Value *a, Value *b, Value c, Value *d, int k, int n,
+			      int p, int q, Value pivot, Value x, Value x_inv)
+{
+  Value tmp;
+
+  value_init (tmp);
+  value_division (x, c, pivot);
+  value_modulus (tmp, c, pivot);
+
+  if (value_neg_p (tmp))
+    value_decrement (x, x);
+
+  value_clear (tmp);
+
+  value_oppose (x_inv, x);
+  cloog_vector_matrix_combine_line (a, k, q, x_inv, n, p);
+  cloog_vector_matrix_combine_column (b, q, k, x, n, n);
+  cloog_vector_matrix_combine_line (d, k, q, x_inv, n, n);
+}
+
+static void
+cloog_matrix_hermite_oppose (Value *a, Value *b, Value *d, int n, int p, int q, Value pivot)
+{
+  cloog_vector_matrix_oppose_line (a, q, n, p);
+  cloog_vector_matrix_oppose_line (d, q, n, n);
+  cloog_vector_matrix_oppose_column (b, q, n, n);
+  value_oppose (pivot, pivot);
+}
+
+static void
+cloog_matrix_hermite_1 (Value * a, Value * b, Value * d, int n, int p, int q)
+{
+  int i, k;
+  Value x, pivot, x_inv;
+  Value *c;
+
+  if (q > p || q > n)
+    return;
+
+  value_init (pivot);
+  value_init (x);
+  value_init (x_inv);
+
+  for (i = cloog_vector_matrix_smallest_column (a, n, p, q); i != 0;
+       i = cloog_vector_matrix_smallest_column (a, n, p, q))
+    {
+      if (i != q)
+	{
+	  cloog_vector_matrix_swap_rows (a, i, q, n, p);
+	  cloog_vector_matrix_swap_columns (b, i, q, n, n);
+	  cloog_vector_matrix_swap_rows (d, i, q, n, n);
+	}
+
+      c = a + (q - 1) * (p + 1);
+      value_assign (pivot, *c);
+      if (value_neg_p (pivot))
+	cloog_matrix_hermite_oppose (a, b, d, n, p, q, pivot);
+
+      for (c += p, k = q + 1; k <= n; k++, c += p)
+	if (value_notzero_p (*c))
+	  cloog_matrix_hermite_combine (a, b, *c, d, k, n, p, q, pivot, x, x_inv);
+    }
+
+  c = a + (q - 1);
+  value_assign (pivot, *(c + (q - 1) * p));
+  if (value_neg_p (pivot))
+    cloog_matrix_hermite_oppose (a, b, d, n, p, q, pivot);
+
+  if (value_notzero_p (pivot))
+    for (k = 1; k < q; k++, c += p)
+      if (value_notzero_p (*c))
+	cloog_matrix_hermite_combine (a, b, *c, d, k, n, p, q, pivot, x, x_inv);
+
+  cloog_matrix_hermite_1 (a, b, d, n, p, q + 1);
+  
+  value_clear (pivot);
+  value_clear (x);
+  value_clear (x_inv);
+  return;
+}
+
+static CloogMatrix *
+cloog_matrix_add_null_row (CloogMatrix * M)
+{
+  int i, j;
+  CloogMatrix *res = cloog_matrix_alloc (M->NbRows + 1, M->NbColumns);
+
+  for (i = 0; i < M->NbRows; i++)
+    for (j = 0; j < M->NbColumns; j++)
+      value_assign (res->p[i][j], M->p[i][j]);
+
+  for (j = 0; j < M->NbColumns; j++)
+    value_set_si (res->p[i][j], 0);
+
+  return res;
+}
+
+static CloogMatrix *
+cloog_matrix_transpose (CloogMatrix * m)
+{
+  int i, j;
+  CloogMatrix *res = cloog_matrix_alloc (m->NbColumns, m->NbRows);
+
+  for (i = 0; i < (int) m->NbRows; i++)
+    for (j = 0; j < (int) m->NbColumns; j++)
+      value_assign (res->p[j][i], m->p[i][j]);
+
+  return res;
+}
+
+static Value *
+cloog_vector_matrix_vectorify (CloogMatrix * A)
+{
+  int i, j;
+  Value *res = (Value *) malloc (sizeof (Value) * A->NbRows * A->NbColumns);
+
+  for (i = 0; i < A->NbRows * A->NbColumns; i++)
+    value_init (res[i]);
+
+  for (i = 0; i < A->NbRows; i++)
+    for (j = 0; j < A->NbColumns; j++)
+      value_assign (res[i * A->NbColumns + j], A->p[i][j]);
+
+  return res;
+}
+
+static CloogMatrix *
+cloog_vector_matrix_matrixify (Value * A, int NbRows, int NbCols)
+{
+  int i, j;
+  CloogMatrix *res = cloog_matrix_alloc (NbRows, NbCols);
+
+  for (i = 0; i < NbRows; i++)
+    for (j = 0; j < NbCols; j++)
+      value_assign (res->p[i][j], A[i * NbCols + j]);
+
+  return res;
+}
+
+static Value *
+cloog_vector_matrix_identity (int n)
+{
+  int i, j;
+  Value *res = (Value *) malloc (sizeof (Value) * n * n);
+  Value *ptr = res;
+
+  for (i = 0; i < n * n; i++)
+    value_init (res[i]);
+
+  for (i = 1; i <= n; i++)
+    for (j = 1; j <= n; j++, ptr++)
+      if (i == j)
+	value_set_si (*ptr, 1);
+      else
+	value_set_si (*ptr, 0);
+
+  return res;
+}
+
+static void
+cloog_matrix_hermite (CloogMatrix * a, CloogMatrix ** H, CloogMatrix ** U)
+{
+  int i;
+  CloogMatrix *tu, *transpose = cloog_matrix_transpose (a);
+  Value *va = cloog_vector_matrix_vectorify (transpose);
+  Value *vid = cloog_vector_matrix_identity (a->NbColumns);
+  Value *vid_inv = cloog_vector_matrix_identity (a->NbColumns);
+
+  cloog_matrix_free (transpose);
+
+  cloog_matrix_hermite_1 (va, vid, vid_inv,
+			  a->NbColumns, a->NbRows, 1);
+
+  transpose = cloog_vector_matrix_matrixify (va, a->NbColumns, a->NbRows);
+  H[0] = cloog_matrix_transpose (transpose);
+  cloog_matrix_free (transpose);
+
+  tu = cloog_vector_matrix_matrixify (vid, a->NbColumns, a->NbColumns);
+  U[0] = cloog_matrix_transpose (tu);
+  cloog_matrix_free (tu);
+
+  for (i = 0; i < a->NbRows * a->NbColumns; i++)
+    value_clear (va[i]);
+
+  for (i = 0; i < a->NbColumns * a->NbColumns; i++)
+    value_clear (vid[i]);
+
+  for (i = 0; i < a->NbColumns * a->NbColumns; i++)
+    value_clear (vid_inv[i]);
+
+  free (va);
+  free (vid);
+  free (vid_inv);
+}
+
+static inline void
+cloog_exchange_rows (CloogMatrix * m, int row1, int row2)
+{
+  int i;
+  
+  for (i = 0; i < (int) m->NbColumns; i++)
+    value_swap (m->p[row1][i], m->p[row2][i]);
+}
+
+static CloogMatrix *
+cloog_dio_copy_submatrix (CloogMatrix * matrix)
+{
+  int i, j ;
+  CloogMatrix * copy = cloog_matrix_alloc (matrix->NbRows - 1, matrix->NbColumns - 1) ;
+
+  for (i = 0; i < copy->NbRows; i++)
+    for (j = 0; j < copy->NbColumns; j++)
+      value_assign(copy->p[i][j], matrix->p[i][j]) ;
+
+  return copy;
+}
+
+static void
+cloog_dio_rearrange_redundant_rows (CloogMatrix * M)
+{
+  int i, end, row, rank = 1;
+  CloogMatrix *A, *L, *H, *U;
+
+  L = cloog_dio_copy_submatrix (M);
+  if (L->NbRows < 2)
+    goto done;
+
+  A = cloog_matrix_alloc (1, L->NbColumns);
+  for (i = 0; i < L->NbColumns; i++)
+    value_assign (A->p[0][i], L->p[0][i]);
+
+  end = L->NbRows - 1;
+  row = 1;
+
+  while (1)
+    {
+      int n;
+      CloogMatrix *temp = cloog_matrix_add_null_row (A);
+
+      for (i = 0; i < A->NbColumns; i++)
+	value_assign (temp->p[row][i], L->p[row][i]);
+
+      cloog_matrix_hermite (temp, &H, &U);
+      cloog_matrix_free (U);
+
+      n = H->NbRows;
+      for (i = 0; i < n; i++)
+	if (value_zero_p (H->p[i][i]))
+	  break;
+
+      cloog_matrix_free (H);
+
+      if (i != n)
+	{
+	  /* This is a redundant row: put it at the end.  */
+	  cloog_exchange_rows (M, row, end);
+	  end--;
+	}
+      else
+	{
+	  row++;
+	  rank++;
+	  cloog_matrix_free (A);
+	  A = cloog_matrix_copy (temp);
+	  cloog_matrix_free (temp);
+	}
+
+      if (rank == (end >= L->NbColumns ? L->NbColumns : end)
+	  || row >= end)
+	break;
+    }
+
+  cloog_matrix_free (A);
+
+ done:
+  cloog_matrix_free (L);
+  return;
+}
+
+static void
+cloog_matrix_inverse_pivot (CloogMatrix *m, int low, int up, int i, int j,
+			    Value m1, Value m2, Value x, Value piv)
+{
+  int c;
+
+  for (c = low; c < up; ++c)
+    {
+      value_multiply (m1, piv, m->p[j][c]);
+      value_multiply (m2, x, m->p[i][c]);
+      value_subtract (m->p[j][c], m1, m2);
+    }
+}
+
+static Value *
+cloog_matrix_inverse_den (CloogMatrix *Mat, CloogMatrix *MatInv, int k, Value *x)
+{
+  int j, c;
+  Value gcd;
+  Value *res = (Value *) malloc (k * sizeof (Value));
+  Value m1;
+
+  value_init (m1);
+  value_init (gcd);
+  value_set_si (*x, 1);
+
+  for (j = 0; j < cloog_matrix_nrows (Mat); ++j)
+    {
+      value_init (res[j]);
+      value_assign (res[j], Mat->p[j][j]);
+      cloog_vector_gcd (&MatInv->p[j][0], k, &gcd);
+      Gcd (gcd, res[j], &gcd);
+
+      if (value_neg_p (res[j]))
+	value_oppose (gcd, gcd);
+
+      if (value_notone_p (gcd))
+	{
+	  for (c = 0; c < k; c++)
+	    value_division (MatInv->p[j][c], MatInv->p[j][c], gcd);
+	  value_division (res[j], res[j], gcd);
+	}
+
+      Gcd (*x, res[j], &gcd);
+      value_division (m1, res[j], gcd);
+      value_multiply (*x, *x, m1);
+    }
+
+  value_clear (m1);
+  value_clear (gcd);
+  return res;
+}
+
+static void
+cloog_matrix_inverse_div (CloogMatrix *MatInv, Value *den, Value m1, Value x)
+{
+  int j, c;
+
+  if (value_notone_p (x))
+    for (j = 0; j < MatInv->NbRows; ++j)
+      {
+	for (c = 0; c < MatInv->NbColumns; c++)
+	  {
+	    value_division (m1, x, den[j]);
+	    value_multiply (MatInv->p[j][c], MatInv->p[j][c], m1);
+	  }
+      }
+}
+
+static int
+cloog_matrix_inverse_triang (CloogMatrix *Mat, CloogMatrix *MatInv, Value *m1, Value *m2)
+{
+  int i, j;
+  Value gcd, piv, x;
+  int res = 0;
+
+  value_init (gcd);
+  value_init (piv);
+  value_init (x);
+
+  for (i = 0; i < cloog_matrix_ncolumns (Mat); ++i)
+    {
+      if (value_zero_p (Mat->p[i][i]))
+	{
+	  for (j = i; j < cloog_matrix_nrows (Mat); ++j)
+	    if (value_notzero_p (Mat->p[j][i]))
+	      break;
+
+	  if (j == cloog_matrix_nrows (Mat))
+	    goto done;
+
+	  cloog_matrix_exchange_rows (Mat, i, j);
+	  cloog_matrix_exchange_rows (MatInv, i, j);
+	}
+
+      for (j = 0; j < cloog_matrix_nrows (Mat) ; ++j)
+	{
+	  if (j == i
+	      || !value_notzero_p (Mat->p[j][i]))
+	    continue;
+
+	  value_assign (x, Mat->p[j][i]);
+	  value_assign (piv, Mat->p[i][i]);
+	  Gcd (x, piv, &gcd);
+	  if (value_notone_p (gcd))
+	    {
+	      value_division (x, x, gcd);
+	      value_division (piv, piv, gcd);
+	    }
+
+	  cloog_matrix_inverse_pivot (Mat, ((j > i) ? i : 0),
+				      cloog_matrix_nrows (Mat),
+				      i, j, *m1, *m2, x, piv);
+	  cloog_matrix_inverse_pivot (MatInv, 0, cloog_matrix_nrows (Mat),
+				      i, j, *m1, *m2, x, piv);
+
+	  cloog_vector_gcd (&MatInv->p[j][0], (unsigned) cloog_matrix_nrows (Mat), m1);
+	  cloog_vector_gcd (&Mat->p[j][0], (unsigned) cloog_matrix_nrows (Mat), m2);
+	  Gcd (*m1, *m2, &gcd);
+	  if (value_notone_p (gcd))
+	    {
+	      int c;
+
+	      for (c = 0; c < cloog_matrix_nrows (Mat); ++c)
+		{
+		  value_division (Mat->p[j][c], Mat->p[j][c], gcd);
+		  value_division (MatInv->p[j][c], MatInv->p[j][c], gcd);
+		}
+	    }
+	}
+    }
+
+  res = 1;
+
+ done:
+  value_clear (x);
+  value_clear (piv);
+  value_clear (gcd);
+  return res;
+}
+
+static int
+cloog_matrix_inverse (CloogMatrix * Mat, CloogMatrix * MatInv)
+{
+  int res = 0;
+  int i, j;
+  Value x;
+  Value m1, m2;
+  Value *den;
+
+  if (Mat->NbRows != Mat->NbColumns)
+    return 0;
+
+  value_init (x);
+  value_init (m1);
+  value_init (m2);
+
+  cloog_vector_set (MatInv->p[0], 0, cloog_matrix_nrows (Mat) * cloog_matrix_nrows (Mat));
+
+  for (i = 0; i < cloog_matrix_nrows (Mat); ++i)
+    value_set_si (MatInv->p[i][i], 1);
+
+  if (!cloog_matrix_inverse_triang (Mat, MatInv, &m1, &m2))
+    goto done;
+
+  den = cloog_matrix_inverse_den (Mat, MatInv, cloog_matrix_nrows (Mat), &x);
+  cloog_matrix_inverse_div (MatInv, den, m1, x);
+
+  res = 1;
+
+  for (j = 0; j < cloog_matrix_nrows (Mat); ++j)
+    value_clear (den[j]);
+  free (den);
+
+ done:
+  value_clear (x);
+  value_clear (m1);
+  value_clear (m2);
+
+  return res;
+}
+
+static void
+cloog_dio_copy (CloogMatrix *m1, CloogMatrix *m2)
+{
+  int i, j;
+  int n = m2->NbRows - 1;
+  int m = m2->NbColumns - 1;
+
+  for (i = 0; i < n; i++)
+    for (j = 0; j < m; j++)
+      value_assign (m1->p[i][j], m2->p[i][j]);
+}
+
+static Value *
+cloog_dio_negate_coeffs (CloogMatrix *m)
+{
+  int i;
+  int n = m->NbRows - 1;
+  int k = m->NbColumns - 1;
+  Value *res = (Value *) malloc (sizeof (Value) * (n));
+
+  for (i = 0; i < n; i++)
+    {
+      value_init (res[i]);
+      value_oppose (res[i], m->p[i][k]);
+    }
+
+  return res;
+}
+
+static int
+cloog_dio_get_first_diagonal_zero (CloogMatrix *m)
+{
+  int i, n = m->NbRows <= m->NbColumns ? m->NbRows : m->NbColumns;
+  int res = 0;
+
+  for (i = 0; i < n; i++)
+    if (value_notzero_p (m->p[i][i]))
+      res++;
+    else
+      break;
+
+  return res;
+}
+
+static Value *
+cloog_dio_reduce_diagonal (CloogMatrix *m, Value *coeffs, int nbc, int rank)
+{
+  int i, j;
+  Value *res = (Value *) malloc (sizeof (Value) * nbc);
+  Value sum, tmp;
+
+  value_init (tmp);
+  value_init (sum);
+
+  for (i = 0; i < nbc; i++)
+    value_init (res[i]);
+
+  for (i = 0; i < rank; i++)
+    {
+      value_set_si (sum, 0);
+      for (j = 0; j < i; j++)
+	value_addmul (sum, res[j], m->p[i][j]);
+	
+      value_subtract (tmp, coeffs[i], sum);
+      value_modulus (tmp, tmp, m->p[i][i]);
+      if (value_notzero_p (tmp))
+	{
+	  for (i = 0; i < nbc; i++)
+	    value_clear (res[i]);
+	  free (res);
+
+	  value_clear (tmp);
+	  value_clear (sum);
+
+	  return NULL;
+	}
+
+      value_subtract (tmp, coeffs[i], sum);
+      value_division (res[i], tmp, m->p[i][i]);
+    }
+
+  for (i = rank; i < m->NbColumns; i++)
+    value_set_si (res[i], 0);
+
+  return res;
+}
+
+static int
+cloog_dio_check_coeffs (CloogMatrix *m, Value *T, Value *coeffs, int nbr, int nbc, int rank)
+{
+  Value sum, tmp;
+  int i, j;
+
+  value_init (sum);
+  value_init (tmp);
+
+  for (i = rank; i < m->NbRows; i++)
+    {
+      value_set_si (sum, 0);
+      for (j = 0; j < m->NbColumns; j++)
+	value_addmul (sum, T[j], m->p[i][j]);
+
+      if (value_ne (sum, coeffs[i]))
+	{
+	  for (i = 0; i < nbr; i++)
+	    value_clear (coeffs[i]);
+	  for (i = 0; i < nbc; i++)
+	    value_clear (T[i]);
+	  free (coeffs);
+	  free (T);
+
+	  value_clear (sum);
+	  value_clear (tmp);
+
+	  return 0;
+	}
+    }
+
+  return 1;
+}
+
+static CloogMatrix *
+cloog_dio_init_U (CloogMatrix *u, int n, int rank)
+{
+  int i, j;
+  CloogMatrix *res;
+
+  if (rank == n)
+    return cloog_matrix_alloc (0, 0);
+
+  res = cloog_matrix_alloc (n, n - rank);
+
+  for (i = 0; i < res->NbRows; i++)
+    for (j = 0; j < res->NbColumns; j++)
+      value_assign (res->p[i][j], u->p[i][j + rank]);
+
+  return res;
+}
+
+static Vector *
+cloog_dio_init_X (CloogMatrix *u, Value *t, int n)
+{
+  int i, j;
+  Vector *res = Vector_Alloc (n);
+  Value sum;
+
+  value_init (sum);
+  for (i = 0; i < u->NbRows; i++)
+    {
+      value_set_si (sum, 0);
+
+      for (j = 0; j < u->NbColumns; j++)
+	value_addmul (sum, u->p[i][j], t[j]);
+
+      value_assign (res->p[i], sum);
+    }
+
+  value_clear (sum);
+  return res;
+}
+
+static int
+cloog_solve_diophantine (CloogMatrix * m, CloogMatrix ** u, Vector ** x)
+{
+  int i, nbr, nbc, rank;
+  CloogMatrix *A, *temp, *hermi, *unimod, *unimodinv;
+  Value *coeffs;
+  Value *T;
+
+  A = cloog_matrix_copy (m);
+  nbr = A->NbRows - 1;
+
+  cloog_dio_rearrange_redundant_rows (A);
+
+  temp = cloog_matrix_alloc (A->NbRows - 1, A->NbColumns - 1);
+  cloog_dio_copy (temp, A);
+  coeffs = cloog_dio_negate_coeffs (A);
+  cloog_matrix_free (A);
+
+  cloog_matrix_hermite (temp, &hermi, &unimod);
+  rank = cloog_dio_get_first_diagonal_zero (hermi);
+  nbc = temp->NbColumns;
+
+  T = cloog_dio_reduce_diagonal (hermi, coeffs, nbc, rank);
+  unimodinv = cloog_matrix_alloc (unimod->NbRows, unimod->NbColumns);
+
+  if (!T
+      || !cloog_dio_check_coeffs (hermi, T, coeffs, nbr, nbc, rank)
+      || !cloog_matrix_inverse (unimod, unimodinv))
+    {
+      *u = cloog_matrix_alloc (0, 0);
+      *x = Vector_Alloc (0);
+
+      for (i = 0; i < nbr; i++)
+	value_clear (coeffs[i]);
+
+      free (coeffs);
+      return -1;
+    }
+
+  *u = cloog_dio_init_U (unimodinv, hermi->NbColumns, rank);
+  *x = cloog_dio_init_X (unimodinv, T, m->NbColumns - 1);
+
+  cloog_matrix_free (unimod);
+  cloog_matrix_free (unimodinv);
+  cloog_matrix_free (hermi);
+  cloog_matrix_free (temp);
+
+  for (i = 0; i < nbr; i++)
+    value_clear (coeffs[i]);
+
+  for (i = 0; i < nbc; i++)
+    value_clear (T[i]);
+
+  free (coeffs);
+  free (T);
+  return (rank);
+}
 
 /**
  * cloog_domain_stride function:
@@ -2124,7 +2940,7 @@ cloog_domain_stride (domain, strided_level, nb_par, stride, offset)
   int i;
   int n_col, n_row, rank;
   CloogMatrix *M;
-  Matrix *U;
+  CloogMatrix *U;
   Vector *V;
   polyhedron p = cloog_domain_polyhedron (domain);
   int dimension = cloog_domain_dim (domain);
@@ -2156,7 +2972,7 @@ cloog_domain_stride (domain, strided_level, nb_par, stride, offset)
   value_set_si (M->p[n_row][n_col], 1);
 
   /* Then look at the general solution to the above equalities. */
-  rank = SolveDiophantine (m_c2p (M), &U, &V);
+  rank = cloog_solve_diophantine (M, &U, &V);
   cloog_matrix_free (M);
 
   if (rank == -1)
@@ -2177,7 +2993,8 @@ cloog_domain_stride (domain, strided_level, nb_par, stride, offset)
       value_oppose (*offset, V->p[0]);
       value_pmodulus (*offset, *offset, *stride);
     }
-  Matrix_Free (U);
+
+  cloog_matrix_free (U); 
   Vector_Free (V);
   return;
 }
@@ -2912,4 +3729,18 @@ void
 debug_cloog_matrix (CloogMatrix *m)
 {
   cloog_matrix_print (stderr, m);
+}
+
+void
+debug_value (Value v)
+{
+  value_print (stderr, VALUE_FMT, v);
+}
+
+void
+debug_values (Value *p, int length)
+{
+  int i;
+  for (i = 0; i < length; i++)
+    debug_value (p[i]);
 }

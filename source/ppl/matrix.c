@@ -115,11 +115,23 @@ void cloog_matrix_print(FILE * foo, CloogMatrix * matrix)
  * This function frees the allocated memory for a CloogMatrix structure
  * (matrix).
  */
-void cloog_matrix_free(CloogMatrix * matrix)
+void
+cloog_matrix_free (CloogMatrix * m)
 {
-  Matrix_Free(m_c2p (matrix)) ;
-}
+  int n, i;
 
+  if (!m || !m->p)
+    return;
+
+  n = cloog_matrix_nrows (m) * cloog_matrix_ncolumns (m);
+
+  for (i = 0; i < n; i++)
+    value_clear (m->p[0][i]);
+
+  free (m->p[0]);
+  free (m->p);
+  free (m);
+}
 
 /**
  * cloog_matrix_alloc function:
