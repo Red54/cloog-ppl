@@ -96,23 +96,24 @@ int main(int argv, char * argc[])
            cloog_value_allocated,cloog_value_freed,cloog_value_max) ;
   }
 
-  /* Inform the user in case of a problem with the allocation statistics. */
-  if ((cloog_matrix_allocated    != cloog_matrix_freed)    ||
-      (cloog_domain_allocated    != cloog_domain_freed)    ||
-      (cloog_loop_allocated      != cloog_loop_freed)      ||
-      (cloog_statement_allocated != cloog_statement_freed) ||
-      (cloog_block_allocated     != cloog_block_freed)     ||
-      (cloog_value_allocated     != cloog_value_freed))
-  { fprintf(stderr,
-            "[CLooG]INFO: an internal problem has been detected (it should have"
-	    " no\n             consequence on the correctness of the output)."
-	    " Please send (if\n	     you can) your input file, the first line "
-	    "given by typing 'cloog -v'\n	     and your full command ") ;
-    fprintf(stderr,
-            "line call to CLooG including options to\n	     <cedric.bastoul"
-	    "@inria.fr>. Thank you for your participation to get\n"
-	    "	     CLooG better and safer.\n") ;
-  }
+  /* Cloog should never print to stderr.  */
+  /* Inform the user in case of a problem with the allocation statistics.
+     if ((cloog_matrix_allocated    != cloog_matrix_freed)    ||
+     (cloog_domain_allocated    != cloog_domain_freed)    ||
+     (cloog_loop_allocated      != cloog_loop_freed)      ||
+     (cloog_statement_allocated != cloog_statement_freed) ||
+     (cloog_block_allocated     != cloog_block_freed)     ||
+     (cloog_value_allocated     != cloog_value_freed))
+     { fprintf(stderr,
+     "[CLooG]INFO: an internal problem has been detected (it should have"
+     " no\n             consequence on the correctness of the output)."
+     " Please send (if\n	     you can) your input file, the first line "
+     "given by typing 'cloog -v'\n	     and your full command ") ;
+     fprintf(stderr,
+     "line call to CLooG including options to\n	     <cedric.bastoul"
+     "@inria.fr>. Thank you for your participation to get\n"
+     "	     CLooG better and safer.\n") ;
+     } */
 
   cloog_options_free(options) ;
   cloog_finalize ();

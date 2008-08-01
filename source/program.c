@@ -513,7 +513,9 @@ CloogProgram * cloog_program_read(FILE * file, CloogOptions * options)
     
     if (scatteringl != NULL)
       {
-	if (cloog_domain_list_lazy_same(scatteringl))
+	if (cloog_domain_list_lazy_same(scatteringl)
+	    /* Cloog should never print to stderr.  */
+	    && 0)
 	  fprintf(stderr, "[CLooG]WARNING: some scattering functions are "
 		  "similar.\n") ;
       
@@ -630,9 +632,12 @@ CloogOptions * options ;
 #endif
 
   if (options->override)
-  { fprintf(stderr,
-    "[CLooG]WARNING: you are using -override option, be aware that the "
-    "generated\n                code may be incorrect.\n") ;
+  {
+    /* Cloog should never print to stderr.  */
+    /* fprintf(stderr,
+       "[CLooG]WARNING: you are using -override option, be aware that the "
+       "generated\n                code may be incorrect.\n") ;
+    */
   }
   else
   { /* Playing with options may be dangerous, here are two possible issues :
@@ -641,11 +646,14 @@ CloogOptions * options ;
      *    it is the case, we set -l depth to the first acceptable value.
      */
     if ((cloog_program_nb_scattdims (program) > options->l) && (options->l >= 0))
-    { fprintf(stderr,
-      "[CLooG]WARNING: -l depth is less than the scattering dimension number "
-      "(the \n                generated code may be incorrect), it has been "
-      "automaticaly set\n                to this value (use option -override "
-      "to override).\n") ;
+    {
+      /* Cloog should never print to stderr.  */
+      /* fprintf(stderr,
+	 "[CLooG]WARNING: -l depth is less than the scattering dimension number "
+	 "(the \n                generated code may be incorrect), it has been "
+	 "automaticaly set\n                to this value (use option -override "
+	 "to override).\n") ;
+      */
       options->l = cloog_program_nb_scattdims (program);
     }
       
@@ -657,12 +665,15 @@ CloogOptions * options ;
      */
     if (((options->f > 1) || (options->f < 0)) &&
         ((options->l > cloog_program_nb_scattdims (program)) || (options->l < 0)))
-    { fprintf(stderr,
-      "[CLooG]WARNING: -f depth is more than one, -l depth has been "
-      "automaticaly set\n                to the scattering dimension number "
-      "(target code may have\n                duplicated iterations), -l depth "
-      "has been automaticaly set to\n                this value (use option "
-      "-override to override).\n") ;
+    { 
+      /* Cloog should never print to stderr.  */
+      /* fprintf(stderr,
+	 "[CLooG]WARNING: -f depth is more than one, -l depth has been "
+	 "automaticaly set\n                to the scattering dimension number "
+	 "(target code may have\n                duplicated iterations), -l depth "
+	 "has been automaticaly set to\n                this value (use option "
+	 "-override to override).\n") ;
+      */
       options->l = cloog_program_nb_scattdims (program);
     }
   }
@@ -833,8 +844,9 @@ void cloog_program_block(CloogProgram * program, CloogDomainList * scattering)
     free (scatt_reference) ;
   }
   
-  if (nb_blocked != 0)
-  fprintf(stderr, "[CLooG]INFO: %d domains have been blocked.\n",nb_blocked) ;
+  /* Cloog should never print to stderr.  */
+  /* if (nb_blocked != 0)
+     fprintf(stderr, "[CLooG]INFO: %d domains have been blocked.\n",nb_blocked) ; */
 }
 
 
@@ -954,9 +966,10 @@ CloogDomainList * scattering ;
 	}
     }
   
-  if (nb_scaldims != 0)
-  fprintf(stderr, "[CLooG]INFO: %d dimensions (over %d) are scalar.\n",
-          nb_scaldims, cloog_program_nb_scattdims (program)) ;
+  /* Cloog should never print to stderr.  */
+  /* if (nb_scaldims != 0)
+     fprintf(stderr, "[CLooG]INFO: %d dimensions (over %d) are scalar.\n",
+     nb_scaldims, cloog_program_nb_scattdims (program)) ; */
 }
 
 
