@@ -154,31 +154,6 @@ cloog_pol_copy (polyhedron pol)
   return res;
 }
 
-static inline polyhedra_union 
-p2u (Polyhedron * p)
-{
-  polyhedra_union u = cloog_new_upol (p_p2c (p));
-  polyhedra_union res = u;
-
-  while (p)
-    {
-      Polyhedron *next = p->next;
-      polyhedra_union n;
-
-      if (next)
-	n = cloog_new_upol (p_p2c (next));
-      else
-	n = NULL;
-
-      cloog_upol_set_next (u, n);
-      u = n;
-      p->next = NULL;
-      p = next;
-    }
-
-  return res;
-}
-
 /**
  * The maximal number of rays allowed to be allocated by PolyLib. In fact since
  * version 5.20, PolyLib automatically tune the number of rays by multiplying

@@ -540,6 +540,35 @@ extern "C"
     value_clear (one), value_clear (gcd);
   }
 
+  static inline void cloog_vector_scale (Value * p1, Value * p2,
+					 Value x,
+					 unsigned length)
+  {
+    int i;
+
+    for (i = 0; i < length; i++)
+      value_multiply (*p2++, *p1++, x);
+  }
+
+  static inline void
+  cloog_vector_combine (Value * p1, Value * p2, Value * p3, Value x,
+			Value y, unsigned length)
+  {
+    Value tmp;
+    int i;
+
+    value_init (tmp);
+
+    for (i = 0; i < length; i++)
+      {
+	value_multiply (tmp, x, p1[i]);
+	value_addmul (tmp, y, p2[i]);
+	value_assign (p3[i], tmp);
+      }
+
+    value_clear (tmp);
+  }
+
   // sepdke
 
   typedef struct matrix {
@@ -597,67 +626,8 @@ typedef struct polyhedron1 {
   unsigned flags;
 } Polyhedron;
 
-static inline void cloog_vector_scale (Value * p1, Value * p2,
-				       Value x,
-				       unsigned length)
-{
-  int i;
 
-  for (i = 0; i < length; i++)
-    value_multiply (*p2++, *p1++, x);
-}
-
-static inline void
-cloog_vector_combine (Value * p1, Value * p2, Value * p3, Value x,
-		      Value y, unsigned length)
-{
-  Value tmp;
-  int i;
-
-  value_init (tmp);
-
-  for (i = 0; i < length; i++)
-    {
-      value_multiply (tmp, x, p1[i]);
-      value_addmul (tmp, y, p2[i]);
-      value_assign (p3[i], tmp);
-    }
-
-  value_clear (tmp);
-}
-
-  Polyhedron* Polyhedron_Alloc(unsigned Dimension,unsigned NbConstraints,unsigned NbRays);
-  void Polyhedron_Free(Polyhedron *Pol);
   void Matrix_Free(Matrix *Mat);
-
-
-  static inline polyhedron
-  p_p2c (Polyhedron *p)
-  {
-    int i, j;
-    polyhedron res = cloog_new_pol (p->Dimension, p->NbConstraints);
-
-    for (i = 0; i < p->NbConstraints; i++)
-      for (j = 0; j < p->Dimension + 2; j++)
-	value_assign (res->Constraint[i][j], p->Constraint[i][j]);
-
-    return res;
-  }
-
-  static inline Polyhedron *
-  p_c2p (polyhedron p)
-  {
-    int i, j;
-    Polyhedron *res = Polyhedron_Alloc (p->Dimension, p->NbConstraints, 0);
-
-    for (i = 0; i < p->NbConstraints; i++)
-      for (j = 0; j < p->Dimension + 2; j++)
-	value_assign (res->Constraint[i][j], p->Constraint[i][j]);
-
-    return res;
-  }
-
-
 
   //defoejcfoerd
 
