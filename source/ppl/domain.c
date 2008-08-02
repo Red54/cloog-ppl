@@ -632,7 +632,7 @@ cloog_pol_from_matrix (CloogMatrix * m)
   return res;
 }
 
-static CloogDomain *
+CloogDomain *
 cloog_domain_matrix2domain (CloogMatrix * matrix)
 {
   return cloog_domain_alloc (cloog_pol_from_matrix (matrix));

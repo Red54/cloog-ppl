@@ -90,6 +90,7 @@ int cloog_domain_isconvex (CloogDomain *);
 unsigned cloog_domain_dim (CloogDomain *);
 unsigned cloog_domain_nb_polyhedra (CloogDomain *);
 void cloog_domain_print_polyhedra (FILE *, CloogDomain *);
+CloogDomain * cloog_domain_matrix2domain (CloogMatrix *);
 
 
 /******************************************************************************
