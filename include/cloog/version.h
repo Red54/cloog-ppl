@@ -31,7 +31,7 @@ extern "C"
   {
 #endif 
 
-const char *cloog_version(void);
+extern const char *cloog_version(void);
 
 #if defined(__cplusplus)
   }

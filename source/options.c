@@ -111,7 +111,7 @@ void cloog_options_free(CloogOptions * options)
  * limitation of the ISO C 89 compilers.
  * - August 5th 2002: first version.
  */
-void cloog_options_help()
+static void cloog_options_help (void)
 { printf(
   "Usage: cloog [ options | file ] ...\n"
   "Options for code generation:\n"
@@ -166,7 +166,7 @@ void cloog_options_help()
  * characters limitation of the ISO C 89 compilers.
  * - August 5th 2002: first version.
  */
-void cloog_options_version()
+static void cloog_options_version (void)
 { printf("%s       The Chunky Loop Generator\n", cloog_version());
   printf(
   "-----\n"
@@ -207,7 +207,7 @@ void cloog_options_version()
  * - August 5th 2002: first version.
  * - June 29th 2003: (debug) lack of argument now detected.
  */
-void cloog_options_set(int * option, int argv, char ** argc, int * number)
+static void cloog_options_set (int * option, int argv, char ** argc, int * number)
 { char ** endptr ;
   
   if (*number+1 >= argv)
@@ -251,7 +251,7 @@ CloogOptions * cloog_options_malloc(void)
   options->stop        = -1 ;  /* Generate all the code. */
   options->strides     =  0 ;  /* Generate a code with unit strides. */
   options->sh	       =  0;   /* Compute actual convex hull. */
-  options->name	       = "";
+  options->name	       =  0;
   /* OPTIONS FOR PRETTY PRINTING */
   options->esp         =  0 ;  /* We don't want Equality SPreading.*/
   options->csp         =  1 ;  /* We want only Constant SPreading. */
@@ -282,11 +282,7 @@ CloogOptions * cloog_options_malloc(void)
  * - August 5th 2002: first version.
  * - April 19th 2003: now in options.c and support of the CloogOptions structure.
  */
-void cloog_options_read(argv, argc, input, output, options)
-int argv ;
-char ** argc ;
-FILE ** input, ** output ;
-CloogOptions ** options ;
+void cloog_options_read(int argv, char **argc, FILE **input, FILE **output, CloogOptions **options)
 { int i, infos=0, input_is_set=0 ;
   
   /* CloogOptions structure allocation and initialization. */

@@ -64,14 +64,14 @@ int cloog_block_freed = 0 ;
 int cloog_block_max = 0 ;
 
 
-static void cloog_block_leak_up()
+static void cloog_block_leak_up (void)
 { cloog_block_allocated ++ ;
   if ((cloog_block_allocated - cloog_block_freed) > cloog_block_max)
   cloog_block_max = cloog_block_allocated - cloog_block_freed ;
 }
 
 
-static void cloog_block_leak_down()
+static void cloog_block_leak_down (void)
 { cloog_block_freed ++ ;
 }
 
@@ -266,7 +266,7 @@ void cloog_block_list_free(CloogBlockList * blocklist)
  * allocated space.
  * - November 21th 2005: first version.
  */
-CloogBlock * cloog_block_malloc()
+CloogBlock * cloog_block_malloc (void)
 { CloogBlock * block ;
   
   /* Memory allocation for the CloogBlock structure. */
@@ -305,11 +305,10 @@ CloogBlock * cloog_block_malloc()
  * - June     30th 2005: addition of the nb_scaldims and scaldims parameters.
  * - November 21th 2005: use of cloog_block_malloc.
  */
-CloogBlock * cloog_block_alloc(statement,nb_scaldims,scaldims,depth)
-CloogStatement * statement ;
-int nb_scaldims, depth ;
-Value * scaldims ;
-{ CloogBlock * block ;
+CloogBlock * cloog_block_alloc(CloogStatement * statement, int nb_scaldims,
+			       Value * scaldims, int depth)
+{
+  CloogBlock * block ;
     
   /* Block allocation. */
   block = cloog_block_malloc() ;
@@ -331,8 +330,9 @@ Value * scaldims ;
  * allocated space.
  * - November 21th 2005: first version.
  */
-CloogBlockList * cloog_block_list_malloc()
-{ CloogBlockList * blocklist ;
+CloogBlockList * cloog_block_list_malloc (void)
+{
+  CloogBlockList * blocklist ;
   
   /* Memory allocation for the CloogBlock structure. */
   blocklist = (CloogBlockList *)malloc(sizeof(CloogBlockList)) ;

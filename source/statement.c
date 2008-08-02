@@ -66,14 +66,14 @@ int cloog_statement_freed = 0 ;
 int cloog_statement_max = 0 ;
 
 
-static void cloog_statement_leak_up()
+static void cloog_statement_leak_up (void)
 { cloog_statement_allocated ++ ;
   if ((cloog_statement_allocated-cloog_statement_freed) > cloog_statement_max)
   cloog_statement_max = cloog_statement_allocated - cloog_statement_freed ;
 }
 
 
-static void cloog_statement_leak_down()
+static void cloog_statement_leak_down (void)
 { cloog_statement_freed ++ ;
 }
 
@@ -90,10 +90,7 @@ static void cloog_statement_leak_down()
  * others print_structure functions.
  * - June  16th 2005: first version.
  */
-void cloog_statement_print_structure(file, statement, level)
-FILE * file ;
-CloogStatement * statement ;
-int level ;
+void cloog_statement_print_structure(FILE *file, CloogStatement *statement, int level)
 { int i ;
       
   if (statement != NULL)
@@ -171,7 +168,7 @@ void cloog_statement_free(CloogStatement * statement)
  * allocated space.
  * - November 21th 2005: first version.
  */
-CloogStatement * cloog_statement_malloc()
+CloogStatement * cloog_statement_malloc (void)
 { CloogStatement * statement ;
   
   /* Memory allocation for the CloogStatement structure. */
@@ -266,8 +263,7 @@ CloogStatement * cloog_statement_copy(CloogStatement * source)
  * is NULL-.
  * - March 27th 2004: first version. 
  */ 
-void cloog_statement_add(start, now, statement)
-CloogStatement ** start, ** now, * statement ;
+void cloog_statement_add(CloogStatement **start, CloogStatement **now, CloogStatement *statement)
 { if (*start == NULL)
   { *start = statement ;
     *now = *start ;

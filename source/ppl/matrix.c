@@ -88,8 +88,8 @@ void cloog_matrix_print(FILE * foo, CloogMatrix * matrix)
 {
   Value *p;
   int i, j;
-  unsigned NbRows = matrix->NbRows;
-  unsigned NbColumns = matrix->NbColumns;
+  int NbRows = matrix->NbRows;
+  int NbColumns = matrix->NbColumns;
 
   fprintf (foo, "%d %d\n", NbRows, NbColumns);
   if (NbColumns == 0)
@@ -159,7 +159,7 @@ cloog_matrix_alloc (unsigned nb_rows, unsigned nb_columns)
       for (i = 0; i < n; ++i)
 	value_init (p[i]);
 
-      for (i = 0; i < nb_rows; i++, p += nb_columns)
+      for (i = 0; i < (int) nb_rows; i++, p += nb_columns)
 	res->p[i] = p;
     }
 
@@ -484,10 +484,8 @@ Value * cloog_matrix_vector_copy(Value * vector, int length)
  *                        constant.Problem found after a report of Michael
  *                        Classen.
  */
-Value * cloog_matrix_vector_simplify(vector, equal, length, level, nb_par)
-Value * vector ;
-CloogMatrix * equal ;
-int length, level, nb_par ;
+Value * cloog_matrix_vector_simplify(Value *vector, CloogMatrix *equal,
+				     int length, int level, int nb_par)
 { int i, j ;
   Value gcd, factor_vector, factor_equal, temp_vector, temp_equal, * simplified;
   
@@ -566,9 +564,8 @@ int length, level, nb_par ;
  **
  * - November 4th 2005: first version.
  */
-CloogMatrix * cloog_matrix_simplify(matrix, equal, level, nb_par)
-CloogMatrix * matrix, * equal ;
-int level, nb_par ;
+CloogMatrix * 
+cloog_matrix_simplify (CloogMatrix *matrix, CloogMatrix *equal, int level, int nb_par)
 { int i, j, k ;
   Value * vector ;
   CloogMatrix * simplified ;

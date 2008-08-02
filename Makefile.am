@@ -66,6 +66,8 @@ pkginclude_HEADERS = \
 	include/cloog/loop.h \
 	include/cloog/names.h \
 	include/cloog/options.h \
+	include/cloog/polylib_backend.h \
+	include/cloog/ppl_backend.h \
 	include/cloog/pprint.h \
 	include/cloog/program.h \
 	include/cloog/statement.h \

@@ -28,7 +28,7 @@ typedef struct clooginfos CloogInfos ;
 
 struct clast_term *new_clast_term(Value c, const char *v)
 {
-    struct clast_term *t = malloc(sizeof(struct clast_term));
+    struct clast_term *t = (struct clast_term *) malloc(sizeof(struct clast_term));
     t->expr.type = expr_term;
     value_init(t->val);
     value_assign(t->val, c);
@@ -39,7 +39,7 @@ struct clast_term *new_clast_term(Value c, const char *v)
 struct clast_binary *new_clast_binary(enum clast_bin_type t, 
 				      struct clast_expr *lhs, Value rhs)
 {
-    struct clast_binary *b = malloc(sizeof(struct clast_binary));
+    struct clast_binary *b = (struct clast_binary *) malloc(sizeof(struct clast_binary));
     b->expr.type = expr_bin;
     b->type = t;
     b->LHS = lhs;
@@ -52,7 +52,7 @@ struct clast_reduction *new_clast_reduction(enum clast_red_type t, int n)
 {
     int i;
     struct clast_reduction *r;
-    r = malloc(sizeof(struct clast_reduction)+(n-1)*sizeof(struct clast_expr *));
+    r = (struct clast_reduction *) malloc(sizeof(struct clast_reduction)+(n-1)*sizeof(struct clast_expr *));
     r->expr.type = expr_red;
     r->type = t;
     r->n = n;
@@ -73,7 +73,7 @@ struct clast_stmt_op stmt_root = { free_clast_root };
 
 struct clast_root *new_clast_root(CloogNames *names)
 {
-    struct clast_root *r = malloc(sizeof(struct clast_root));
+    struct clast_root *r = (struct clast_root *) malloc(sizeof(struct clast_root));
     r->stmt.op = &stmt_root;
     r->stmt.next = NULL;
     r->names = cloog_names_copy(names);
@@ -95,7 +95,7 @@ static void free_clast_assignment(struct clast_stmt *s)
 struct clast_assignment *new_clast_assignment(const char *lhs,
 					      struct clast_expr *rhs)
 {
-    struct clast_assignment *a = malloc(sizeof(struct clast_assignment));
+    struct clast_assignment *a = (struct clast_assignment *) malloc(sizeof(struct clast_assignment));
     a->stmt.op = &stmt_ass;
     a->stmt.next = NULL;
     a->LHS = lhs;
@@ -118,7 +118,7 @@ static void free_clast_user_stmt(struct clast_stmt *s)
 struct clast_user_stmt *new_clast_user_stmt(CloogStatement *stmt, 
 					    struct clast_stmt *subs)
 {
-    struct clast_user_stmt *u = malloc(sizeof(struct clast_user_stmt));
+    struct clast_user_stmt *u = (struct clast_user_stmt *) malloc(sizeof(struct clast_user_stmt));
     u->stmt.op = &stmt_user;
     u->stmt.next = NULL;
     u->statement = stmt;
@@ -136,9 +136,9 @@ static void free_clast_block(struct clast_stmt *s)
 
 struct clast_stmt_op stmt_block = { free_clast_block };
 
-struct clast_block *new_clast_block()
+struct clast_block *new_clast_block (void)
 {
-    struct clast_block *b = malloc(sizeof(struct clast_block));
+    struct clast_block *b = (struct clast_block *) malloc(sizeof(struct clast_block));
     b->stmt.op = &stmt_block;
     b->stmt.next = NULL;
     b->body = NULL;
@@ -161,7 +161,7 @@ struct clast_stmt_op stmt_for = { free_clast_for };
 struct clast_for *new_clast_for(const char *it, struct clast_expr *LB, 
 				struct clast_expr *UB, Value stride)
 {
-    struct clast_for *f = malloc(sizeof(struct clast_for));
+    struct clast_for *f = (struct clast_for *) malloc(sizeof(struct clast_for));
     f->stmt.op = &stmt_for;
     f->stmt.next = NULL;
     f->iterator = it;
@@ -191,8 +191,8 @@ struct clast_stmt_op stmt_guard = { free_clast_guard };
 struct clast_guard *new_clast_guard(int n)
 {
     int i;
-    struct clast_guard *g = malloc(sizeof(struct clast_guard) + 
-				   (n-1) * sizeof(struct clast_equation));
+    struct clast_guard *g = (struct clast_guard *)
+      malloc(sizeof(struct clast_guard) + (n-1) * sizeof(struct clast_equation));
     g->stmt.op = &stmt_guard;
     g->stmt.next = NULL;
     g->then = NULL;

@@ -62,7 +62,7 @@
  * - val is the coefficient or constant value,
  * - name is a string containing the name of the iterator or of the parameter,
  */
-void pprint_term(FILE *dst, struct clast_term *t)
+static void pprint_term(FILE *dst, struct clast_term *t)
 {
     if (t->var) {
 	if (value_one_p(t->val))
@@ -77,7 +77,7 @@ void pprint_term(FILE *dst, struct clast_term *t)
 	value_print(dst, VALUE_FMT, t->val);
 }
 
-void pprint_sum(FILE *dst, struct clast_reduction *r)
+static void pprint_sum(FILE *dst, struct clast_reduction *r)
 {
     int i;
     struct clast_term *t;
@@ -96,9 +96,9 @@ void pprint_sum(FILE *dst, struct clast_reduction *r)
     }
 }
 
-void pprint_expr(struct cloogoptions *i, FILE *dst, struct clast_expr *e);
+static void pprint_expr(struct cloogoptions *i, FILE *dst, struct clast_expr *e);
 
-void pprint_binary(struct cloogoptions *i, FILE *dst, struct clast_binary *b)
+static void pprint_binary(struct cloogoptions *i, FILE *dst, struct clast_binary *b)
 {
     const char *s1 = NULL, *s2 = NULL, *s3 = NULL;
     int group = b->LHS->type == expr_red && 
@@ -150,7 +150,7 @@ void pprint_binary(struct cloogoptions *i, FILE *dst, struct clast_binary *b)
     fprintf(dst, "%s", s3);
 }
 
-void pprint_minmax_f(struct cloogoptions *info, FILE *dst, struct clast_reduction *r)
+static void pprint_minmax_f(struct cloogoptions *info, FILE *dst, struct clast_reduction *r)
 {
     int i;
     if (r->n == 0)
@@ -164,7 +164,7 @@ void pprint_minmax_f(struct cloogoptions *info, FILE *dst, struct clast_reductio
     fprintf(dst, ")");
 }
 
-void pprint_minmax_c(struct cloogoptions *info, FILE *dst, struct clast_reduction *r)
+static void pprint_minmax_c(struct cloogoptions *info, FILE *dst, struct clast_reduction *r)
 {
     int i;
     for (i = 1; i < r->n; ++i)
@@ -178,7 +178,7 @@ void pprint_minmax_c(struct cloogoptions *info, FILE *dst, struct clast_reductio
     }
 }
 
-void pprint_reduction(struct cloogoptions *i, FILE *dst, struct clast_reduction *r)
+static void pprint_reduction(struct cloogoptions *i, FILE *dst, struct clast_reduction *r)
 {
     switch (r->type) {
     case clast_red_sum:
@@ -219,7 +219,7 @@ void pprint_expr(struct cloogoptions *i, FILE *dst, struct clast_expr *e)
     }
 }
 
-void pprint_equation(struct cloogoptions *i, FILE *dst, struct clast_equation *eq)
+static void pprint_equation(struct cloogoptions *i, FILE *dst, struct clast_equation *eq)
 {
     pprint_expr(i, dst, eq->LHS);
     if (eq->sign == 0)
@@ -231,16 +231,16 @@ void pprint_equation(struct cloogoptions *i, FILE *dst, struct clast_equation *e
     pprint_expr(i, dst, eq->RHS);
 }
 
-void pprint_assignment(struct cloogoptions *i, FILE *dst, 
-			struct clast_assignment *a)
+static void pprint_assignment(struct cloogoptions *i, FILE *dst, 
+			      struct clast_assignment *a)
 {
     if (a->LHS)
 	fprintf(dst, "%s = ", a->LHS);
     pprint_expr(i, dst, a->RHS);
 }
 
-void pprint_user_stmt(struct cloogoptions *options, FILE *dst,
-		       struct clast_user_stmt *u)
+static void pprint_user_stmt(struct cloogoptions *options, FILE *dst,
+			     struct clast_user_stmt *u)
 {
     struct clast_stmt *t;
     fprintf(dst, "S%d", cloog_statement_number (u->statement));
@@ -262,8 +262,8 @@ void pprint_user_stmt(struct cloogoptions *options, FILE *dst,
 void pprint_stmt_list(struct cloogoptions *options, FILE *dst, int indent,
 		       struct clast_stmt *s);
 
-void pprint_guard(struct cloogoptions *options, FILE *dst, int indent,
-		   struct clast_guard *g)
+static void pprint_guard(struct cloogoptions *options, FILE *dst, int indent,
+			 struct clast_guard *g)
 {
     int k;
     if (options->language == LANGUAGE_FORTRAN)
@@ -299,8 +299,8 @@ void pprint_guard(struct cloogoptions *options, FILE *dst, int indent,
 	fprintf(dst,"}\n"); 
 }
 
-void pprint_for(struct cloogoptions *options, FILE *dst, int indent,
-		 struct clast_for *f)
+static void pprint_for(struct cloogoptions *options, FILE *dst, int indent,
+		       struct clast_for *f)
 {
     if (options->language == LANGUAGE_FORTRAN)
 	fprintf(dst, "DO ");

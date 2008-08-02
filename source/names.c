@@ -293,10 +293,7 @@ CloogNames *cloog_names_copy(CloogNames *names)
  **
  * - September 9th 2002: first version.
  */
-char ** cloog_names_read_strings(file, nb_items, prefix, first_item)
-FILE * file ;
-int nb_items ;
-char * prefix, first_item ;
+char ** cloog_names_read_strings(FILE *file, int nb_items, char *prefix, char first_item)
 { int i, option, n ;
   char s[MAX_STRING], str[MAX_STRING], * c, ** names ;
 
@@ -375,7 +372,7 @@ char * prefix, first_item ;
  * allocated space.
  * - November 21th 2005: first version.
  */
-CloogNames * cloog_names_malloc()
+CloogNames * cloog_names_malloc (void)
 { CloogNames * names ;
   
   /* Memory allocation for the CloogNames structure. */
@@ -410,10 +407,8 @@ CloogNames * cloog_names_malloc()
  * - November  21th 2005: use of cloog_names_malloc.
  */
 CloogNames * cloog_names_alloc(
-     nb_scalars, nb_scattering, nb_iterators, nb_parameters,
-        scalars,    scattering,    iterators,    parameters)
-int  nb_scalars, nb_scattering, nb_iterators, nb_parameters ;
-char ** scalars, ** scattering, ** iterators, ** parameters ;
+     int nb_scalars, int nb_scattering, int nb_iterators, int nb_parameters,
+     char **scalars, char **scattering, char **iterators, char **parameters)
 { CloogNames * names ;
 
   /* Memory allocation for the CloogNames structure. */
@@ -498,10 +493,8 @@ char ** cloog_names_generate_items(int nb_items, char * prefix, char first_item)
  * - September 11th 2005 : addition of both scalar and scattering informations.
  */
 CloogNames * cloog_names_generate(
-     nb_scalars, nb_scattering, nb_iterators, nb_parameters,
-     first_s,    first_t,       first_i,      first_p)
-int  nb_scalars, nb_scattering, nb_iterators, nb_parameters ;
-char first_s,    first_t,       first_i,      first_p ;
+     int nb_scalars, int nb_scattering, int nb_iterators, int nb_parameters,
+     char first_s, char first_t, char first_i, char first_p)
 { CloogNames * names ;
 
   names = (CloogNames *)malloc(sizeof(CloogNames)) ;

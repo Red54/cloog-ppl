@@ -78,10 +78,7 @@ extern int cloog_value_max ;
  * level (level) in order to work with others print_structure functions.
  * - July 1st 2005: first version based on the old cloog_program_print function.
  */
-void cloog_program_print_structure(file, program, level)
-FILE * file ; 
-CloogProgram * program ;
-int level ;
+void cloog_program_print_structure(FILE *file, CloogProgram *program, int level)
 { int i, j ;
 
   /* Go to the right level. */
@@ -264,6 +261,7 @@ static void print_comment(FILE *file, CloogOptions *options,
     vfprintf(file, fmt, args);
     fprintf(file, " */\n");
   }
+  va_end (args);
 }
 
 /**
@@ -272,10 +270,7 @@ static void print_comment(FILE *file, CloogOptions *options,
  * file (file, possibly stdout), in a C-like language.
  * - June 22nd 2005: Adaptation for GMP.
  */
-void cloog_program_pprint(file, program, options)
-FILE * file ;
-CloogProgram * program ;
-CloogOptions * options ;
+void cloog_program_pprint(FILE *file, CloogProgram *program, CloogOptions *options)
 { int i, j, nb_scattering, indentation=0 ;
   CloogStatement * statement ;
   CloogBlockList * blocklist ;
@@ -339,9 +334,9 @@ CloogOptions * options ;
 	    fprintf(file,") {total++;") ;
 	    if (cloog_block_depth (block) > 0)
 	      {
-		fprintf (file, " printf(\"S%d \%%d", cloog_statement_number (statement));
+		fprintf (file, " printf(\"S%d %%d", cloog_statement_number (statement));
 		for (j = 1; j < cloog_block_depth (block); j++)
-		  fprintf (file, " \%%d");
+		  fprintf (file, " %%d");
           
 		fprintf(file,"\\n\",%s", cloog_names_iterator_elt (cloog_program_names (program), 0));
 		for (j = 1;j < cloog_block_depth (block); j++)
@@ -495,7 +490,7 @@ CloogProgram * cloog_program_read(FILE * file, CloogOptions * options)
     for (i=2;i<=nb_statements;i++)
     { next = cloog_loop_read(file,i-1,nb_parameters) ;
       if (cloog_loop_domain (next) != NULL)
-	if (cloog_domain_dim(cloog_loop_domain (next)) - nb_parameters > nb_iterators)
+	if ((int) cloog_domain_dim(cloog_loop_domain (next)) - nb_parameters > nb_iterators)
 	  nb_iterators = cloog_domain_dim (cloog_loop_domain (next)) - nb_parameters ;
       
       cloog_block_list_set_next (previous, cloog_block_list_alloc (cloog_loop_block (next)));
@@ -581,7 +576,7 @@ CloogProgram * cloog_program_read(FILE * file, CloogOptions * options)
  * allocated space.
  * - November 21th 2005: first version.
  */
-CloogProgram * cloog_program_malloc()
+CloogProgram * cloog_program_malloc (void)
 { CloogProgram * program ;
   
   /* Memory allocation for the CloogProgram structure. */
@@ -617,9 +612,7 @@ CloogProgram * cloog_program_malloc()
  * - April   19th 2005: some basic fixes and memory usage feature.
  * - April   29th 2005: (bug fix, bug found by DaeGon Kim) see case 2 below.
  */ 
-CloogProgram * cloog_program_generate(program, options)
-CloogProgram * program ;
-CloogOptions * options ;
+CloogProgram * cloog_program_generate(CloogProgram *program, CloogOptions *options)
 { float time ;
   struct rusage start, end ;
   CloogLoop * loop ;
@@ -864,9 +857,7 @@ void cloog_program_block(CloogProgram * program, CloogDomainList * scattering)
  * - June 14th 2005: first developments.
  * - June 30th 2005: first version.
  */ 
-void cloog_program_extract_scalars(program, scattering)
-CloogProgram * program ;
-CloogDomainList * scattering ;
+void cloog_program_extract_scalars(CloogProgram *program, CloogDomainList *scattering)
 { int i, j, scalar, current, nb_scaldims=0 ;
   CloogDomainList * start ;
   CloogDomain * old ;
@@ -980,9 +971,7 @@ CloogDomainList * scattering ;
  * name is ci.
  * - November 6th 2001: first version. 
  */
-void cloog_program_scatter(program, scattering)
-CloogProgram * program ;
-CloogDomainList * scattering ;
+void cloog_program_scatter(CloogProgram *program, CloogDomainList *scattering)
 { 
   CloogLoop * loop ;
   

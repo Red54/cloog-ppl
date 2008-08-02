@@ -110,7 +110,7 @@ extern "C"
   static inline void
   cloog_vector_set (Value * ptr, int n, unsigned length)
   {
-    int i;
+    unsigned i;
 
     for (i = 0; i < length; i++, ptr++)
       value_set_si (*ptr, n);
@@ -118,7 +118,7 @@ extern "C"
 
   static inline void cloog_vector_copy (Value * p1, Value * p2, unsigned length)
   {
-    int i;
+    unsigned i;
 
     for (i = 0; i < length; i++)
       value_assign (*p2++, *p1++);
@@ -153,7 +153,7 @@ extern "C"
 
   static inline void Vector_Free (Vector * vector)
   {
-    int i;
+    unsigned i;
 
     if (!vector)
       return;
@@ -236,8 +236,6 @@ extern "C"
     int _references;
   } CloogDomain;
 
-  extern void debug_cloog_domain (CloogDomain *);
-
   static inline polyhedra_union cloog_domain_upol (CloogDomain * domain)
   {
     return domain->_union;
@@ -260,7 +258,7 @@ extern "C"
 
   static inline unsigned cloog_pol_nbeq (polyhedron p)
   {
-    int i, res = 0;
+    unsigned i, res = 0;
 
     for (i = 0; i < p->NbConstraints; i++)
       res += value_zero_p (p->Constraint[i][0]) ? 1 : 0;
@@ -275,7 +273,7 @@ extern "C"
 
   static inline Vector *Vector_Alloc (unsigned length)
   {
-    int i;
+    unsigned i;
     Vector *vector = (Vector *) malloc (sizeof (Vector));
 
     vector->Size = length;
@@ -297,7 +295,6 @@ extern "C"
   void cloog_matrix_print (FILE *, CloogMatrix *);
   void cloog_matrix_free (CloogMatrix *);
   CloogMatrix *cloog_matrix_alloc (unsigned, unsigned);
-  void debug_cloog_matrix (CloogMatrix *);
   void cloog_matrix_print_structure (FILE *, CloogMatrix *, int);
   CloogMatrix *cloog_matrix_read (FILE *);
   void cloog_matrix_normalize (CloogMatrix *, int);
@@ -335,13 +332,13 @@ extern "C"
   static inline int cloog_first_non_zero (Value * p, unsigned len)
   {
     Value *ptr = p;
-    int i;
+    unsigned i;
 
     for (i = 0; i < len; i++, ptr++)
       if (value_notzero_p (*ptr))
 	break;
 
-    return i == len ? -1 : i;
+    return i == len ? -1 : (int) i;
   }
 
   static inline polyhedron cloog_new_pol (int dim, int nrows)
@@ -424,12 +421,12 @@ extern "C"
   }
 
   polyhedron cloog_pol_copy (polyhedron pol);
-  void cloog_vector_gcd (Value *, unsigned, Value *);
+  void cloog_vector_gcd (Value *, int, Value *);
 
   static inline int
   cloog_pol_lexico_lt (polyhedron p, int i, int j)
   {
-    int k;
+    unsigned k;
     Value a, b;
 
     value_init (a), value_init (b);
@@ -469,8 +466,8 @@ extern "C"
   static inline void
   cloog_pol_sort_rows (polyhedron p)
   {
-    int i, j;
-    int nbeq = cloog_pol_nbeq (p);
+    unsigned i, j;
+    unsigned nbeq = cloog_pol_nbeq (p);
 
     /* First sort the equalities.  The equalities should be the first
        rows in the matrix.  */
@@ -495,7 +492,7 @@ extern "C"
   static inline void
   cloog_vector_normalize (Value * p, unsigned len)
   {
-    int i;
+    unsigned i;
     Value *ptr, gcd, one;
 
     value_init (gcd);
@@ -514,7 +511,7 @@ extern "C"
 					 Value x,
 					 unsigned length)
   {
-    int i;
+    unsigned i;
 
     for (i = 0; i < length; i++)
       value_multiply (*p2++, *p1++, x);
@@ -525,7 +522,7 @@ extern "C"
 			Value y, unsigned length)
   {
     Value tmp;
-    int i;
+    unsigned i;
 
     value_init (tmp);
 
@@ -538,6 +535,13 @@ extern "C"
 
     value_clear (tmp);
   }
+
+  extern void debug_poly (polyhedron);
+  extern void debug_ppl_poly (ppl_Polyhedron_t);
+  extern void debug_cloog_matrix (CloogMatrix *);
+  extern void debug_cloog_domain (CloogDomain *);
+  extern void debug_value (Value);
+  extern void debug_values (Value *, int);
 
 #if defined(__cplusplus)
 }

@@ -69,14 +69,15 @@ int cloog_loop_freed = 0 ;
 int cloog_loop_max = 0 ;
 
 
-static void cloog_loop_leak_up()
-{ cloog_loop_allocated ++ ;
+static void cloog_loop_leak_up (void)
+{
+  cloog_loop_allocated ++ ;
   if ((cloog_loop_allocated-cloog_loop_freed) > cloog_loop_max)
   cloog_loop_max = cloog_loop_allocated - cloog_loop_freed ;
 }
 
 
-static void cloog_loop_leak_down()
+static void cloog_loop_leak_down (void)
 { cloog_loop_freed ++ ;
 }
 
@@ -228,10 +229,11 @@ void cloog_loop_free(CloogLoop * loop)
  * - July  3rd 2003: first version.
  * - June 22nd 2005: Adaptation for GMP.
  */
-void cloog_loop_free_parts(loop, domain, block, inner, next)
-CloogLoop * loop ;
-int domain, block, inner, next ;
-{ CloogLoop * follow ;
+static void
+cloog_loop_free_parts (CloogLoop *loop, int domain, int block,
+		       int inner, int next)
+{
+  CloogLoop * follow ;
 
   while (loop != NULL)
   { cloog_loop_leak_down() ;
@@ -328,8 +330,9 @@ CloogLoop * cloog_loop_read(FILE * foo, int number, int nb_parameters)
  * allocated space.
  * - November 21th 2005: first version.
  */
-CloogLoop * cloog_loop_malloc()
-{ CloogLoop * loop ;
+CloogLoop * cloog_loop_malloc (void)
+{
+  CloogLoop * loop ;
   
   /* Memory allocation for the CloogLoop structure. */
   loop = (CloogLoop *)malloc(sizeof(CloogLoop)) ;
@@ -362,12 +365,11 @@ CloogLoop * cloog_loop_malloc()
  * - June     22nd 2005: Adaptation for GMP.
  * - November 21th 2005: use of cloog_loop_malloc.
  */ 
-CloogLoop * cloog_loop_alloc(domain, stride, block, inner, next)
-CloogDomain * domain ;
-Value stride ;
-CloogBlock * block ;
-CloogLoop * inner, * next ;
-{ CloogLoop * loop ;
+static CloogLoop *
+cloog_loop_alloc (CloogDomain *domain, Value stride, CloogBlock * block,
+		  CloogLoop *inner, CloogLoop *next)
+{
+  CloogLoop * loop ;
     
   loop = cloog_loop_malloc() ;
   
@@ -389,7 +391,8 @@ CloogLoop * inner, * next ;
  * added element is the first one -that is when (start) is NULL-.
  * - October 28th 2001: first version. 
  */ 
-void cloog_loop_add(CloogLoop ** start, CloogLoop ** now, CloogLoop * loop)
+static void
+cloog_loop_add (CloogLoop ** start, CloogLoop ** now, CloogLoop * loop)
 { 
   if (*start == NULL)
     {
@@ -413,7 +416,8 @@ void cloog_loop_add(CloogLoop ** start, CloogLoop ** now, CloogLoop * loop)
  * (start) is NULL-.
  * - September 9th 2005: first version.
  */ 
-void cloog_loop_add_list(CloogLoop ** start, CloogLoop ** now, CloogLoop * loop)
+static void
+cloog_loop_add_list (CloogLoop ** start, CloogLoop ** now, CloogLoop * loop)
 { 
   cloog_loop_add (start, now, loop);
 
@@ -430,7 +434,8 @@ void cloog_loop_add_list(CloogLoop ** start, CloogLoop ** now, CloogLoop * loop)
  * - October 28th 2001: first version. 
  * - July 3rd->11th 2003: memory leaks hunt and correction.
  */ 
-CloogLoop * cloog_loop_copy(CloogLoop * source)
+static CloogLoop *
+cloog_loop_copy (CloogLoop * source)
 { CloogLoop * loop ;
   CloogBlock * block ;
   CloogDomain * domain ;
@@ -467,8 +472,8 @@ CloogLoop * cloog_loop_copy(CloogLoop * source)
  * - June      22nd 2005: Adaptation for GMP.
  * - October   27th 2005: (debug) included blocks were not copied for new loops.
  */ 
-void cloog_loop_add_disjoint(start, now, loop)
-CloogLoop ** start, ** now, * loop ;
+static void
+cloog_loop_add_disjoint (CloogLoop **start, CloogLoop **now, CloogLoop *loop)
 { Value one ;
   CloogLoop * sep, * inner ;
   CloogDomain * domain, * convex, * seen, * seen_before, * temp, * rest ;
@@ -543,7 +548,8 @@ CloogLoop ** start, ** now, * loop ;
  * for more details.
  * - September 16th 2005: first version.
  */
-CloogLoop * cloog_loop_disjoint(CloogLoop * loop)
+static CloogLoop *
+cloog_loop_disjoint (CloogLoop * loop)
 { CloogLoop *res=NULL, * now=NULL, * next ;
   
   /* Because this is often the case, don't waste time ! */
@@ -573,10 +579,8 @@ CloogLoop * cloog_loop_disjoint(CloogLoop * loop)
  * - June    15th 2005: a memory leak fixed (domain was not freed when empty).
  * - June    22nd 2005: Adaptation for GMP.
  */ 
-CloogLoop * cloog_loop_restrict(loop, context, nb_par)
-CloogLoop * loop ;
-CloogDomain * context ;
-int nb_par ;
+static CloogLoop *
+cloog_loop_restrict(CloogLoop *loop, CloogDomain *context, int nb_par)
 { int new_dimension ;
   Value one ;
   CloogDomain * domain, * extended_context, * new_domain ;
@@ -618,7 +622,8 @@ int nb_par ;
  * - July 3rd->11th 2003: memory leaks hunt and correction.
  * - June      22nd 2005: Adaptation for GMP.
  */ 
-CloogLoop * cloog_loop_project(CloogLoop * loop, int level, int nb_par)
+static CloogLoop *
+cloog_loop_project(CloogLoop * loop, int level, int nb_par)
 { Value one ;
   CloogDomain * new_domain ;
   CloogLoop * new_loop, * copy ;
@@ -644,7 +649,8 @@ CloogLoop * cloog_loop_project(CloogLoop * loop, int level, int nb_par)
  * CloogLoop lists given as input.
  * - October 28th 2001: first version. 
  */
-CloogLoop * cloog_loop_concat(CloogLoop * a, CloogLoop * b)
+static CloogLoop *
+cloog_loop_concat(CloogLoop * a, CloogLoop * b)
 { CloogLoop * loop, * temp ;
 
   loop = a  ;
@@ -679,7 +685,7 @@ CloogLoop * cloog_loop_concat(CloogLoop * a, CloogLoop * b)
  *                        without now, DomainSimplify may have been improved).
  *                        The problem was visible with test/iftest2.cloog.
  */ 
-CloogLoop * cloog_loop_separate(CloogLoop * loop)
+static CloogLoop * cloog_loop_separate(CloogLoop * loop)
 { int first, lazy_equal=0, lazy_disjoint=0 ;
   Value one ;
   CloogLoop * new_loop, * new_inner, * res, * now, * temp, * Q, 
@@ -838,7 +844,7 @@ static CloogLoop *cloog_loop_merge_inner_list(CloogLoop *a, CloogLoop *b,
  * - July 3rd->11th 2003: memory leaks hunt and correction.
  * - June      22nd 2005: Adaptation for GMP.
  */ 
-CloogLoop * cloog_loop_merge(CloogLoop * loop, int nb_par, CloogOptions * options)
+static CloogLoop * cloog_loop_merge(CloogLoop * loop, int nb_par, CloogOptions * options)
 { Value one ;
   CloogLoop * res, * merge, * now, * Q, * P, * new_inner, * next, * old ;
   CloogDomain * new_domain, * temp ;
@@ -916,7 +922,7 @@ CloogLoop * cloog_loop_merge(CloogLoop * loop, int nb_par, CloogOptions * option
  * violation (see Quillere paper).
  * - September 16th 2005: inclusion of cloog_loop_number (October 29th 2001).
  */ 
-CloogLoop * cloog_loop_sort(CloogLoop * loop, int level, int nb_par)
+static CloogLoop * cloog_loop_sort(CloogLoop * loop, int level, int nb_par)
 { CloogLoop * res, * now, * temp, ** loop_array ;
   CloogDomain ** pols ;
   int i, nb_loops=0, * permut ;
@@ -978,10 +984,7 @@ CloogLoop * cloog_loop_sort(CloogLoop * loop, int level, int nb_par)
  * - June      22nd 2005: Adaptation for GMP.
  * - November  21th 2005: (debug) now OK when cloog_loop_restrict returns NULL.
  */ 
-CloogLoop * cloog_loop_nest(loop, context, level, nb_par)
-CloogLoop * loop ;
-CloogDomain * context ;
-int level, nb_par ;
+static CloogLoop * cloog_loop_nest(CloogLoop *loop, CloogDomain *context, int level, int nb_par)
 { int l ;
   Value one ;
   CloogLoop * p, * temp, * res, * now, * next ;
@@ -1005,7 +1008,7 @@ int level, nb_par ;
        * and smaller, and each projection includes the preceding projection
        * (thus, in the target list, dimensions are added one by one).
        */
-      if ((cloog_domain_dim(cloog_loop_domain (p))-nb_par) > level)
+      if ((((int) cloog_domain_dim (cloog_loop_domain (p))) - nb_par) > level)
 	for (l=cloog_domain_dim(cloog_loop_domain (p))-nb_par-1;l>=level;l--)
 	  { new_domain = cloog_domain_project(cloog_loop_domain (p),l,nb_par) ;
         temp = cloog_loop_alloc(new_domain,one,NULL,temp,NULL) ;
@@ -1130,7 +1133,7 @@ static void cloog_loop_stride_1 (CloogLoop * loop, int level, int nb_par)
  * the resulting code do not consider the next dimensions.
  * - January 11th 2005: first version.
  */
-CloogLoop * cloog_loop_stop(CloogLoop * loop, CloogDomain * context)
+static CloogLoop * cloog_loop_stop(CloogLoop * loop, CloogDomain * context)
 { if (loop == NULL)
   return NULL ;
   else
@@ -1164,9 +1167,7 @@ CloogLoop * cloog_loop_stop(CloogLoop * loop, CloogDomain * context)
  * - September 9th 2005: first version.
  * - October  15nd 2007: now "greater than" instead of "greater or equal".
  */
-int cloog_loop_scalar_gt(l1, l2, level, scaldims, nb_scattdims, scalar)
-CloogLoop * l1, * l2 ;
-int level, * scaldims, nb_scattdims, scalar ;
+static int cloog_loop_scalar_gt(CloogLoop *l1, CloogLoop *l2, int level, int *scaldims, int scalar)
 {
   while ((scalar < cloog_block_nb_scaldims (cloog_loop_block (cloog_loop_inner (l1))))
 	 && scaldims[level+scalar-1])
@@ -1193,14 +1194,11 @@ int level, * scaldims, nb_scattdims, scalar ;
  * - l1 and l2 are the loops to compare,
  * - level is the current non-scalar dimension,
  * - scaldims is the boolean array saying whether a dimension is scalar or not,
- * - nb_scattdims is the size of the scaldims array,
  * - scalar is the current scalar dimension.
  **
  * - September 9th 2005 : first version.
  */
-int cloog_loop_scalar_eq(l1, l2, level, scaldims, nb_scattdims, scalar)
-CloogLoop * l1, * l2 ;
-int level, * scaldims, nb_scattdims, scalar ;
+static int cloog_loop_scalar_eq(CloogLoop * l1, CloogLoop * l2, int level, int *scaldims, int scalar)
 {
   while ((scalar < cloog_block_nb_scaldims (cloog_loop_block (cloog_loop_inner (l1))))
 	 && scaldims[level+scalar-1])
@@ -1225,7 +1223,6 @@ int level, * scaldims, nb_scattdims, scalar ;
  * \param loop Loop list to sort.
  * \param level Current non-scalar dimension.
  * \param scaldims Boolean array saying whether a dimension is scalar or not.
- * \param nb_scattdims Size of the scaldims array.
  * \param scalar Current scalar dimension.
  * \return A pointer to the sorted list.
  **
@@ -1233,9 +1230,7 @@ int level, * scaldims, nb_scattdims, scalar ;
  * - September 2nd 2005: first version.
  * - October  15nd 2007: complete rewrite to remove bugs, now a bubble sort.
  */
-CloogLoop * cloog_loop_scalar_sort(loop, level, scaldims, nb_scattdims, scalar)
-CloogLoop * loop ;
-int level, * scaldims, nb_scattdims, scalar ;
+static CloogLoop * cloog_loop_scalar_sort(CloogLoop * loop, int level, int *scaldims, int scalar)
 { int ok ;
   CloogLoop **current;
   
@@ -1243,7 +1238,7 @@ int level, * scaldims, nb_scattdims, scalar ;
     ok = 1;
     for (current = &loop; cloog_loop_next (*current); current = cloog_loop_next_addr (*current)) {
       CloogLoop *next = cloog_loop_next (*current);
-      if (cloog_loop_scalar_gt(*current,next,level,scaldims,nb_scattdims,scalar)) {
+      if (cloog_loop_scalar_gt(*current,next,level,scaldims,scalar)) {
         ok = 0;
 	cloog_loop_set_next (*current, cloog_loop_next (next));
 	cloog_loop_set_next (next, *current);
@@ -1266,11 +1261,8 @@ int level, * scaldims, nb_scattdims, scalar ;
  * - July    31th 2002: (debug) no more parasite loops (REALLY hard !). 
  * - October 30th 2005: extraction from cloog_loop_generate_general.
  */
-CloogLoop * cloog_loop_generate_backtrack(loop, context, level, nb_par, options)
-CloogLoop * loop ;
-CloogDomain * context ;
-int level, nb_par ;
-CloogOptions * options ;
+static CloogLoop *
+cloog_loop_generate_backtrack (CloogLoop * loop, int level, int nb_par)
 { Value one ;
   CloogDomain * domain ;
   CloogLoop * now, * now2, * next, * next2, * end, * temp, * l, * inner,
@@ -1334,8 +1326,6 @@ CloogOptions * options ;
  * Quillere algorithm for polyhedron scanning from step 3 to 5.
  * (see the Quillere paper).
  * - loop is the loop for which we have to generate a scanning code,
- * - context is the context of the current loop (constraints on parameter and/or
- *   on outer loop counters),
  * - level is the current non-scalar dimension,
  * - scalar is the current scalar dimension,
  * - scaldims is the boolean array saying whether a dimension is scalar or not,
@@ -1354,12 +1344,9 @@ CloogOptions * options ;
  *                        be a list of polyhedra (especially if stop option is
  *                        used): cloog_loop_add_list instead of cloog_loop_add.
  */ 
-CloogLoop * cloog_loop_generate_general(loop, context, level, scalar,
-                                        scaldims, nb_scattdims, nb_par, options)
-CloogLoop * loop ;
-CloogDomain * context ;
-int level, scalar, * scaldims, nb_scattdims, nb_par ;
-CloogOptions * options ;
+static CloogLoop * cloog_loop_generate_general(CloogLoop *loop, int level, int scalar,
+					       int *scaldims, int nb_scattdims, int nb_par,
+					       CloogOptions *options)
 { Value one ;
   CloogLoop * res, * now, * temp, * l, * new_loop, * inner, * now2, * end,
             * next, * into ;
@@ -1387,10 +1374,10 @@ CloogOptions * options ;
     into = NULL ;
     while (inner != NULL)
     { /* 4b. -ced- recurse for each sub-list of non terminal loops. */
-      if (cloog_domain_dim(cloog_loop_domain (inner)) > (level + nb_par))
+      if ((int) cloog_domain_dim(cloog_loop_domain (inner)) > (level + nb_par))
       { end = inner ;
         while ((cloog_loop_next (end)) &&
-               (cloog_domain_dim (cloog_loop_domain (cloog_loop_next (end))) > (level + nb_par)))
+               ((int) cloog_domain_dim (cloog_loop_domain (cloog_loop_next (end))) > (level + nb_par)))
 	  end = cloog_loop_next (end) ;
         
 	next = cloog_loop_next (end) ;
@@ -1434,7 +1421,7 @@ CloogOptions * options ;
   if ((!options->nobacktrack) &&
       ((level+scalar < options->l) || (options->l < 0)) &&
       ((options->f <= level+scalar) && !(options->f < 0)))
-  res = cloog_loop_generate_backtrack(res,context,level,nb_par,options) ;
+  res = cloog_loop_generate_backtrack(res,level,nb_par) ;
   
   /* Pray for my new paper to be accepted somewhere since the following stuff
    * is really amazing :-) !
@@ -1462,8 +1449,6 @@ CloogOptions * options ;
  * for the vector of scalar dimension that begins at dimension 'level+scalar'
  * and finish to the first non-scalar dimension.
  * - loop is the loop for which we have to generate a scanning code,
- * - context is the context of the current loop (constraints on parameter and/or
- *   on outer loop counters),
  * - level is the current non-scalar dimension,
  * - scalar is the current scalar dimension,
  * - scaldims is the boolean array saying whether a dimension is scalar or not,
@@ -1473,16 +1458,14 @@ CloogOptions * options ;
  **
  * - September  2nd 2005: First version.
  */ 
-CloogLoop * cloog_loop_generate_scalar(loop, context, level, scalar,
-                                       scaldims, nb_scattdims, nb_par, options)
-CloogLoop * loop ;
-CloogDomain * context ;
-int level, scalar, * scaldims, nb_scattdims, nb_par ;
-CloogOptions * options ;
+static CloogLoop *
+cloog_loop_generate_scalar(CloogLoop *loop, int level, int scalar,
+			   int *scaldims, int nb_scattdims, int nb_par,
+			   CloogOptions *options)
 { CloogLoop * res, * now, * temp, * l, * end, * next, * ref ;
   
   /* We sort the loop list with respect to the current scalar vector. */
-  res = cloog_loop_scalar_sort(loop,level,scaldims,nb_scattdims,scalar) ;
+  res = cloog_loop_scalar_sort(loop,level,scaldims,scalar) ;
   
   temp = res ;
   res = NULL ;
@@ -1494,7 +1477,7 @@ CloogOptions * options ;
     ref = temp ;
     
     while ((cloog_loop_next (end)) &&
-	   cloog_loop_scalar_eq(ref,cloog_loop_next (end),level,scaldims,nb_scattdims,scalar))
+	   cloog_loop_scalar_eq(ref,cloog_loop_next (end),level,scaldims,scalar))
       end = cloog_loop_next (end) ;
 
     next = cloog_loop_next (end) ;
@@ -1503,7 +1486,7 @@ CloogOptions * options ;
     /* For the next dimension, scalar value is updated by adding the scalar
      * vector size, which is stored at scaldims[level+scalar-1].
      */
-    l = cloog_loop_generate_general(temp,context,level,
+    l = cloog_loop_generate_general(temp,level,
                                     scalar+scaldims[level+scalar-1],
 	                            scaldims,nb_scattdims,nb_par,options) ;
 
@@ -1544,12 +1527,9 @@ CloogOptions * options ;
  * - November  15th 2005: (debug) Condition for stop option no more take care of
  *                        further scalar dimensions.
  */ 
-CloogLoop * cloog_loop_generate(loop, context, level, scalar,
-                                scaldims, nb_scattdims, nb_par, options)
-CloogLoop * loop ;
-CloogDomain * context ;
-int level, scalar, * scaldims, nb_scattdims, nb_par ;
-CloogOptions * options ;
+CloogLoop * cloog_loop_generate(CloogLoop *loop, CloogDomain *context, int level,
+				int scalar, int *scaldims, int nb_scattdims, int nb_par,
+				CloogOptions *options)
 { CloogLoop * res, * now, * temp, * next, * old ;
   
   /* If the user asked to stop code generation at this level, let's stop. */
@@ -1590,10 +1570,10 @@ CloogOptions * options ;
    * processing).
    */
   if ((level+scalar <= nb_scattdims) && (scaldims[level+scalar-1]))
-  res = cloog_loop_generate_scalar(res,context,level,scalar,
+  res = cloog_loop_generate_scalar(res,level,scalar,
                                    scaldims,nb_scattdims,nb_par,options) ;
   else
-  res = cloog_loop_generate_general(res,context,level,scalar,
+  res = cloog_loop_generate_general(res,level,scalar,
                                     scaldims,nb_scattdims,nb_par,options) ;
 
   return res ;
@@ -1621,10 +1601,7 @@ CloogOptions * options ;
  *                          simplifying gives a union of polyhedra (before, it
  *                          was under the responsibility of the pretty printer).
  */ 
-CloogLoop * cloog_loop_simplify(loop, context, level, nb_par)
-CloogLoop * loop ;
-CloogDomain * context ;
-int level, nb_par ;
+CloogLoop * cloog_loop_simplify(CloogLoop *loop, CloogDomain *context, int level, int nb_par)
 { int domain_dim ;
   CloogBlock * new_block ;
   CloogLoop * simplified, * inner, * next ;
