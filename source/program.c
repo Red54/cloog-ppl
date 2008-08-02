@@ -320,7 +320,7 @@ void cloog_program_pprint(FILE *file, CloogProgram *program, CloogOptions *optio
     blocklist = cloog_program_blocklist (program) ;
     while (blocklist != NULL)
       {
-	block = cloog_block (blocklist) ;
+	block = cloog_block_list_block (blocklist) ;
 	statement = cloog_block_stmt (block) ;
 	while (statement != NULL)
 	  {
@@ -896,7 +896,7 @@ void cloog_program_extract_scalars(CloogProgram *program, CloogDomainList *scatt
   blocklist = cloog_program_blocklist (program);
   while (blocklist != NULL)
     {
-      block = cloog_block (blocklist) ;
+      block = cloog_block_list_block (blocklist) ;
       cloog_block_set_nb_scaldims (block, nb_scaldims);
       cloog_block_set_scaldims (block, (Value *) malloc (nb_scaldims * sizeof (Value)));
 
@@ -920,7 +920,7 @@ void cloog_program_extract_scalars(CloogProgram *program, CloogDomainList *scatt
 
       while (blocklist != NULL)
 	{ 
-	  block = cloog_block (blocklist) ;
+	  block = cloog_block_list_block (blocklist) ;
 	  cloog_domain_scalar (cloog_domain (scattering), i,
 			       &block->scaldims[current]);
 	  blocklist = cloog_block_list_next (blocklist);

@@ -140,12 +140,12 @@ static inline void cloog_block_list_set_next (CloogBlockList *s, CloogBlockList 
   s->_next = n;
 }
 
-static inline CloogBlock *cloog_block (CloogBlockList *s)
+static inline CloogBlock *cloog_block_list_block (CloogBlockList *s)
 {
   return s->_block;
 }
 
-static inline void cloog_block_set (CloogBlockList *s, CloogBlock *n)
+static inline void cloog_block_list_set_block (CloogBlockList *s, CloogBlock *n)
 {
   s->_block = n;
 }

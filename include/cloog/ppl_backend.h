@@ -188,14 +188,7 @@ extern "C"
     struct polyhedra_union *_next;
   } *polyhedra_union;
 
-  static inline polyhedra_union cloog_new_upol (polyhedron p)
-  {
-    polyhedra_union ppl =
-      (polyhedra_union) malloc (sizeof (struct polyhedra_union));
-    ppl->_polyhedron = p;
-    ppl->_next = NULL;
-    return ppl;
-  }
+  extern polyhedra_union cloog_new_upol (polyhedron);
 
   static inline polyhedra_union cloog_upol_next (polyhedra_union p)
   {
@@ -271,19 +264,7 @@ extern "C"
     return cloog_pol_nbeq (cloog_upol_polyhedron (cloog_domain_upol (d)));
   }
 
-  static inline Vector *Vector_Alloc (unsigned length)
-  {
-    unsigned i;
-    Vector *vector = (Vector *) malloc (sizeof (Vector));
-
-    vector->Size = length;
-    vector->p = (Value *) malloc (length * sizeof (Value));
-
-    for (i = 0; i < length; i++)
-      value_init (vector->p[i]);
-
-    return vector;
-  }
+  extern Vector *Vector_Alloc (unsigned);
 
   typedef struct cloog_matrix
   {
@@ -341,26 +322,7 @@ extern "C"
     return i == len ? -1 : (int) i;
   }
 
-  static inline polyhedron cloog_new_pol (int dim, int nrows)
-  {
-    int i;
-    polyhedron res = (polyhedron) malloc (sizeof (struct polyhedron));
-    int ncolumns = dim + 2;
-    int n = nrows * ncolumns;
-    Value *p = (Value *) malloc (n * sizeof (Value));
-
-    res->Dimension = dim;
-    res->NbConstraints = nrows;
-    res->Constraint = (Value **) malloc (nrows * sizeof (Value *));
-
-    for (i = 0; i < n; ++i)
-      value_init (p[i]);
-
-    for (i = 0; i < nrows; i++, p += ncolumns)
-      res->Constraint[i] = p;
-
-    return res;
-  }
+  polyhedron cloog_new_pol (int, int);
 
   static inline polyhedron cloog_universe_polyhedron (unsigned dim)
   {

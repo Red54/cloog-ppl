@@ -3700,3 +3700,47 @@ debug_values (Value *p, int length)
   for (i = 0; i < length; i++)
     debug_value (p[i]);
 }
+
+polyhedra_union cloog_new_upol (polyhedron p)
+{
+  polyhedra_union ppl =
+    (polyhedra_union) malloc (sizeof (struct polyhedra_union));
+  ppl->_polyhedron = p;
+  ppl->_next = NULL;
+  return ppl;
+}
+
+Vector *Vector_Alloc (unsigned length)
+{
+  unsigned i;
+  Vector *vector = (Vector *) malloc (sizeof (Vector));
+
+  vector->Size = length;
+  vector->p = (Value *) malloc (length * sizeof (Value));
+
+  for (i = 0; i < length; i++)
+    value_init (vector->p[i]);
+
+  return vector;
+}
+
+polyhedron cloog_new_pol (int dim, int nrows)
+{
+  int i;
+  polyhedron res = (polyhedron) malloc (sizeof (struct polyhedron));
+  int ncolumns = dim + 2;
+  int n = nrows * ncolumns;
+  Value *p = (Value *) malloc (n * sizeof (Value));
+
+  res->Dimension = dim;
+  res->NbConstraints = nrows;
+  res->Constraint = (Value **) malloc (nrows * sizeof (Value *));
+
+  for (i = 0; i < n; ++i)
+    value_init (p[i]);
+
+  for (i = 0; i < nrows; i++, p += ncolumns)
+    res->Constraint[i] = p;
+
+  return res;
+}
