@@ -451,6 +451,12 @@ extern "C"
     return cloog_pol_matrix (cloog_upol_polyhedron (upol));
   }
 
+  static inline CloogMatrix *
+  cloog_domain_domain2matrix (CloogDomain *d)
+  {
+    return cloog_pol_matrix (cloog_domain_polyhedron (d));
+  }
+
   static inline void
   cloog_vector_normalize (Value * p, unsigned len)
   {
