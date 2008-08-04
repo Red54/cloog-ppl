@@ -41,9 +41,39 @@ dnl ***************************************************************************/
 AC_PREREQ(2.13)
 AC_INIT(source/cloog.c)
 AC_CONFIG_AUX_DIR(autoconf)
-AM_INIT_AUTOMAKE(cloog, 0.14.0)
+
+dnl Every other copy of the package version number gets its value from here.
+AM_INIT_AUTOMAKE(cloog, 0.15)
+
 dnl default version
 BITS="64"
+
+AC_SUBST(VERSION)
+
+# Version number machinery.
+changequote(<<, >>)dnl
+if test -n "`expr $VERSION : '\([0-9]*\)\.[0-9]*\.[0-9]*'`"
+then
+  CLOOG_VERSION_MAJOR=`expr $VERSION : '\([0-9]*\)\.[0-9]*\.[0-9]*'`
+  CLOOG_VERSION_MINOR=`expr $VERSION : '[0-9]*\.\([0-9]*\)\.[0-9]*'`
+  CLOOG_VERSION_REVISION=`expr $VERSION : '[0-9]*\.[0-9]*\.\([0-9]*\)'`
+  CLOOG_VERSION_BETA=`expr $VERSION : '[0-9]*\.[0-9]*\.[0-9]*pre\([0-9]*\)'`
+else
+  CLOOG_VERSION_MAJOR=`expr $VERSION : '\([0-9]*\)\.[0-9]*'`
+  CLOOG_VERSION_MINOR=`expr $VERSION : '[0-9]*\.\([0-9]*\)'`
+  CLOOG_VERSION_REVISION=0
+  CLOOG_VERSION_BETA=`expr $VERSION : '[0-9]*\.[0-9]*pre\([0-9]*\)'`
+fi
+if test -z "$CLOOG_VERSION_BETA"
+then
+  CLOOG_VERSION_BETA=0
+fi
+changequote([, ])dnl
+AC_SUBST(CLOOG_VERSION_MAJOR)
+AC_SUBST(CLOOG_VERSION_MINOR)
+AC_SUBST(CLOOG_VERSION_REVISION)
+AC_SUBST(CLOOG_VERSION_BETA)
+
 
 dnl /**************************************************************************
 dnl  *                              Checking                                  *
@@ -322,7 +352,7 @@ AC_SUBST(BITS)
 
 AC_CONFIG_FILES(Makefile test/Makefile include/cloog/cloog.h autoconf/Doxyfile)
 AC_CONFIG_FILES(doc/Makefile)
-AC_CONFIG_FILES(source/version.c)
+dnl AC_CONFIG_FILES(include/cloog/version.h)
 AC_CONFIG_FILES([genversion.sh], [chmod +x genversion.sh])
 AC_CONFIG_COMMANDS([version.h],
 	[echo '#define CLOOG_HEAD "'`./genversion.sh`'"' > version.h])

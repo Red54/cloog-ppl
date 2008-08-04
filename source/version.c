@@ -23,48 +23,30 @@
  *                                                                            *
  ******************************************************************************/
 
+#include "../include/cloog/version.h"
 
-#ifndef CLOOG_VERSION_H
-#define CLOOG_VERSION_H
-#if defined(__cplusplus)
-extern "C" 
-  {
-#endif 
+int ppl_version_major (void)
+{
+  return CLOOG_VERSION_MAJOR;
+}
 
-#define CLOOG_BITS "64"
+int ppl_version_minor (void)
+{
+  return CLOOG_VERSION_MINOR;
+}
 
-/* The major number of the CLooG version.  */
-#define CLOOG_VERSION_MAJOR 0
+int ppl_version_revision (void)
+{
+  return CLOOG_VERSION_REVISION;
+}
 
-/* The minor number of the CLooG version.  */
-#define CLOOG_VERSION_MINOR 15
+int ppl_version_beta (void)
+{
+  return CLOOG_VERSION_BETA;
+}
 
-/* The revision number of the CLooG version.  */
-#define CLOOG_VERSION_REVISION 0
+const char *cloog_version(void)
+{
+  return "CLooG "CLOOG_VERSION" "CLOOG_BITS" bits";
+}
 
-/* The beta number of the CLooG version.  This is zero for official
-   releases and nonzero for development snapshots.  */
-#define CLOOG_VERSION_BETA 0
-
-/* A string containing the CLooG version.
-
-  Let M and m denote the numbers associated to CLooG_VERSION_MAJOR and
-  CLooG_VERSION_MINOR, respectively.  The format of CLooG_VERSION is M
-  "." m if both CLooG_VERSION_REVISION (r) and CLooG_VERSION_BETA
-  (b) are zero, M "." m "pre" b if CLooG_VERSION_REVISION is zero and
-  CLooG_VERSION_BETA is not zero, M "." m "." r if
-  CLooG_VERSION_REVISION is not zero and CLooG_VERSION_BETA is zero, M
-  "." m "." r "pre" b if neither CLooG_VERSION_REVISION nor
-  CLooG_VERSION_BETA are zero.  */
-#define CLOOG_VERSION "0.15"
-
-extern int ppl_version_major (void);
-extern int ppl_version_minor (void);
-extern int ppl_version_revision (void);
-extern int ppl_version_beta (void);
-extern const char *cloog_version(void);
-
-#if defined(__cplusplus)
-  }
-#endif 
-#endif /* define _H */

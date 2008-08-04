@@ -31,32 +31,32 @@ extern "C"
   {
 #endif 
 
-#define CLOOG_BITS "64"
+#define CLOOG_BITS "@BITS@"
 
 /* The major number of the CLooG version.  */
-#define CLOOG_VERSION_MAJOR 0
+#define CLOOG_VERSION_MAJOR @CLOOG_VERSION_MAJOR@
 
 /* The minor number of the CLooG version.  */
-#define CLOOG_VERSION_MINOR 15
+#define CLOOG_VERSION_MINOR @CLOOG_VERSION_MINOR@
 
 /* The revision number of the CLooG version.  */
-#define CLOOG_VERSION_REVISION 0
+#define CLOOG_VERSION_REVISION @CLOOG_VERSION_REVISION@
 
 /* The beta number of the CLooG version.  This is zero for official
    releases and nonzero for development snapshots.  */
-#define CLOOG_VERSION_BETA 0
+#define CLOOG_VERSION_BETA @CLOOG_VERSION_BETA@
 
 /* A string containing the CLooG version.
 
-  Let M and m denote the numbers associated to CLooG_VERSION_MAJOR and
-  CLooG_VERSION_MINOR, respectively.  The format of CLooG_VERSION is M
-  "." m if both CLooG_VERSION_REVISION (r) and CLooG_VERSION_BETA
-  (b) are zero, M "." m "pre" b if CLooG_VERSION_REVISION is zero and
-  CLooG_VERSION_BETA is not zero, M "." m "." r if
-  CLooG_VERSION_REVISION is not zero and CLooG_VERSION_BETA is zero, M
-  "." m "." r "pre" b if neither CLooG_VERSION_REVISION nor
-  CLooG_VERSION_BETA are zero.  */
-#define CLOOG_VERSION "0.15"
+  Let M and m denote the numbers associated to CLOOG_VERSION_MAJOR and
+  CLOOG_VERSION_MINOR, respectively.  The format of CLOOG_VERSION is M
+  "." m if both CLOOG_VERSION_REVISION (r) and CLOOG_VERSION_BETA
+  (b) are zero, M "." m "pre" b if CLOOG_VERSION_REVISION is zero and
+  CLOOG_VERSION_BETA is not zero, M "." m "." r if
+  CLOOG_VERSION_REVISION is not zero and CLOOG_VERSION_BETA is zero, M
+  "." m "." r "pre" b if neither CLOOG_VERSION_REVISION nor
+  CLOOG_VERSION_BETA are zero.  */
+#define CLOOG_VERSION "@VERSION@"
 
 extern int ppl_version_major (void);
 extern int ppl_version_minor (void);
