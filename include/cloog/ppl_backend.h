@@ -222,6 +222,10 @@ extern "C"
     return cloog_pol_nbc (cloog_upol_polyhedron (p));
   }
 
+  static inline void cloog_upol_free (polyhedra_union upol)
+  {
+    free (upol);
+  }
 
   typedef struct cloogdomain
   {

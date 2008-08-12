@@ -364,6 +364,7 @@ cloog_translate_constraint (CloogMatrix *matrix, int i, int cst, int ineq)
   value_set_si (val, cst);
   value_addto (val, matrix->p[i][matrix->NbColumns - 1], val);
   ppl_assign_Coefficient_from_mpz_t (coef, val);
+  value_clear (val);
   ppl_Linear_Expression_add_to_inhomogeneous (expr, coef);
   ppl_delete_Coefficient (coef);
 
@@ -622,6 +623,7 @@ cloog_pol_from_matrix (CloogMatrix * m)
 
   p = cloog_translate_constraint_matrix (m);
   res = cloog_translate_ppl_polyhedron_1 (p);
+  ppl_delete_Polyhedron (p);
   if ((int) cloog_pol_nbc (res) < cloog_matrix_nrows (m))
     return res;
 
@@ -743,8 +745,12 @@ cloog_domain_free (CloogDomain * domain)
 
 	  while (upol)
 	    {
+	      polyhedra_union next_upol;
+
 	      cloog_pol_free (cloog_upol_polyhedron (upol));
-	      upol = cloog_upol_next (upol);
+	      next_upol = cloog_upol_next (upol);
+	      cloog_upol_free (upol);
+	      upol = next_upol;
 	    }
 
 	  free (domain);
