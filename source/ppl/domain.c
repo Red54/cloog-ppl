@@ -324,7 +324,7 @@ cloog_build_ppl_cstr (ppl_Linear_Expression_t expr, int ineq)
       break;
 
     case 1:
-      ppl_new_Constraint (&cstr, expr, PPL_CONSTRAINT_TYPE_GREATER_THAN_OR_EQUAL);
+      ppl_new_Constraint (&cstr, expr, PPL_CONSTRAINT_TYPE_GREATER_OR_EQUAL);
       break;
 
     default:
@@ -440,7 +440,7 @@ cloog_translate_constraint_matrix (CloogMatrix *matrix)
   ppl_Polyhedron_t ppl;
   ppl_dimension_type dim = matrix->NbColumns - 2;
 
-  ppl_new_NNC_Polyhedron_from_dimension (&ppl, dim);
+  ppl_new_NNC_Polyhedron_from_space_dimension (&ppl, dim, 0);
   cloog_translate_constraint_matrix_1 (ppl, matrix);
   return ppl;
 }
@@ -495,7 +495,7 @@ cloog_translate_ppl_polyhedron_1 (ppl_Polyhedron_t pol)
   int eqs, orig_ineqs, ineqs, row, i;
   ppl_const_Constraint_t pc;
 
-  ppl_Polyhedron_minimized_constraints (pol, &pcs);
+  ppl_Polyhedron_get_minimized_constraints (pol, &pcs);
   ppl_new_Constraint_System_const_iterator (&cit);
   ppl_new_Constraint_System_const_iterator (&end);
 
@@ -536,7 +536,7 @@ cloog_translate_ppl_polyhedron_1 (ppl_Polyhedron_t pol)
       ppl_Constraint_System_const_iterator_dereference (cit, &pc);
 
       neg = (ppl_Constraint_type (pc) == PPL_CONSTRAINT_TYPE_LESS_THAN
-	     || ppl_Constraint_type (pc) == PPL_CONSTRAINT_TYPE_LESS_THAN_OR_EQUAL) ? 1 : 0;
+	     || ppl_Constraint_type (pc) == PPL_CONSTRAINT_TYPE_LESS_OR_EQUAL) ? 1 : 0;
       row = (ppl_Constraint_type (pc) == PPL_CONSTRAINT_TYPE_EQUAL) ? eqs++ : ineqs++;
 
       for (col = 0; col < dim; col++)
@@ -568,8 +568,8 @@ cloog_translate_ppl_polyhedron_1 (ppl_Polyhedron_t pol)
 	  value_set_si (res->Constraint[row][0], 1);
 	  break;
 
-	case PPL_CONSTRAINT_TYPE_LESS_THAN_OR_EQUAL:
-	case PPL_CONSTRAINT_TYPE_GREATER_THAN_OR_EQUAL:
+	case PPL_CONSTRAINT_TYPE_LESS_OR_EQUAL:
+	case PPL_CONSTRAINT_TYPE_GREATER_OR_EQUAL:
 	  value_set_si (res->Constraint[row][0], 1);
 	  break;
 
@@ -795,7 +795,7 @@ cloog_domain_convex (CloogDomain * domain)
 
       m = cloog_upol_domain2matrix (upol);
       p2 = cloog_translate_constraint_matrix (m);
-      ppl_Polyhedron_generators (p2, &g);
+      ppl_Polyhedron_get_generators (p2, &g);
       ppl_Polyhedron_add_generators_and_minimize (p1, g);
       ppl_delete_Polyhedron (p2);
 
@@ -875,7 +875,7 @@ non_redundant_constraint (ppl_Constraint_t c, ppl_Polyhedron_t p)
 
       ppl_new_Constraint_System_from_Constraint (&cs, c);
       ppl_new_NNC_Polyhedron_from_Constraint_System (&p1, cs);
-      ppl_Polyhedron_generators (p1, &g);
+      ppl_Polyhedron_get_generators (p1, &g);
       ppl_new_Generator_System_const_iterator (&git);
       ppl_new_Generator_System_const_iterator (&end);
 
@@ -916,7 +916,7 @@ changes_constraints (ppl_Constraint_t c, ppl_Polyhedron_t p)
 
   ppl_new_Constraint_System_const_iterator (&git);
   ppl_new_Constraint_System_const_iterator (&end);
-  ppl_Polyhedron_minimized_constraints (p, &g);
+  ppl_Polyhedron_get_minimized_constraints (p, &g);
 
   for (ppl_Constraint_System_begin (g, git), ppl_Constraint_System_end (g, end);
        !ppl_Constraint_System_const_iterator_equal_test (git, end);
@@ -931,7 +931,7 @@ changes_constraints (ppl_Constraint_t c, ppl_Polyhedron_t p)
 	  a1++;
 	  break;
 
-	case PPL_CONSTRAINT_TYPE_LESS_THAN_OR_EQUAL:
+	case PPL_CONSTRAINT_TYPE_LESS_OR_EQUAL:
 	  a2++;
 	  break;
 
@@ -939,7 +939,7 @@ changes_constraints (ppl_Constraint_t c, ppl_Polyhedron_t p)
 	  a3++;
 	  break;
 
-	case PPL_CONSTRAINT_TYPE_GREATER_THAN_OR_EQUAL:
+	case PPL_CONSTRAINT_TYPE_GREATER_OR_EQUAL:
 	  a4++;
 	  break;
 
@@ -954,7 +954,7 @@ changes_constraints (ppl_Constraint_t c, ppl_Polyhedron_t p)
 
   ppl_new_NNC_Polyhedron_from_NNC_Polyhedron (&q, p);
   ppl_Polyhedron_add_constraint_and_minimize (q, c);
-  ppl_Polyhedron_minimized_constraints (q, &g);
+  ppl_Polyhedron_get_minimized_constraints (q, &g);
 
   for (ppl_Constraint_System_begin (g, git), ppl_Constraint_System_end (g, end);
        !ppl_Constraint_System_const_iterator_equal_test (git, end);
@@ -969,7 +969,7 @@ changes_constraints (ppl_Constraint_t c, ppl_Polyhedron_t p)
 	  b1++;
 	  break;
 
-	case PPL_CONSTRAINT_TYPE_LESS_THAN_OR_EQUAL:
+	case PPL_CONSTRAINT_TYPE_LESS_OR_EQUAL:
 	  b2++;
 	  break;
 
@@ -977,7 +977,7 @@ changes_constraints (ppl_Constraint_t c, ppl_Polyhedron_t p)
 	  b3++;
 	  break;
 
-	case PPL_CONSTRAINT_TYPE_GREATER_THAN_OR_EQUAL:
+	case PPL_CONSTRAINT_TYPE_GREATER_OR_EQUAL:
 	  b4++;
 	  break;
 
@@ -1014,7 +1014,7 @@ changes_generators (ppl_Constraint_t c, ppl_Polyhedron_t p)
 
   ppl_new_Generator_System_const_iterator (&git);
   ppl_new_Generator_System_const_iterator (&end);
-  ppl_Polyhedron_minimized_generators (p, &g);
+  ppl_Polyhedron_get_minimized_generators (p, &g);
 
   for (ppl_Generator_System_begin (g, git), ppl_Generator_System_end (g, end);
        !ppl_Generator_System_const_iterator_equal_test (git, end);
@@ -1042,7 +1042,7 @@ changes_generators (ppl_Constraint_t c, ppl_Polyhedron_t p)
 
   ppl_new_NNC_Polyhedron_from_NNC_Polyhedron (&q, p);
   ppl_Polyhedron_add_constraint (q, c);
-  ppl_Polyhedron_minimized_generators (q, &g);
+  ppl_Polyhedron_get_minimized_generators (q, &g);
 
   for (ppl_Generator_System_begin (g, git), ppl_Generator_System_end (g, end);
        !ppl_Generator_System_const_iterator_equal_test (git, end);
@@ -1116,7 +1116,7 @@ cloog_domain_simplify (CloogDomain * dom1, CloogDomain * dom2)
 	  ppl_Polyhedron_t p2 = cloog_translate_constraint_matrix (m2);
 	  ppl_Polyhedron_t p3;
 
-	  ppl_new_NNC_Polyhedron_from_dimension (&p3, dim);
+	  ppl_new_NNC_Polyhedron_from_space_dimension (&p3, dim, 0);
 
 	  for (i = 0; i < m1->NbRows; i++)
 	    if (!cloog_positivity_constraint_p (m1, i, dim + 1))
@@ -1404,7 +1404,7 @@ cloog_domain_addconstraints (CloogDomain *domain_source, CloogDomain *domain_tar
   source = cloog_domain_upol (domain_source);
   target = cloog_domain_upol (domain_target);
 
-  ppl_new_NNC_Polyhedron_from_dimension (&ppl, dim);
+  ppl_new_NNC_Polyhedron_from_space_dimension (&ppl, dim, 0);
   cloog_translate_constraint_matrix_1 (ppl, cloog_upol_domain2matrix (target));
   cloog_translate_constraint_matrix_1 (ppl, cloog_upol_domain2matrix (source));
   res = cloog_translate_ppl_polyhedron (ppl);
@@ -1416,7 +1416,7 @@ cloog_domain_addconstraints (CloogDomain *domain_source, CloogDomain *domain_tar
 
   while (target)
     {
-      ppl_new_NNC_Polyhedron_from_dimension (&ppl, dim);
+      ppl_new_NNC_Polyhedron_from_space_dimension (&ppl, dim, 0);
       cloog_translate_constraint_matrix_1 (ppl, cloog_upol_domain2matrix (target));
 
       if (source)

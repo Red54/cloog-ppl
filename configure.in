@@ -41,6 +41,7 @@ dnl ***************************************************************************/
 AC_PREREQ(2.13)
 AC_INIT(source/cloog.c)
 AC_CONFIG_AUX_DIR(autoconf)
+AC_CONFIG_MACRO_DIR([m4])
 
 dnl Every other copy of the package version number gets its value from here.
 AM_INIT_AUTOMAKE(cloog, 0.15)
@@ -307,10 +308,11 @@ AC_SUBST(POLYHEDRAL_BACKEND)
 POLYHEDRAL_BACKEND=polylib
 
 dnl Checking for PPL
+ppl_major_version=0
+ppl_minor_version=10
 AC_SUBST(PPL_CPPFLAGS)
 AC_SUBST(PPL_LDFLAGS)
 AC_SUBST(PPL_LIBS)
-
 
 AC_MSG_CHECKING(for Parma Polyhedral Library (PPL))
 if test "x$with_ppl" != "x"; then
@@ -325,8 +327,17 @@ if test "x$with_ppl" != "x"; then
 	LDFLAGS="-L$with_ppl/lib $LDFLAGS"
 	LD_LIBRARY_PATH="$with_ppl/lib:$LD_LIBRARY_PATH"
 	export LD_LIBRARY_PATH
+
 	AC_CHECK_HEADER(ppl_c.h,[],
 		        [AC_MSG_ERROR(Can't find PPL headers.)])
+
+	AC_MSG_CHECKING([for version $ppl_major_version.$ppl_minor_version of PPL])
+	AC_TRY_COMPILE([#include "ppl_c.h"],[
+	#if PPL_VERSION_MAJOR != $ppl_major_version || PPL_VERSION_MINOR != $ppl_minor_version
+	choke me
+	#endif
+	], [AC_MSG_RESULT([yes])], [AC_MSG_ERROR(Can't find correct version of PPL.) ])
+
 	LIBS="$LIBS -lppl_c -lppl -lgmpxx"
 
 else
