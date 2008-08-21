@@ -39,7 +39,7 @@
 # include <stdlib.h>
 # include <stdio.h>
 # include <ctype.h>
-# include "../../include/cloog/cloog.h"
+# include "cloog/cloog.h"
 #include "matrix.h"
 
 /* Variables names for pretty printing.  */
