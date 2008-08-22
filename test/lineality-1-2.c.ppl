@@ -14,10 +14,8 @@ for (i=2;i<=M-1;i++) {
     S1 ;
   }
 }
-if (M >= 2) {
-  for (j=1;j<=M-1;j++) {
-    S1(i = M) ;
-  }
-  S1(i = M,j = M) ;
-  S2(i = M,j = M) ;
+for (j=1;j<=M-1;j++) {
+  S1(i = M) ;
 }
+S1(i = M,j = M) ;
+S2(i = M,j = M) ;

@@ -60,13 +60,11 @@ DO t1=CEILING(REAL(-2*n+5)/REAL(2)), MIN(-n+6,0)
       END IF
     END DO
   END DO
-  IF ((t1 >= CEILING(REAL(-2*n+5)/REAL(2))) .AND. (t1 <= -n+6)) THEN
-    t2 = t1+2*n+1
-    DO t3=1, n
-      i = t1+n-1
-      S2(j = n,k = t3)
-    END DO
-  END IF
+  t2 = t1+2*n+1
+  DO t3=1, n
+    i = t1+n-1
+    S2(j = n,k = t3)
+  END DO
 END DO
 DO t1=-n+7, 0
   DO t2=-t1+5, n-2
@@ -134,13 +132,11 @@ DO t1=-n+7, 0
       END IF
     END DO
   END DO
-  IF (t1 >= -n+7) THEN
-    t2 = t1+2*n+1
-    DO t3=1, n
-      i = t1+n-1
-      S2(j = n,k = t3)
-    END DO
-  END IF
+  t2 = t1+2*n+1
+  DO t3=1, n
+    i = t1+n-1
+    S2(j = n,k = t3)
+  END DO
 END DO
 IF (n >= 3) THEN
   DO t1=1, MIN(-n+6,1)
@@ -184,13 +180,11 @@ IF (n >= 3) THEN
         END IF
       END DO
     END DO
-    IF ((t1 <= -n+6) .AND. (n >= 3)) THEN
-      t2 = t1+2*n+1
-      DO t3=1, n
-        i = t1+n-1
-        S2(j = n,k = t3)
-      END DO
-    END IF
+    t2 = t1+2*n+1
+    DO t3=1, n
+      i = t1+n-1
+      S2(j = n,k = t3)
+    END DO
   END DO
 END IF
 DO t1=MAX(1,-n+7), 1
@@ -268,13 +262,11 @@ DO t1=MAX(1,-n+7), 1
       END IF
     END DO
   END DO
-  IF (t1 >= -n+7) THEN
-    t2 = t1+2*n+1
-    DO t3=1, n
-      i = t1+n-1
-      S2(j = n,k = t3)
-    END DO
-  END IF
+  t2 = t1+2*n+1
+  DO t3=1, n
+    i = t1+n-1
+    S2(j = n,k = t3)
+  END DO
 END DO
 DO t1=MAX(n-4,2), FLOOR(REAL(2*n-3)/REAL(2))
   t2 = t1+2
@@ -406,4 +398,28 @@ DO t1=2, n-5
   END DO
 END DO
 IF (n == 2) THEN
-  DO 
+  DO t3=5, 7
+    IF (MOD(t3+1, 2) == 0) THEN
+      k = (t3-3)/2
+      S1(i = 2,j = 1)
+    END IF
+  END DO
+  DO t2=4, 5
+    DO t3=1, 2
+      IF (MOD(t2, 2) == 0) THEN
+        i = (t2-2)/2
+        j = (t2-2)/2
+        S2(k = t3)
+      END IF
+    END DO
+  END DO
+  DO t3=1, 2
+    S2(i = 2,j = 2,k = t3)
+  END DO
+END IF
+IF (n >= 1) THEN
+  t2 = n+3
+  DO t3=1, n
+    S2(i = n,j = 1,k = t3)
+  END DO
+END IF

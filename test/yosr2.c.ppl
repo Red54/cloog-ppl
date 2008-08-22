@@ -15,11 +15,9 @@ for (proc=2;proc<=M-1;proc++) {
     }
   }
 }
-if (M >= 2) {
-  for (i=1;i<=M-1;i++) {
-    S4(j = M) ;
-  }
-  for (j=1;j<=M-1;j++) {
-    S1(i = M) ;
-  }
+for (i=1;i<=M-1;i++) {
+  S4(j = M) ;
+}
+for (j=1;j<=M-1;j++) {
+  S1(i = M) ;
 }

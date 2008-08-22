@@ -1,4 +1,4 @@
-/* Generated from ./vasilache.cloog by CLooG 0.15 64 bits in 0.49s. */
+/* Generated from ./vasilache.cloog by CLooG 0.15 64 bits in 0.47s. */
 S1 ;
 S2 ;
 for (p1=0;p1<=N-1;p1++) {
@@ -23,7 +23,7 @@ for (p1=0;p1<=N-1;p1++) {
         l = 32*p5+31 ;
         S6(i = p1,j = p3,k = p5) ;
       }
-      if ((p1 <= N-1) && (p3 <= N-1) && (p5 >= ceild(N-31,32)) && (p5 <= floord(N-1,32)) && (N >= 100)) {
+      if (p5 >= ceild(N-31,32)) {
         l = N-1 ;
         S6(i = p1,j = p3,k = p5) ;
       }

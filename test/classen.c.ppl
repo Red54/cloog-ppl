@@ -1,4 +1,4 @@
-/* Generated from ./classen.cloog by CLooG 0.15 64 bits in 5.27s. */
+/* Generated from ./classen.cloog by CLooG 0.15 64 bits in 5.35s. */
 if (m >= 2) {
   S1(coordT1 = 0,coordP1 = 1,other1 = 1,other2 = 1) ;
   S2(coordT1 = 0,coordP1 = 1,other1 = 1,other2 = 1,other3 = 1,other4 = 1,other5 = 2,other6 = 1) ;
@@ -18,7 +18,7 @@ if (m >= 3) {
   S2(coordT1 = 1,coordP1 = 1,other1 = 2,other2 = 1,other3 = 2,other4 = 1,other5 = 3,other6 = 1) ;
   S3(coordT1 = 1,coordP1 = 1,other1 = 2,other2 = 2,other3 = 2,other4 = 1,other5 = 2,other6 = 2) ;
   S4(coordT1 = 1,coordP1 = 1,other1 = 3,other2 = 2,other3 = 2,other4 = 1,other5 = 3,other6 = 2) ;
-  for (;;coordP1++) {
+  for (coordP1=1;coordP1<=2;coordP1++) {
     S8(coordT1 = 1) ;
   }
 }
@@ -106,7 +106,7 @@ for (glT1=2;glT1<=m-2;glT1++) {
   other3 = glT1+1 ;
   other5 = glT1+2 ;
   S4(coordT1 = glT1,coordP1 = 1,other2 = 2,other4 = 1,other6 = 2) ;
-  for (;;coordP1++) {
+  for (coordP1=1;coordP1<=glT1+1;coordP1++) {
     S8(coordT1 = glT1) ;
   }
 }
@@ -174,7 +174,7 @@ if (m >= 3) {
   coordT1 = m-1 ;
   S2(coordP1 = m,other1 = m,other2 = m,other3 = 1,other4 = m,other5 = 2,other6 = m) ;
   coordT1 = m-1 ;
-  for (;;coordP1++) {
+  for (coordP1=1;coordP1<=m;coordP1++) {
     S8 ;
   }
 }
@@ -217,63 +217,59 @@ for (glT1=m;glT1<=2*m-4;glT1++) {
     other6 = rp1+1 ;
     S4(coordT1 = glT1,coordP1 = rp1,other4 = rp1) ;
   }
-  if ((glT1 >= m) && (glT1 <= 2*m-4)) {
-    rp1 = glT1-m+2 ;
-    local1 = m-1 ;
-    local2 = glT1-m+2 ;
-    coordT1 = glT1-1 ;
-    coordP1 = glT1-m+2 ;
-    other2 = glT1-m+2 ;
-    other3 = m-1 ;
-    other4 = glT1-m+2 ;
-    other6 = glT1-m+2 ;
-    S5(other1 = glT1,other5 = m) ;
-    local2 = glT1-m+1 ;
-    coordT1 = glT1-1 ;
-    coordP1 = glT1-m+1 ;
-    other2 = glT1-m+2 ;
-    other4 = glT1-m+1 ;
-    other6 = glT1-m+2 ;
-    S6(other1 = glT1,other3 = m,other5 = m) ;
-    coordP1 = glT1-m+2 ;
-    other2 = glT1-m+2 ;
-    S1(coordT1 = glT1,other1 = m) ;
-    local2 = glT1-m+2 ;
-    coordP1 = glT1-m+2 ;
-    other1 = glT1+1 ;
-    other2 = glT1-m+3 ;
-    other4 = glT1-m+2 ;
-    other6 = glT1-m+3 ;
-    S3(coordT1 = glT1,other3 = m,other5 = m) ;
-  }
-  if ((glT1 >= m) && (glT1 <= 2*m-4)) {
-    local1 = glT1-m+1 ;
-    coordT1 = glT1-1 ;
-    other3 = glT1-m+1 ;
-    other5 = glT1-m+2 ;
-    S5(coordP1 = m,other1 = glT1,other2 = m,other4 = m,other6 = m) ;
-    local1 = glT1-m+2 ;
-    local2 = m-1 ;
-    coordT1 = glT1-1 ;
-    coordP1 = m-1 ;
-    other3 = glT1-m+2 ;
-    other4 = m-1 ;
-    other5 = glT1-m+2 ;
-    S6(other1 = glT1,other2 = m,other6 = m) ;
-    other1 = glT1+1 ;
-    other3 = glT1-m+2 ;
-    other4 = m-1 ;
-    other5 = glT1-m+3 ;
-    S7(other2 = m,other6 = m) ;
-    other1 = glT1-m+2 ;
-    S1(coordT1 = glT1,coordP1 = m,other2 = m) ;
-    local1 = glT1-m+2 ;
-    other1 = glT1+1 ;
-    other3 = glT1-m+2 ;
-    other5 = glT1-m+3 ;
-    S2(coordT1 = glT1,coordP1 = m,other2 = m,other4 = m,other6 = m) ;
-  }
-  for (;;coordP1++) {
+  rp1 = glT1-m+2 ;
+  local1 = m-1 ;
+  local2 = glT1-m+2 ;
+  coordT1 = glT1-1 ;
+  coordP1 = glT1-m+2 ;
+  other2 = glT1-m+2 ;
+  other3 = m-1 ;
+  other4 = glT1-m+2 ;
+  other6 = glT1-m+2 ;
+  S5(other1 = glT1,other5 = m) ;
+  local2 = glT1-m+1 ;
+  coordT1 = glT1-1 ;
+  coordP1 = glT1-m+1 ;
+  other2 = glT1-m+2 ;
+  other4 = glT1-m+1 ;
+  other6 = glT1-m+2 ;
+  S6(other1 = glT1,other3 = m,other5 = m) ;
+  coordP1 = glT1-m+2 ;
+  other2 = glT1-m+2 ;
+  S1(coordT1 = glT1,other1 = m) ;
+  local2 = glT1-m+2 ;
+  coordP1 = glT1-m+2 ;
+  other1 = glT1+1 ;
+  other2 = glT1-m+3 ;
+  other4 = glT1-m+2 ;
+  other6 = glT1-m+3 ;
+  S3(coordT1 = glT1,other3 = m,other5 = m) ;
+  local1 = glT1-m+1 ;
+  coordT1 = glT1-1 ;
+  other3 = glT1-m+1 ;
+  other5 = glT1-m+2 ;
+  S5(coordP1 = m,other1 = glT1,other2 = m,other4 = m,other6 = m) ;
+  local1 = glT1-m+2 ;
+  local2 = m-1 ;
+  coordT1 = glT1-1 ;
+  coordP1 = m-1 ;
+  other3 = glT1-m+2 ;
+  other4 = m-1 ;
+  other5 = glT1-m+2 ;
+  S6(other1 = glT1,other2 = m,other6 = m) ;
+  other1 = glT1+1 ;
+  other3 = glT1-m+2 ;
+  other4 = m-1 ;
+  other5 = glT1-m+3 ;
+  S7(other2 = m,other6 = m) ;
+  other1 = glT1-m+2 ;
+  S1(coordT1 = glT1,coordP1 = m,other2 = m) ;
+  local1 = glT1-m+2 ;
+  other1 = glT1+1 ;
+  other3 = glT1-m+2 ;
+  other5 = glT1-m+3 ;
+  S2(coordT1 = glT1,coordP1 = m,other2 = m,other4 = m,other6 = m) ;
+  for (coordP1=glT1-m+2;coordP1<=m;coordP1++) {
     S8(coordT1 = glT1) ;
   }
 }
@@ -336,7 +332,7 @@ if (m >= 3) {
   other3 = m-1 ;
   S2(coordP1 = m,other2 = m,other4 = m,other5 = m,other6 = m) ;
   coordT1 = 2*m-3 ;
-  for (;;coordP1++) {
+  for (coordP1=m-1;coordP1<=m;coordP1++) {
     S8 ;
   }
 }

@@ -9,14 +9,12 @@ DO i=2, N
   END DO
   S3(j = i)
 END DO
-IF ((M >= N+2) .AND. (N >= 1)) THEN
-  i = N+1
-  S7(j = 0)
-  DO j=1, N
-    S6
-    S8
-  END DO
-END IF
+i = N+1
+S7(j = 0)
+DO j=1, N
+  S6
+  S8
+END DO
 DO i=N+2, 2*M-N-2
   DO j=CEILING(REAL(i-N-2)/REAL(2)), FLOOR(REAL(i-N-1)/REAL(2))
     S7
@@ -25,19 +23,15 @@ DO i=N+2, 2*M-N-2
     S6
     S8
   END DO
-  IF ((i >= N+2) .AND. (i <= 2*M-N-2) .AND. (N >= 1)) THEN
-    IF (MOD(i+N, 2) == 0) THEN
-      j = (i+N)/2
-      S4
-      S8
-    END IF
+  IF (MOD(i+N, 2) == 0) THEN
+    j = (i+N)/2
+    S4
+    S8
   END IF
-  IF ((i >= N+2) .AND. (i <= 2*M-N-2) .AND. (N >= 1)) THEN
-    IF (MOD(i+N, 2) == 0) THEN
-      j = (i-N)/2
-      S5
-      S8
-    END IF
+  IF (MOD(i+N, 2) == 0) THEN
+    j = (i-N)/2
+    S5
+    S8
   END IF
 END DO
 DO i=2*M-N-1, 2*M-2

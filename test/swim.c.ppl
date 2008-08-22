@@ -1,4 +1,4 @@
-/* Generated from ./swim.cloog by CLooG 0.15 64 bits in 2.55s. */
+/* Generated from ./swim.cloog by CLooG 0.15 64 bits in 2.42s. */
 if (M == 1) {
   S1 ;
   S2 ;

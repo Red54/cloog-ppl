@@ -1,6 +1,6 @@
 /* Generated from ./lux.cloog by CLooG 0.15 64 bits in 0.04s. */
 if (M >= 2) {
-  for (l=2;;l++) {
+  for (l=2;l<=M;l++) {
     S1(i = 1,j = 1,k = M) ;
   }
 }
@@ -10,10 +10,8 @@ for (i=2;i<=M-1;i++) {
       S2(l = k,m = i) ;
     }
   }
-  if (i <= M-1) {
-    for (l=i+1;l<=M;l++) {
-      S1(j = i,k = M) ;
-    }
+  for (l=i+1;l<=M;l++) {
+    S1(j = i,k = M) ;
   }
 }
 if (M >= 2) {
