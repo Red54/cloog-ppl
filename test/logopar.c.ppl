@@ -1,4 +1,4 @@
-/* Generated from ./logopar.cloog by CLooG  64 bits in 0.05s. */
+/* Generated from ./logopar.cloog by CLooG 0.15 64 bits in 0.05s. */
 for (j=0;j<=m;j++) {
   S1(i = 1) ;
 }
@@ -21,7 +21,7 @@ if (m == n) {
     for (j=0;j<=i-2;j++) {
       S2 ;
     }
-    for (j=i-1;j<=n;j++) {
+    for (j=i-1;j<=m;j++) {
       S1 ;
       S2 ;
     }

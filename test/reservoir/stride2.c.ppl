@@ -1,9 +1,5 @@
-/* Generated from ./reservoir/stride2.cloog by CLooG  64 bits in 0.01s. */
+/* Generated from ./reservoir/stride2.cloog by CLooG 0.15 64 bits in 0.00s. */
 for (c2=2;c2<=M;c2+=7) {
-  if ((c2 >= 2) && (c2 <= M)) {
-    if ((c2 <= M) && (c2 >= 2)) {
-      j = (c2-2)/7 ;
-      S1(i = c2) ;
-    }
-  }
+  j = (c2-2)/7 ;
+  S1(i = c2) ;
 }

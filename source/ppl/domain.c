@@ -851,233 +851,6 @@ cloog_positivity_constraint_p (CloogMatrix *matrix, int i, int dim)
   return j == dim;
 }
 
-/* Returns one when the constraint C is not in P, returns zero when C
-   is already in P.  */
-
-static int
-non_redundant_constraint (ppl_Constraint_t c, ppl_Polyhedron_t p)
-{
-  int rel = ppl_Polyhedron_relation_with_Constraint (p, c);
-
-  if (rel & PPL_POLY_CON_RELATION_IS_DISJOINT)
-    return 1;
-
-  if (rel & PPL_POLY_CON_RELATION_IS_INCLUDED)
-    return 0;
-
-  if (rel & PPL_POLY_CON_RELATION_STRICTLY_INTERSECTS)
-    {
-      ppl_Constraint_System_t cs;
-      ppl_Polyhedron_t p1;
-      ppl_const_Generator_System_t g;
-      ppl_Generator_System_const_iterator_t git, end;
-      ppl_const_Generator_t cg;
-
-      ppl_new_Constraint_System_from_Constraint (&cs, c);
-      ppl_new_NNC_Polyhedron_from_Constraint_System (&p1, cs);
-      ppl_Polyhedron_get_generators (p1, &g);
-      ppl_new_Generator_System_const_iterator (&git);
-      ppl_new_Generator_System_const_iterator (&end);
-
-      for (ppl_Generator_System_begin (g, git), ppl_Generator_System_end (g, end);
-	   !ppl_Generator_System_const_iterator_equal_test (git, end);
-	   ppl_Generator_System_const_iterator_increment (git))
-	{
-	  ppl_Generator_System_const_iterator_dereference (git, &cg);
-	  rel = ppl_Polyhedron_relation_with_Generator (p, cg);
-
-	  if (!(rel & PPL_POLY_GEN_RELATION_SUBSUMES))
-	    break;
-	}
-      ppl_delete_Constraint_System (cs);
-      ppl_delete_Polyhedron (p1);
-      ppl_delete_Generator_System_const_iterator (git);
-      ppl_delete_Generator_System_const_iterator (end);
-
-      /* All generators are redundant.  */
-      if (rel & PPL_POLY_GEN_RELATION_SUBSUMES)
-	return 0;
-    }
-
-  return 1;
-}
-
-/* Returns 1 if adding constraint C to polyhedron P changes the number
-   of constraints of P.  */
-
-static int
-changes_constraints (ppl_Constraint_t c, ppl_Polyhedron_t p)
-{
-  int a1 = 0, a2 = 0, a3 = 0, a4 = 0, a5 = 0;
-  int b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0;
-  ppl_Polyhedron_t q;
-  ppl_const_Constraint_System_t g;
-  ppl_Constraint_System_const_iterator_t git, end;
-
-  ppl_new_Constraint_System_const_iterator (&git);
-  ppl_new_Constraint_System_const_iterator (&end);
-  ppl_Polyhedron_get_minimized_constraints (p, &g);
-
-  for (ppl_Constraint_System_begin (g, git), ppl_Constraint_System_end (g, end);
-       !ppl_Constraint_System_const_iterator_equal_test (git, end);
-       ppl_Constraint_System_const_iterator_increment (git))
-    {
-      ppl_const_Constraint_t pg;
-
-      ppl_Constraint_System_const_iterator_dereference (git, &pg);
-      switch (ppl_Constraint_type (pg))
-	{
-	case PPL_CONSTRAINT_TYPE_LESS_THAN:
-	  a1++;
-	  break;
-
-	case PPL_CONSTRAINT_TYPE_LESS_OR_EQUAL:
-	  a2++;
-	  break;
-
-	case PPL_CONSTRAINT_TYPE_EQUAL:
-	  a3++;
-	  break;
-
-	case PPL_CONSTRAINT_TYPE_GREATER_OR_EQUAL:
-	  a4++;
-	  break;
-
-	case PPL_CONSTRAINT_TYPE_GREATER_THAN:
-	  a5++;
-	  break;
-
-	default:
-	  break;
-	}
-    }
-
-  ppl_new_NNC_Polyhedron_from_NNC_Polyhedron (&q, p);
-  ppl_Polyhedron_add_constraint_and_minimize (q, c);
-  ppl_Polyhedron_get_minimized_constraints (q, &g);
-
-  for (ppl_Constraint_System_begin (g, git), ppl_Constraint_System_end (g, end);
-       !ppl_Constraint_System_const_iterator_equal_test (git, end);
-       ppl_Constraint_System_const_iterator_increment (git))
-    {
-      ppl_const_Constraint_t pg;
-
-      ppl_Constraint_System_const_iterator_dereference (git, &pg);
-      switch (ppl_Constraint_type (pg))
-	{
-	case PPL_CONSTRAINT_TYPE_LESS_THAN:
-	  b1++;
-	  break;
-
-	case PPL_CONSTRAINT_TYPE_LESS_OR_EQUAL:
-	  b2++;
-	  break;
-
-	case PPL_CONSTRAINT_TYPE_EQUAL:
-	  b3++;
-	  break;
-
-	case PPL_CONSTRAINT_TYPE_GREATER_OR_EQUAL:
-	  b4++;
-	  break;
-
-	case PPL_CONSTRAINT_TYPE_GREATER_THAN:
-	  b5++;
-	  break;
-
-	default:
-	  break;
-	}
-    }
-
-  ppl_delete_Constraint_System_const_iterator (git);
-  ppl_delete_Constraint_System_const_iterator (end);
-  ppl_delete_Polyhedron (q);
-
-  if (a1 != b1 || a2 != b2 || a3 != b3 || a4 != b4 || a5 != b5)
-    return 1;
-
-  return 0;
-}
-
-/* Returns 1 if adding constraint C to polyhedron P changes the
-   generators of P.  */
-
-static int
-changes_generators (ppl_Constraint_t c, ppl_Polyhedron_t p)
-{
-  int a1 = 0, a2 = 0;
-  int b1 = 0, b2 = 0;
-  ppl_Polyhedron_t q;
-  ppl_const_Generator_System_t g;
-  ppl_Generator_System_const_iterator_t git, end;
-
-  ppl_new_Generator_System_const_iterator (&git);
-  ppl_new_Generator_System_const_iterator (&end);
-  ppl_Polyhedron_get_minimized_generators (p, &g);
-
-  for (ppl_Generator_System_begin (g, git), ppl_Generator_System_end (g, end);
-       !ppl_Generator_System_const_iterator_equal_test (git, end);
-       ppl_Generator_System_const_iterator_increment (git))
-    {
-      ppl_const_Generator_t pg;
-
-      ppl_Generator_System_const_iterator_dereference (git, &pg);
-      switch (ppl_Generator_type (pg))
-	{
-	case PPL_GENERATOR_TYPE_LINE:
-	case PPL_GENERATOR_TYPE_RAY:
-	  a1++;
-	  break;
-
-	case PPL_GENERATOR_TYPE_POINT:
-	case PPL_GENERATOR_TYPE_CLOSURE_POINT:
-	  a2++;
-	  break;
-
-	default:
-	  break;
-	}
-    }
-
-  ppl_new_NNC_Polyhedron_from_NNC_Polyhedron (&q, p);
-  ppl_Polyhedron_add_constraint (q, c);
-  ppl_Polyhedron_get_minimized_generators (q, &g);
-
-  for (ppl_Generator_System_begin (g, git), ppl_Generator_System_end (g, end);
-       !ppl_Generator_System_const_iterator_equal_test (git, end);
-       ppl_Generator_System_const_iterator_increment (git))
-    {
-      ppl_const_Generator_t pg;
-
-      ppl_Generator_System_const_iterator_dereference (git, &pg);
-      switch (ppl_Generator_type (pg))
-	{
-	case PPL_GENERATOR_TYPE_LINE:
-	case PPL_GENERATOR_TYPE_RAY:
-	  b1++;
-	  break;
-
-	case PPL_GENERATOR_TYPE_POINT:
-	case PPL_GENERATOR_TYPE_CLOSURE_POINT:
-	  b2++;
-	  break;
-
-	default:
-	  break;
-	}
-    }
-
-  ppl_delete_Generator_System_const_iterator (git);
-  ppl_delete_Generator_System_const_iterator (end);
-  ppl_delete_Polyhedron (q);
-
-  if (a1 >= b1 && a2 >= b2)
-    return 0;
-
-  return 1;
-}
-
 /* Simplifies DOM1 in the context of DOM2.  For example, DOM1 can
    contain the following conditions: i >= 0, i <= 5, and DOM2 is a
    loop around, i.e. the context of DOM1, that also contains the
@@ -1100,41 +873,25 @@ changes_generators (ppl_Constraint_t c, ppl_Polyhedron_t p)
 CloogDomain *
 cloog_domain_simplify (CloogDomain * dom1, CloogDomain * dom2)
 {
-  int i;
   CloogDomain *res = NULL;
   polyhedra_union u1, u2;
-  unsigned dim = cloog_domain_dim (dom1);
   CloogDomain *inter = cloog_domain_intersection (dom1, dom2);
 
   for (u1 = cloog_domain_upol (inter); u1; u1 = cloog_upol_next (u1))
     {
       CloogMatrix *m1 = cloog_upol_domain2matrix (u1);
+      ppl_Polyhedron_t p1 = cloog_translate_constraint_matrix (m1);
 
+      cloog_matrix_free (m1);
       for (u2 = cloog_domain_upol (dom2); u2; u2 = cloog_upol_next (u2))
 	{
 	  CloogMatrix *m2 = cloog_upol_domain2matrix (u2);
 	  ppl_Polyhedron_t p2 = cloog_translate_constraint_matrix (m2);
-	  ppl_Polyhedron_t p3;
 
-	  ppl_new_NNC_Polyhedron_from_space_dimension (&p3, dim, 0);
-
-	  for (i = 0; i < m1->NbRows; i++)
-	    if (!cloog_positivity_constraint_p (m1, i, dim + 1))
-	      {
-		ppl_Constraint_t c1 = cloog_translate_constraint (m1, i, 0, -1);
-
-		if (non_redundant_constraint (c1, p2)
-		    || changes_generators (c1, p2)
-		    || changes_constraints (c1, p2))
-		  ppl_Polyhedron_add_constraint_and_minimize (p3, c1);
-
-		ppl_delete_Constraint (c1);
-	      }
-
-	  res = cloog_domain_union (res, cloog_translate_ppl_polyhedron (p3));
-
+	  cloog_matrix_free (m2);
+	  ppl_Polyhedron_simplify_using_context_assign (p1, p2);
+	  res = cloog_domain_union (res, cloog_translate_ppl_polyhedron (p1));
 	  ppl_delete_Polyhedron (p2);
-	  ppl_delete_Polyhedron (p3);
 	}
     }
 

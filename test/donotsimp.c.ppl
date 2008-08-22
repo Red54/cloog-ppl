@@ -1,17 +1,9 @@
-/* Generated from ./donotsimp.cloog by CLooG  64 bits in 0.03s. */
+/* Generated from ./donotsimp.cloog by CLooG 0.15 64 bits in 0.03s. */
 for (c2=1;c2<=10;c2++) {
   for (c4=1;c4<=c2;c4++) {
-    if ((c2 >= c4) && (c2 <= 10)) {
-      if ((c2 >= c4) && (c4 >= 1)) {
-        S1(i = c2,j = c4) ;
-      }
-    }
+    S1(i = c2,j = c4) ;
   }
   for (c4=11;c4<=M;c4++) {
-    if ((c2 >= 1) && (c2 <= 10)) {
-      if ((c4 >= 11) && (c4 <= M)) {
-        S2(i = c2,j = c4) ;
-      }
-    }
+    S2(i = c2,j = c4) ;
   }
 }

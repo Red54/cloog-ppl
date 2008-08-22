@@ -1,4 +1,4 @@
-! Generated from ./levenshtein-1-2-3f.cloog by CLooG  64 bits in 0.26s.
+! Generated from ./levenshtein-1-2-3f.cloog by CLooG 0.15 64 bits in 0.19s.
 S1(i = 0,j = 0)
 S2(i = 1,j = 0)
 S3(i = 1,j = 1)
@@ -7,16 +7,16 @@ DO i=2, N
   DO j=1, i-1
     S6
   END DO
-  IF ((i >= 2) .AND. (i <= N)) THEN
-    S3(j = i)
-  END IF
+  S3(j = i)
 END DO
-i = N+1
-S7(j = 0)
-DO j=1, N
-  S6
-  S8
-END DO
+IF ((M >= N+2) .AND. (N >= 1)) THEN
+  i = N+1
+  S7(j = 0)
+  DO j=1, N
+    S6
+    S8
+  END DO
+END IF
 DO i=N+2, 2*M-N-2
   DO j=CEILING(REAL(i-N-2)/REAL(2)), FLOOR(REAL(i-N-1)/REAL(2))
     S7
@@ -25,14 +25,14 @@ DO i=N+2, 2*M-N-2
     S6
     S8
   END DO
-  IF ((i >= N+2) .AND. (i <= 2*M-N-2)) THEN
+  IF ((i >= N+2) .AND. (i <= 2*M-N-2) .AND. (N >= 1)) THEN
     IF (MOD(i+N, 2) == 0) THEN
       j = (i+N)/2
       S4
       S8
     END IF
   END IF
-  IF ((i >= N+2) .AND. (i <= 2*M-N-2)) THEN
+  IF ((i >= N+2) .AND. (i <= 2*M-N-2) .AND. (N >= 1)) THEN
     IF (MOD(i+N, 2) == 0) THEN
       j = (i-N)/2
       S5
