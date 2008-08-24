@@ -440,7 +440,7 @@ cloog_translate_constraint_matrix (CloogMatrix *matrix)
   ppl_Polyhedron_t ppl;
   ppl_dimension_type dim = matrix->NbColumns - 2;
 
-  ppl_new_NNC_Polyhedron_from_space_dimension (&ppl, dim, 0);
+  ppl_new_C_Polyhedron_from_space_dimension (&ppl, dim, 0);
   cloog_translate_constraint_matrix_1 (ppl, matrix);
   return ppl;
 }
@@ -1161,7 +1161,7 @@ cloog_domain_addconstraints (CloogDomain *domain_source, CloogDomain *domain_tar
   source = cloog_domain_upol (domain_source);
   target = cloog_domain_upol (domain_target);
 
-  ppl_new_NNC_Polyhedron_from_space_dimension (&ppl, dim, 0);
+  ppl_new_C_Polyhedron_from_space_dimension (&ppl, dim, 0);
   cloog_translate_constraint_matrix_1 (ppl, cloog_upol_domain2matrix (target));
   cloog_translate_constraint_matrix_1 (ppl, cloog_upol_domain2matrix (source));
   res = cloog_translate_ppl_polyhedron (ppl);
@@ -1173,7 +1173,7 @@ cloog_domain_addconstraints (CloogDomain *domain_source, CloogDomain *domain_tar
 
   while (target)
     {
-      ppl_new_NNC_Polyhedron_from_space_dimension (&ppl, dim, 0);
+      ppl_new_C_Polyhedron_from_space_dimension (&ppl, dim, 0);
       cloog_translate_constraint_matrix_1 (ppl, cloog_upol_domain2matrix (target));
 
       if (source)
@@ -1218,8 +1218,8 @@ cloog_domain_polyhedron_compare (CloogMatrix *m1, CloogMatrix *m2, int level, in
       return 0;
     }
 
-  ppl_new_NNC_Polyhedron_from_NNC_Polyhedron (&q1, p1);
-  ppl_new_NNC_Polyhedron_from_NNC_Polyhedron (&q2, p2);
+  ppl_new_C_Polyhedron_from_C_Polyhedron (&q1, p1);
+  ppl_new_C_Polyhedron_from_C_Polyhedron (&q2, p2);
 
   for (i = level; i < dimension - nb_par + 1; i++)
     {
@@ -1241,7 +1241,7 @@ cloog_domain_polyhedron_compare (CloogMatrix *m1, CloogMatrix *m2, int level, in
       ppl_delete_Coefficient (d);
     }
 
-  ppl_new_NNC_Polyhedron_from_NNC_Polyhedron (&q, q1);
+  ppl_new_C_Polyhedron_from_C_Polyhedron (&q, q1);
   ppl_Polyhedron_intersection_assign (q, q2);
   ppl_delete_Polyhedron (q1);
   ppl_delete_Polyhedron (q2);
@@ -1254,8 +1254,8 @@ cloog_domain_polyhedron_compare (CloogMatrix *m1, CloogMatrix *m2, int level, in
       return 0;
     }
 
-  ppl_new_NNC_Polyhedron_from_NNC_Polyhedron (&q1, p1);
-  ppl_new_NNC_Polyhedron_from_NNC_Polyhedron (&q2, p2);
+  ppl_new_C_Polyhedron_from_C_Polyhedron (&q1, p1);
+  ppl_new_C_Polyhedron_from_C_Polyhedron (&q2, p2);
   ppl_delete_Polyhedron (p1);
   ppl_delete_Polyhedron (p2);
 
@@ -1265,7 +1265,7 @@ cloog_domain_polyhedron_compare (CloogMatrix *m1, CloogMatrix *m2, int level, in
   m1 = cloog_upol_domain2matrix (cloog_domain_upol (cloog_translate_ppl_polyhedron (q1)));
   m2 = cloog_upol_domain2matrix (cloog_domain_upol (cloog_translate_ppl_polyhedron (q2)));
 
-  ppl_new_NNC_Polyhedron_from_NNC_Polyhedron (&q4, q);
+  ppl_new_C_Polyhedron_from_C_Polyhedron (&q4, q);
   for (i = 0; i < m1->NbRows; i++)
     if (value_one_p (m1->p[i][0])
 	&& value_pos_p (m1->p[i][level]))
@@ -1294,7 +1294,7 @@ cloog_domain_polyhedron_compare (CloogMatrix *m1, CloogMatrix *m2, int level, in
     }
 
   ppl_delete_Polyhedron (q4);
-  ppl_new_NNC_Polyhedron_from_NNC_Polyhedron (&q3, q);
+  ppl_new_C_Polyhedron_from_C_Polyhedron (&q3, q);
   for (i = 0; i < m1->NbRows; i++)
     {
       if (value_zero_p (m1->p[i][0]))
@@ -1327,7 +1327,7 @@ cloog_domain_polyhedron_compare (CloogMatrix *m1, CloogMatrix *m2, int level, in
       else
 	continue;
 
-      ppl_new_NNC_Polyhedron_from_NNC_Polyhedron (&q5, q3);
+      ppl_new_C_Polyhedron_from_C_Polyhedron (&q5, q3);
       for (j = 0; j < m2->NbRows; j++)
 	{
 	  if (value_zero_p (m2->p[j][0]))
@@ -1372,12 +1372,12 @@ cloog_domain_polyhedron_compare (CloogMatrix *m1, CloogMatrix *m2, int level, in
 
 	  /* Reinitialize Q5.  */
 	  ppl_delete_Polyhedron (q5);
-	  ppl_new_NNC_Polyhedron_from_NNC_Polyhedron (&q5, q3);
+	  ppl_new_C_Polyhedron_from_C_Polyhedron (&q5, q3);
 	}
 
       /* Reinitialize Q3.  */
       ppl_delete_Polyhedron (q3);
-      ppl_new_NNC_Polyhedron_from_NNC_Polyhedron (&q3, q);
+      ppl_new_C_Polyhedron_from_C_Polyhedron (&q3, q);
     }
 
   ppl_delete_Polyhedron (q);
