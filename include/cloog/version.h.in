@@ -58,10 +58,10 @@ extern "C"
   CLOOG_VERSION_BETA are zero.  */
 #define CLOOG_VERSION "@VERSION@"
 
-extern int ppl_version_major (void);
-extern int ppl_version_minor (void);
-extern int ppl_version_revision (void);
-extern int ppl_version_beta (void);
+extern int cloog_version_major (void);
+extern int cloog_version_minor (void);
+extern int cloog_version_revision (void);
+extern int cloog_version_beta (void);
 extern const char *cloog_version(void);
 
 #if defined(__cplusplus)

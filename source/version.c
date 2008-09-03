@@ -25,22 +25,22 @@
 
 #include "../include/cloog/version.h"
 
-int ppl_version_major (void)
+int cloog_version_major (void)
 {
   return CLOOG_VERSION_MAJOR;
 }
 
-int ppl_version_minor (void)
+int cloog_version_minor (void)
 {
   return CLOOG_VERSION_MINOR;
 }
 
-int ppl_version_revision (void)
+int cloog_version_revision (void)
 {
   return CLOOG_VERSION_REVISION;
 }
 
-int ppl_version_beta (void)
+int cloog_version_beta (void)
 {
   return CLOOG_VERSION_BETA;
 }
