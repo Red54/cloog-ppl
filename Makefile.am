@@ -53,6 +53,7 @@ libcloog_la_SOURCES = \
 	source/@POLYHEDRAL_BACKEND@/clast.c \
 	source/@POLYHEDRAL_BACKEND@/domain.c \
 	source/@POLYHEDRAL_BACKEND@/matrix.c \
+	source/@POLYHEDRAL_BACKEND@/matrix.h \
 	source/pprint.c \
 	source/program.c \
 	source/statement.c \
