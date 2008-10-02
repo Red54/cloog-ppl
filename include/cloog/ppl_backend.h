@@ -38,6 +38,11 @@
 
 #ifndef CLOOG_PPL_BACKEND_H
 #define CLOOG_PPL_BACKEND_H
+
+#if PPL_VERSION_MAJOR == 0 && PPL_VERSION_MINOR < 10
+# error "PPL version 0.10 or following is required"
+#endif
+
 #if defined(__cplusplus)
 extern "C"
 {

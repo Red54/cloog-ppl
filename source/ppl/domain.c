@@ -42,6 +42,10 @@
 # include "cloog/cloog.h"
 #include "matrix.h"
 
+#ifndef USE_PPL_POWERSETS
+# define USE_PPL_POWERSETS 1
+#endif
+
 /* Variables names for pretty printing.  */
 static char wild_name[200][40];
 
@@ -108,6 +112,12 @@ cloog_initialize (void)
   if (ppl_initialize() < 0)
     {
       fprintf (stderr, "Cannot initialize the Parma Polyhedra Library.\n");
+      exit (1);
+    }
+
+  if (ppl_restore_pre_PPL_rounding() < 0)
+    {
+      fprintf (stderr, "Cannot restore the pre-PPL rounding mode.\n");
       exit (1);
     }
 
@@ -429,7 +439,7 @@ cloog_translate_constraint_matrix_1 (ppl_Polyhedron_t ppl, CloogMatrix *matrix)
   for (i = 0; i < matrix->NbRows; i++)
     {
       ppl_Constraint_t c = cloog_translate_constraint (matrix, i, 0, -1);
-      ppl_Polyhedron_add_constraint_and_minimize (ppl, c);
+      ppl_Polyhedron_add_constraint (ppl, c);
       ppl_delete_Constraint (c);
     }
 }
@@ -448,13 +458,13 @@ cloog_translate_constraint_matrix (CloogMatrix *matrix)
 /* Put the constraint matrix of polyhedron RES under Cloog's normal
    form: Cloog expects to see
 
-   0    1    1   -9 
-   1    0    1   -1 
+   0    1    1   -9
+   1    0    1   -1
 
    instead of this:
 
-   0    1    1   -9 
-   1   -1    0    8 
+   0    1    1   -9
+   1   -1    0    8
 
    These two forms are equivalent but the expected form uses rightmost
    indices for inequalities.  */
@@ -589,7 +599,7 @@ cloog_translate_ppl_polyhedron_1 (ppl_Polyhedron_t pol)
       return cloog_empty_polyhedron (dim);
     }
 
-  /* Add the positivity constraint.  */ 
+  /* Add the positivity constraint.  */
   if (1 || orig_ineqs == 0)
     {
       row = ineqs;
@@ -787,16 +797,13 @@ cloog_domain_convex (CloogDomain * domain)
   polyhedra_union upol = cloog_domain_upol (domain);
   CloogMatrix *m = cloog_upol_domain2matrix (upol);
   ppl_Polyhedron_t p1 = cloog_translate_constraint_matrix (m);
-  
+
   upol = cloog_upol_next (upol);
   while (upol)
     {
-      ppl_const_Generator_System_t g;
-
       m = cloog_upol_domain2matrix (upol);
       p2 = cloog_translate_constraint_matrix (m);
-      ppl_Polyhedron_get_generators (p2, &g);
-      ppl_Polyhedron_add_generators_and_minimize (p1, g);
+      ppl_Polyhedron_upper_bound_assign (p1, p2);
       ppl_delete_Polyhedron (p2);
 
       upol = cloog_upol_next (upol);
@@ -870,6 +877,75 @@ cloog_positivity_constraint_p (CloogMatrix *matrix, int i, int dim)
    |   S;
   */
 
+#if USE_PPL_POWERSETS
+
+CloogDomain *
+cloog_domain_simplify (CloogDomain * dom1, CloogDomain * dom2)
+{
+  if (!dom1)
+    return dom1;
+  if (!dom2)
+    return dom2;
+
+  CloogDomain *res = NULL;
+
+  ppl_Pointset_Powerset_C_Polyhedron_t ps1, ps2;
+  ppl_dimension_type dim = cloog_domain_dim(dom1);
+  /* Translate dom1 into PPL powerset ps1. */
+  {
+    ppl_new_Pointset_Powerset_C_Polyhedron_from_space_dimension(&ps1, dim, 1);
+    polyhedra_union u1;
+    for (u1 = cloog_domain_upol (dom1); u1; u1 = cloog_upol_next (u1))
+      {
+        CloogMatrix *m = cloog_upol_domain2matrix (u1);
+        ppl_const_Polyhedron_t ph = cloog_translate_constraint_matrix (m);
+        ppl_Pointset_Powerset_C_Polyhedron_add_disjunct(ps1, ph);
+        ppl_delete_Polyhedron(ph);
+        cloog_matrix_free (m);
+      }
+  }
+
+  /* Translate dom2 into PPL powerset ps2. */
+  {
+    ppl_new_Pointset_Powerset_C_Polyhedron_from_space_dimension(&ps2, dim, 1);
+    polyhedra_union u2;
+    for (u2 = cloog_domain_upol (dom2); u2; u2 = cloog_upol_next (u2))
+      {
+        CloogMatrix *m = cloog_upol_domain2matrix (u2);
+        ppl_Polyhedron_t ph = cloog_translate_constraint_matrix (m);
+        ppl_Pointset_Powerset_C_Polyhedron_add_disjunct(ps2, ph);
+        ppl_delete_Polyhedron(ph);
+        cloog_matrix_free (m);
+      }
+  }
+
+  ppl_Pointset_Powerset_C_Polyhedron_simplify_using_context_assign(ps1, ps2);
+
+  /* Translate back simplified ps1 into res. */
+  ppl_Pointset_Powerset_C_Polyhedron_const_iterator_t i;
+  ppl_new_Pointset_Powerset_C_Polyhedron_const_iterator(&i);
+  ppl_Pointset_Powerset_C_Polyhedron_const_iterator_t end;
+  ppl_new_Pointset_Powerset_C_Polyhedron_const_iterator(&end);
+  for (ppl_Pointset_Powerset_C_Polyhedron_const_iterator_begin(ps1, i),
+         ppl_Pointset_Powerset_C_Polyhedron_const_iterator_end(ps1, end);
+       !ppl_Pointset_Powerset_C_Polyhedron_const_iterator_equal_test(i, end);
+       ppl_Pointset_Powerset_C_Polyhedron_const_iterator_increment(i))
+    {
+      ppl_const_Polyhedron_t ph;
+      ppl_Pointset_Powerset_C_Polyhedron_const_iterator_dereference(i, &ph);
+      res = cloog_domain_union (res, cloog_translate_ppl_polyhedron (ph));
+    }
+
+  /* Final clean-up. */
+  ppl_delete_Pointset_Powerset_C_Polyhedron_const_iterator(i);
+  ppl_delete_Pointset_Powerset_C_Polyhedron_const_iterator(end);
+  ppl_delete_Pointset_Powerset_C_Polyhedron(ps1);
+  ppl_delete_Pointset_Powerset_C_Polyhedron(ps2);
+  return res;
+}
+
+#else /* !USE_PPL_POWERSETS */
+
 CloogDomain *
 cloog_domain_simplify (CloogDomain * dom1, CloogDomain * dom2)
 {
@@ -898,8 +974,9 @@ cloog_domain_simplify (CloogDomain * dom1, CloogDomain * dom2)
   return res;
 }
 
+#endif /* !USE_PPL_POWERSETS */
 
-static polyhedra_union 
+static polyhedra_union
 cloog_upol_copy (polyhedra_union p)
 {
   polyhedra_union res = cloog_new_upol (cloog_pol_copy (cloog_upol_polyhedron (p)));
@@ -1108,17 +1185,17 @@ cloog_domain_difference (CloogDomain * d1, CloogDomain * d2)
 	      /* Add the constraint "-matrix[i] - 1 >= 0".  */
 	      p3 = cloog_translate_constraint_matrix (m1);
 	      cstr = cloog_translate_oppose_constraint (matrix, i, -1, 1);
-	      ppl_Polyhedron_add_constraint_and_minimize (p3, cstr);
+	      ppl_Polyhedron_add_constraint (p3, cstr);
 	      ppl_delete_Constraint (cstr);
 	      res = cloog_domain_union (res, cloog_translate_ppl_polyhedron (p3));
 	      ppl_delete_Polyhedron (p3);
-	
+
 	      /* For an equality, add the constraint "matrix[i] - 1 >= 0".  */
 	      if (cloog_matrix_row_is_eq_p (matrix, i))
 		{
 		  p3 = cloog_translate_constraint_matrix (m1);
 		  cstr = cloog_translate_constraint (matrix, i, -1, 1);
-		  ppl_Polyhedron_add_constraint_and_minimize (p3, cstr);
+		  ppl_Polyhedron_add_constraint (p3, cstr);
 		  ppl_delete_Constraint (cstr);
 		  res = cloog_domain_union (res, cloog_translate_ppl_polyhedron (p3));
 		  ppl_delete_Polyhedron (p3);
@@ -1395,7 +1472,7 @@ cloog_domain_polyhedron_compare (CloogMatrix *m1, CloogMatrix *m2, int level, in
  * (level) is the level to consider for partial ordering (nb_par) is the
  * parameter space dimension, (permut) if not NULL, is an array of (nb_pols)
  * integers that contains a permutation specification after call in order to
- * apply the topological sorting. 
+ * apply the topological sorting.
  */
 
 void
@@ -1411,7 +1488,7 @@ cloog_domain_sort (CloogDomain **doms, unsigned nb_pols, unsigned level,
   /* Note that here we do a comparison per tuple of polyhedra.
      PolyLib does not do this, but instead it does fewer comparisons
      and with a complex reasoning they infer that it some comparisons
-     are not useful.  The result is that PolyLib has wrong permutations.  
+     are not useful.  The result is that PolyLib has wrong permutations.
 
      FIXME: In the PolyLib backend, Cloog should use this algorithm
      instead of PolyhedronTSort, and cloog_domain_polyhedron_compare
@@ -1542,7 +1619,7 @@ cloog_domain_list_free (CloogDomainList * list)
  * cloog_domain_read function:
  * Adaptation from the PolyLib. This function reads a matrix into a file (foo,
  * posibly stdin) and returns a pointer to a polyhedron containing the read
- * information. 
+ * information.
  * - October 18th 2001: first version.
  */
 CloogDomain *
@@ -1562,7 +1639,7 @@ cloog_domain_read (FILE * foo)
 /**
  * cloog_domain_union_read function:
  * This function reads a union of polyhedra into a file (foo, posibly stdin) and
- * returns a pointer to a Polyhedron containing the read information. 
+ * returns a pointer to a Polyhedron containing the read information.
  * - September 9th 2002: first version.
  * - October  29th 2005: (debug) removal of a leak counting "correction" that
  *                       was just false since ages.
@@ -1601,7 +1678,7 @@ cloog_domain_union_read (FILE * foo)
 /**
  * cloog_domain_list_read function:
  * This function reads a list of polyhedra into a file (foo, posibly stdin) and
- * returns a pointer to a CloogDomainList containing the read information. 
+ * returns a pointer to a CloogDomainList containing the read information.
  * - November 6th 2001: first version.
  */
 CloogDomainList *
@@ -1769,7 +1846,7 @@ cloog_domain_extend (CloogDomain * domain, int dim, int nb_par)
  * constraint inside a polyhedron, 0 otherwise.
  * - domain is the polyhedron to check,
  **
- * - November 28th 2001: first version. 
+ * - November 28th 2001: first version.
  * - June 26th 2003: for iterators, more 'never true' constraints are found
  *                   (compare cholesky2 and vivien with a previous version),
  *                   checking for the parameters created (compare using vivien).
@@ -2034,7 +2111,7 @@ cloog_matrix_hermite_1 (Value * a, Value * b, Value * d, int n, int p, int q)
 	cloog_matrix_hermite_combine (a, b, *c, d, k, n, p, q, pivot, x, x_inv);
 
   cloog_matrix_hermite_1 (a, b, d, n, p, q + 1);
-  
+
   value_clear (pivot);
   value_clear (x);
   value_clear (x_inv);
@@ -2159,7 +2236,7 @@ static inline void
 cloog_exchange_rows (CloogMatrix * m, int row1, int row2)
 {
   int i;
-  
+
   for (i = 0; i < (int) m->NbColumns; i++)
     value_swap (m->p[row1][i], m->p[row2][i]);
 }
@@ -2483,7 +2560,7 @@ cloog_dio_reduce_diagonal (CloogMatrix *m, Value *coeffs, int nbc, int rank)
       value_set_si (sum, 0);
       for (j = 0; j < i; j++)
 	value_addmul (sum, res[j], m->p[i][j]);
-	
+
       value_subtract (tmp, coeffs[i], sum);
       value_modulus (tmp, tmp, m->p[i][i]);
       if (value_notzero_p (tmp))
@@ -2652,7 +2729,7 @@ cloog_solve_diophantine (CloogMatrix * m, CloogMatrix ** u, Vector ** x)
  *   to be found,
  * - looking_level is the column number of the unknown that impose a stride to
  *   the first unknown.
- * - stride is the stride that is returned back as a function parameter. 
+ * - stride is the stride that is returned back as a function parameter.
  * - offset is the value of the constant c if the condition is of the shape
  *   (i + c)%s = 0, s being the stride.
  **
@@ -2722,7 +2799,7 @@ cloog_domain_stride (CloogDomain *domain, int strided_level, int nb_par, Value *
       value_pmodulus (*offset, *offset, *stride);
     }
 
-  cloog_matrix_free (U); 
+  cloog_matrix_free (U);
   Vector_Free (V);
   return;
 }
