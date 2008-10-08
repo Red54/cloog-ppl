@@ -397,6 +397,7 @@ extern "C"
   static inline int
   cloog_pol_lexico_lt (polyhedron p, int i, int j)
   {
+    int res = 0;
     unsigned k;
     Value a, b;
 
@@ -408,21 +409,33 @@ extern "C"
 	value_absolute (b, p->Constraint[j][k]);
 
 	if (value_lt (a, b))
-	  return 1;
+	  {
+	    res = 1;
+	    goto clear;
+	  }
 
 	if (value_gt (a, b))
-	  return 0;
+	  {
+	    res = 0;
+	    goto clear;
+	  }
 
 	if (value_lt (p->Constraint[i][k], p->Constraint[j][k]))
-	  return 1;
+	  {
+	    res = 1;
+	    goto clear;
+	  }
 
 	if (value_gt (p->Constraint[i][k], p->Constraint[j][k]))
-	  return 0;
+	  {
+	    res = 0;
+	    goto clear;
+	  }
       }
 
+  clear:
     value_clear (a), value_clear (b);
-
-    return 0;
+    return res;
   }
 
   static inline void

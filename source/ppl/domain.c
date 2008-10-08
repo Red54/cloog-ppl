@@ -504,6 +504,7 @@ cloog_translate_ppl_polyhedron_1 (ppl_Polyhedron_t pol)
   ppl_Constraint_System_const_iterator_t cit, end;
   int eqs, orig_ineqs, ineqs, row, i;
   ppl_const_Constraint_t pc;
+  Value val;
 
   ppl_Polyhedron_get_minimized_constraints (pol, &pcs);
   ppl_new_Constraint_System_const_iterator (&cit);
@@ -532,16 +533,16 @@ cloog_translate_ppl_polyhedron_1 (ppl_Polyhedron_t pol)
      followed by inequalities.  */
   ineqs = eqs;
   eqs = 0;
+  value_init (val);
+
   for (ppl_Constraint_System_begin (pcs, cit), ppl_Constraint_System_end (pcs, end);
        !ppl_Constraint_System_const_iterator_equal_test (cit, end);
        ppl_Constraint_System_const_iterator_increment (cit))
     {
       ppl_Coefficient_t coef;
       ppl_dimension_type col;
-      Value val;
       int neg;
 
-      value_init (val);
       ppl_new_Coefficient (&coef);
       ppl_Constraint_System_const_iterator_dereference (cit, &pc);
 
@@ -589,6 +590,8 @@ cloog_translate_ppl_polyhedron_1 (ppl_Polyhedron_t pol)
 	  exit (1);
 	}
     }
+
+  value_clear (val);
   ppl_delete_Constraint_System_const_iterator (cit);
   ppl_delete_Constraint_System_const_iterator (end);
 
@@ -798,11 +801,13 @@ cloog_domain_convex (CloogDomain * domain)
   CloogMatrix *m = cloog_upol_domain2matrix (upol);
   ppl_Polyhedron_t p1 = cloog_translate_constraint_matrix (m);
 
+  cloog_matrix_free (m);
   upol = cloog_upol_next (upol);
   while (upol)
     {
       m = cloog_upol_domain2matrix (upol);
       p2 = cloog_translate_constraint_matrix (m);
+      cloog_matrix_free (m);
       ppl_Polyhedron_upper_bound_assign (p1, p2);
       ppl_delete_Polyhedron (p2);
 
@@ -1044,11 +1049,15 @@ cloog_domain_union (CloogDomain * dom1, CloogDomain * dom2)
   for (d1 = cloog_domain_upol (dom1); d1; d1 = cloog_upol_next (d1))
     {
       int found = 0;
-      ppl_Polyhedron_t ppl1 = cloog_translate_constraint_matrix (cloog_upol_domain2matrix (d1));
+      CloogMatrix *m1 = cloog_upol_domain2matrix (d1);
+      ppl_Polyhedron_t ppl1 = cloog_translate_constraint_matrix (m1);
+      cloog_matrix_free (m1);
 
       for (d2 = cloog_domain_upol (dom2); d2; d2 = cloog_upol_next (d2))
 	{
-	  ppl_Polyhedron_t ppl2 = cloog_translate_constraint_matrix (cloog_upol_domain2matrix (d2));
+	  CloogMatrix *m2 = cloog_upol_domain2matrix (d2);
+	  ppl_Polyhedron_t ppl2 = cloog_translate_constraint_matrix (m2);
+	  cloog_matrix_free (m2);
 
 	  if (ppl_Polyhedron_contains_Polyhedron (ppl2, ppl1))
 	    {
@@ -1080,11 +1089,15 @@ cloog_domain_union (CloogDomain * dom1, CloogDomain * dom2)
   for (d2 = cloog_domain_upol (dom2); d2; d2 = cloog_upol_next (d2))
     {
       int found = 0;
-      ppl_Polyhedron_t ppl2 = cloog_translate_constraint_matrix (cloog_upol_domain2matrix (d2));
+      CloogMatrix *m2 = cloog_upol_domain2matrix (d2);
+      ppl_Polyhedron_t ppl2 = cloog_translate_constraint_matrix (m2);
+      cloog_matrix_free (m2);
 
       for (d1 = head1; d1; d1 = cloog_upol_next (d1))
 	{
-	  ppl_Polyhedron_t ppl1 = cloog_translate_constraint_matrix (cloog_upol_domain2matrix (d1));
+	  CloogMatrix *m1 = cloog_upol_domain2matrix (d1);
+	  ppl_Polyhedron_t ppl1 = cloog_translate_constraint_matrix (m1);
+	  cloog_matrix_free (m1);
 
 	  if (ppl_Polyhedron_contains_Polyhedron (ppl1, ppl2))
 	    {
@@ -1137,11 +1150,15 @@ cloog_domain_intersection (CloogDomain * dom1, CloogDomain * dom2)
 
   for (p1 = cloog_domain_upol (dom1); p1; p1 = cloog_upol_next (p1))
     {
-      ppl1 = cloog_translate_constraint_matrix (cloog_upol_domain2matrix (p1));
+      CloogMatrix *m1 = cloog_upol_domain2matrix (p1);
+      ppl1 = cloog_translate_constraint_matrix (m1);
+      cloog_matrix_free (m1);
 
       for (p2 = cloog_domain_upol (dom2); p2; p2 = cloog_upol_next (p2))
 	{
-	  ppl2 = cloog_translate_constraint_matrix (cloog_upol_domain2matrix (p2));
+	  CloogMatrix *m2 = cloog_upol_domain2matrix (p2);
+	  ppl2 = cloog_translate_constraint_matrix (m2);
+	  cloog_matrix_free (m2);
 	  ppl_Polyhedron_intersection_assign (ppl2, ppl1);
 	  res = cloog_domain_union (res, cloog_translate_ppl_polyhedron (ppl2));
 	  ppl_delete_Polyhedron (ppl2);
@@ -1165,45 +1182,47 @@ cloog_domain_difference (CloogDomain * d1, CloogDomain * d2)
 
   for (p2 = cloog_domain_upol (d2); p2; p2 = cloog_upol_next (p2))
     {
-      CloogMatrix *matrix = cloog_upol_domain2matrix (p2);
+      CloogMatrix *m2 = cloog_upol_domain2matrix (p2);
 
       for (p1 = cloog_domain_upol (d); p1; p1 = cloog_upol_next (p1))
 	{
 	  int i;
 	  CloogMatrix *m1 = cloog_upol_domain2matrix (p1);
 
-	  for (i = 0; i < matrix->NbRows; i++)
+	  for (i = 0; i < m2->NbRows; i++)
 	    {
 	      ppl_Polyhedron_t p3;
 	      ppl_Constraint_t cstr;
 
 	      /* Don't handle "0 >= 0".  */
-	      if (cloog_positivity_constraint_p (matrix, i,
+	      if (cloog_positivity_constraint_p (m2, i,
 						 cloog_domain_dim (d) + 1))
 		continue;
 
-	      /* Add the constraint "-matrix[i] - 1 >= 0".  */
+	      /* Add the constraint "-m2[i] - 1 >= 0".  */
 	      p3 = cloog_translate_constraint_matrix (m1);
-	      cstr = cloog_translate_oppose_constraint (matrix, i, -1, 1);
+	      cstr = cloog_translate_oppose_constraint (m2, i, -1, 1);
 	      ppl_Polyhedron_add_constraint (p3, cstr);
 	      ppl_delete_Constraint (cstr);
 	      res = cloog_domain_union (res, cloog_translate_ppl_polyhedron (p3));
 	      ppl_delete_Polyhedron (p3);
 
-	      /* For an equality, add the constraint "matrix[i] - 1 >= 0".  */
-	      if (cloog_matrix_row_is_eq_p (matrix, i))
+	      /* For an equality, add the constraint "m2[i] - 1 >= 0".  */
+	      if (cloog_matrix_row_is_eq_p (m2, i))
 		{
 		  p3 = cloog_translate_constraint_matrix (m1);
-		  cstr = cloog_translate_constraint (matrix, i, -1, 1);
+		  cstr = cloog_translate_constraint (m2, i, -1, 1);
 		  ppl_Polyhedron_add_constraint (p3, cstr);
 		  ppl_delete_Constraint (cstr);
 		  res = cloog_domain_union (res, cloog_translate_ppl_polyhedron (p3));
 		  ppl_delete_Polyhedron (p3);
 		}
 	    }
+	  cloog_matrix_free (m1);
 	}
       d = res;
       res = NULL;
+      cloog_matrix_free (m2);
     }
 
   if (!d)
@@ -1234,13 +1253,20 @@ cloog_domain_addconstraints (CloogDomain *domain_source, CloogDomain *domain_tar
   ppl_Polyhedron_t ppl;
   polyhedra_union source, target, last;
   int dim = cloog_domain_dim (domain_target);
+  CloogMatrix *m1, *m2;
 
   source = cloog_domain_upol (domain_source);
   target = cloog_domain_upol (domain_target);
 
   ppl_new_C_Polyhedron_from_space_dimension (&ppl, dim, 0);
-  cloog_translate_constraint_matrix_1 (ppl, cloog_upol_domain2matrix (target));
-  cloog_translate_constraint_matrix_1 (ppl, cloog_upol_domain2matrix (source));
+
+  m1 = cloog_upol_domain2matrix (target);
+  m2 = cloog_upol_domain2matrix (source);
+  cloog_translate_constraint_matrix_1 (ppl, m1);
+  cloog_translate_constraint_matrix_1 (ppl, m2);
+  cloog_matrix_free (m1);
+  cloog_matrix_free (m2);
+
   res = cloog_translate_ppl_polyhedron (ppl);
   ppl_delete_Polyhedron (ppl);
   last = cloog_domain_upol (res);
@@ -1251,11 +1277,16 @@ cloog_domain_addconstraints (CloogDomain *domain_source, CloogDomain *domain_tar
   while (target)
     {
       ppl_new_C_Polyhedron_from_space_dimension (&ppl, dim, 0);
-      cloog_translate_constraint_matrix_1 (ppl, cloog_upol_domain2matrix (target));
+
+      m1 = cloog_upol_domain2matrix (target);
+      cloog_translate_constraint_matrix_1 (ppl, m1);
+      cloog_matrix_free (m1);
 
       if (source)
 	{
-	  cloog_translate_constraint_matrix_1 (ppl, cloog_upol_domain2matrix (source));
+	  m2 = cloog_upol_domain2matrix (source);
+	  cloog_translate_constraint_matrix_1 (ppl, m2);
+	  cloog_matrix_free (m2);
 	  source = cloog_upol_next (source);
 	}
 
@@ -1457,6 +1488,8 @@ cloog_domain_polyhedron_compare (CloogMatrix *m1, CloogMatrix *m2, int level, in
       ppl_new_C_Polyhedron_from_C_Polyhedron (&q3, q);
     }
 
+  cloog_matrix_free (m1);
+  cloog_matrix_free (m2);
   ppl_delete_Polyhedron (q);
   ppl_delete_Polyhedron (q1);
   ppl_delete_Polyhedron (q2);
@@ -1506,6 +1539,9 @@ cloog_domain_sort (CloogDomain **doms, unsigned nb_pols, unsigned level,
 	  permut[i] = permut[j];
 	  permut[j] = v;
 	}
+
+      cloog_matrix_free (m1);
+      cloog_matrix_free (m2);
     }
 }
 
@@ -1775,7 +1811,9 @@ cloog_domain_project (CloogDomain * domain, int level, int nb_par)
 
   while (upol)
     {
-      ppl_Polyhedron_t ppl = cloog_translate_constraint_matrix (cloog_upol_domain2matrix (upol));
+      CloogMatrix *m1 = cloog_upol_domain2matrix (upol);
+      ppl_Polyhedron_t ppl = cloog_translate_constraint_matrix (m1);
+      cloog_matrix_free (m1);
 
       ppl_Polyhedron_remove_space_dimensions (ppl, to_remove, n);
       res = cloog_domain_add_domain (res, cloog_translate_ppl_polyhedron (ppl));
@@ -1783,6 +1821,7 @@ cloog_domain_project (CloogDomain * domain, int level, int nb_par)
       upol = cloog_upol_next (upol);
     }
 
+  free (to_remove);
   return res;
 }
 
@@ -1827,7 +1866,9 @@ cloog_domain_extend (CloogDomain * domain, int dim, int nb_par)
 
   while (upol)
     {
-      ppl_Polyhedron_t ppl = cloog_translate_constraint_matrix (cloog_upol_domain2matrix (upol));
+      CloogMatrix *mat = cloog_upol_domain2matrix (upol);
+      ppl_Polyhedron_t ppl = cloog_translate_constraint_matrix (mat);
+      cloog_matrix_free (mat);
 
       ppl_Polyhedron_add_space_dimensions_and_embed (ppl, to_add);
       ppl_Polyhedron_map_space_dimensions (ppl, map, n);
@@ -1836,6 +1877,7 @@ cloog_domain_extend (CloogDomain * domain, int dim, int nb_par)
       upol = cloog_upol_next (upol);
     }
 
+  free (map);
   return res;
 }
 
@@ -2582,12 +2624,16 @@ cloog_dio_reduce_diagonal (CloogMatrix *m, Value *coeffs, int nbc, int rank)
   for (i = rank; i < m->NbColumns; i++)
     value_set_si (res[i], 0);
 
+  value_clear (tmp);
+  value_clear (sum);
+
   return res;
 }
 
 static int
 cloog_dio_check_coeffs (CloogMatrix *m, Value *T, Value *coeffs, int nbr, int nbc, int rank)
 {
+  int res = 1;
   Value sum, tmp;
   int i, j;
 
@@ -2609,14 +2655,15 @@ cloog_dio_check_coeffs (CloogMatrix *m, Value *T, Value *coeffs, int nbr, int nb
 	  free (coeffs);
 	  free (T);
 
-	  value_clear (sum);
-	  value_clear (tmp);
-
-	  return 0;
+	  res = 0;
+	  goto clear;
 	}
     }
 
-  return 1;
+ clear:
+  value_clear (sum);
+  value_clear (tmp);
+  return res;
 }
 
 static CloogMatrix *

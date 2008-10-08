@@ -120,8 +120,14 @@ cloog_matrix_free (CloogMatrix * m)
 {
   int n, i;
 
-  if (!m || !m->p)
+  if (!m)
     return;
+
+  if (!m->p)
+    {
+      free (m);
+      return;
+    }
 
   n = cloog_matrix_nrows (m) * cloog_matrix_ncolumns (m);
 
