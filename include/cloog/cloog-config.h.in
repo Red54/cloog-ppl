@@ -1,0 +1,2 @@
+#undef LINEAR_VALUE_IS_MP
+#undef CLOOG_PPL_BACKEND
