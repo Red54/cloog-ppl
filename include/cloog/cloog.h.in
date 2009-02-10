@@ -39,7 +39,7 @@
 
 #ifndef CLOOG_H
 #define CLOOG_H
-
+#include "cloog-config.h"
 #ifdef CLOOG_PPL_BACKEND
 # define GNUMP
 # include<cloog/ppl_backend.h>

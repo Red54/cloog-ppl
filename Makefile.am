@@ -74,7 +74,8 @@ pkginclude_HEADERS = \
 	include/cloog/pprint.h \
 	include/cloog/program.h \
 	include/cloog/statement.h \
-	include/cloog/version.h
+	include/cloog/version.h \
+	include/cloog/cloog-config.h
 
 version.h: @GIT_INDEX@
 	echo '#define CLOOG_HEAD "'`$(top_builddir)/genversion.sh`'"' > $@

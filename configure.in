@@ -44,6 +44,7 @@ AC_CONFIG_AUX_DIR(autoconf)
 
 dnl Every other copy of the package version number gets its value from here.
 AM_INIT_AUTOMAKE(cloog, 0.15)
+AC_CONFIG_HEADER(include/cloog/cloog-config.h)
 
 dnl default version
 BITS="64"
@@ -114,7 +115,7 @@ gmp_include_package="yes"
 gmp_library_package="yes"
 
 MP_BITS="MP"
-MP_DFLAGS=-DLINEAR_VALUE_IS_MP
+AC_DEFINE([LINEAR_VALUE_IS_MP], 1, [Empty comment])
 NEED_MP="no"
 
 dnl --with-ppl=ppl-path
@@ -322,7 +323,7 @@ if test "x$with_ppl" != "x"; then
 
 	AC_MSG_RESULT(installed in $with_ppl)
 	POLYHEDRAL_BACKEND=ppl
-	CPPFLAGS="-I$with_ppl/include -DCLOOG_PPL_BACKEND $CPPFLAGS"
+	CPPFLAGS="-I$with_ppl/include $CPPFLAGS"
 	LDFLAGS="-L$with_ppl/lib $LDFLAGS"
 	LD_LIBRARY_PATH="$with_ppl/lib:$LD_LIBRARY_PATH"
 	export LD_LIBRARY_PATH
@@ -338,6 +339,7 @@ if test "x$with_ppl" != "x"; then
 	], [AC_MSG_RESULT([yes])], [AC_MSG_ERROR(Can't find correct version of PPL.) ])
 
 	LIBS="$LIBS -lppl_c -lppl -lgmpxx"
+	AC_DEFINE([CLOOG_PPL_BACKEND], 1, [Use the PPL backend])
 
 else
 	AC_MSG_RESULT(not using PPL)
