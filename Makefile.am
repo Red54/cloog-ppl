@@ -111,3 +111,8 @@ doc:
 	@echo "              *        Generating CLooG's documentation       *"
 	@echo "              *-----------------------------------------------*/"
 	doxygen ./autoconf/Doxyfile
+
+clean-local:
+	rm $(builddir)/version.h
+	rm $(builddir)/doc/gitversion.texi
+
