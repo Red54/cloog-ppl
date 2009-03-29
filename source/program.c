@@ -39,7 +39,6 @@
 
 # include <sys/types.h>
 # include <sys/time.h>
-# include <sys/resource.h>
 #include <stdarg.h>
 # include <stdlib.h>
 # include <stdio.h>
@@ -47,6 +46,9 @@
 # include <ctype.h>
 # include <unistd.h>
 # include "../include/cloog/cloog.h"
+#ifdef HAS_SYS_RESOURCE_H
+# include <sys/resource.h>
+#endif
 
 
 /******************************************************************************
@@ -614,7 +616,9 @@ CloogProgram * cloog_program_malloc (void)
  */ 
 CloogProgram * cloog_program_generate(CloogProgram *program, CloogOptions *options)
 { float time ;
+#ifdef HAS_SYS_RESOURCE_H
   struct rusage start, end ;
+#endif
   CloogLoop * loop ;
 #ifdef CLOOG_MEMORY
   char status_path[MAX_STRING_VAL] ;
@@ -671,7 +675,10 @@ CloogProgram * cloog_program_generate(CloogProgram *program, CloogOptions *optio
     }
   }
   
+#ifdef HAS_SYS_RESOURCE_H
   getrusage(RUSAGE_SELF, &start) ;
+#endif
+
   if (cloog_program_loop (program))
   {
     loop = cloog_program_loop (program) ;
@@ -699,12 +706,14 @@ CloogProgram * cloog_program_generate(CloogProgram *program, CloogOptions *optio
     cloog_program_set_loop (program, loop);
   }
     
+#ifdef HAS_SYS_RESOURCE_H
   getrusage(RUSAGE_SELF, &end) ;
   /* We calculate the time spent in code generation. */
   time =  (end.ru_utime.tv_usec -  start.ru_utime.tv_usec)/(float)(MEGA) ;
   time += (float)(end.ru_utime.tv_sec - start.ru_utime.tv_sec) ;
   options->time = time ;
-  
+#endif
+
   return program ;
 }
 
