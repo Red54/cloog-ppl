@@ -31,8 +31,14 @@
 @c %  *                              PART I: HEADER                           *
 @c %  *************************************************************************/
 @c %**start of header
+
 @setfilename cloog.info
 @settitle CLooG - a loop generator for scanning polyhedra
+
+@dircategory Software libraries
+@direntry
+* cloog: (cloog).  A loop generator for scanning polyhedra
+@end direntry
 
 @set EDITION 2.1
 @include gitversion.texi
