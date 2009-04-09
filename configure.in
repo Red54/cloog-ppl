@@ -103,7 +103,7 @@ AC_HEADER_STDC
 dnl Checks for library functions.
 AC_CHECK_FUNCS(strtol)
 
-AC_CHECK_HEADER(sys/resource.h,[AC_DEFINE(HAS_SYS_RESOURCE_H)],
+AC_CHECK_HEADER(sys/resource.h,[AC_DEFINE([HAS_SYS_RESOURCE_H],1,[presence of sys/resource.h])],
 	        [AC_MSG_RESULT([no])])
 
 dnl /**************************************************************************
