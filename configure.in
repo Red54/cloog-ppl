@@ -317,18 +317,22 @@ AC_SUBST(PPL_LDFLAGS)
 AC_SUBST(PPL_LIBS)
 
 AC_MSG_CHECKING(for Parma Polyhedral Library (PPL))
-if test "x$with_ppl" != "x"; then
+if test "x$with_ppl" != "x" -a "x$with_ppl" != "xno"; then
 
    	if test "x$with_polylib_prefix" != "x" -o "x$with_polylib_exec_prefix" != "x" -o "x$with_polylib_builddir" != "x"; then
 	   	AC_MSG_ERROR([--with-polylib and --with-ppl are mutually exclusive])
 	fi
 
-	AC_MSG_RESULT(installed in $with_ppl)
+	if test "x$with_ppl" != "xyes" ; then
+	    AC_MSG_RESULT(installed in $ppl_prefix)
+	    CPPFLAGS="-I$ppl_prefix/include $CPPFLAGS"
+	    LDFLAGS="-L$ppl_prefix/lib $LDFLAGS"
+	    LD_LIBRARY_PATH="$ppl_prefix/lib:$LD_LIBRARY_PATH"
+	    export LD_LIBRARY_PATH
+	else
+	    AC_MSG_RESULT(installed at system prefix)
+	fi
 	POLYHEDRAL_BACKEND=ppl
-	CPPFLAGS="-I$with_ppl/include $CPPFLAGS"
-	LDFLAGS="-L$with_ppl/lib $LDFLAGS"
-	LD_LIBRARY_PATH="$with_ppl/lib:$LD_LIBRARY_PATH"
-	export LD_LIBRARY_PATH
 
 	AC_CHECK_HEADER(ppl_c.h,[],
 		        [AC_MSG_ERROR(Can't find PPL headers.)])
