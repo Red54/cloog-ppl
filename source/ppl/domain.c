@@ -1233,74 +1233,6 @@ cloog_domain_difference (CloogDomain * d1, CloogDomain * d2)
   return res;
 }
 
-
-/**
- * cloog_domain_addconstraints function :
- * This function adds source's polyhedron constraints to target polyhedron: for
- * each element of the polyhedron inside 'target' (i.e. element of the union
- * of polyhedra) it adds the constraints of the corresponding element in
- * 'source'.
- * - August 10th 2002: first version.
- * Nota bene for future : it is possible that source and target don't have the
- * same number of elements (try iftest2 without non-shared constraint
- * elimination in cloog_loop_separate !). This function is yet another part
- * of the DomainSimplify patching problem...
- */
-CloogDomain *
-cloog_domain_addconstraints (CloogDomain *domain_source, CloogDomain *domain_target)
-{
-  CloogDomain *res;
-  ppl_Polyhedron_t ppl;
-  polyhedra_union source, target, last;
-  int dim = cloog_domain_dim (domain_target);
-  CloogMatrix *m1, *m2;
-
-  source = cloog_domain_upol (domain_source);
-  target = cloog_domain_upol (domain_target);
-
-  ppl_new_C_Polyhedron_from_space_dimension (&ppl, dim, 0);
-
-  m1 = cloog_upol_domain2matrix (target);
-  m2 = cloog_upol_domain2matrix (source);
-  cloog_translate_constraint_matrix_1 (ppl, m1);
-  cloog_translate_constraint_matrix_1 (ppl, m2);
-  cloog_matrix_free (m1);
-  cloog_matrix_free (m2);
-
-  res = cloog_translate_ppl_polyhedron (ppl);
-  ppl_delete_Polyhedron (ppl);
-  last = cloog_domain_upol (res);
-
-  source = cloog_upol_next (source);
-  target = cloog_upol_next (target);
-
-  while (target)
-    {
-      ppl_new_C_Polyhedron_from_space_dimension (&ppl, dim, 0);
-
-      m1 = cloog_upol_domain2matrix (target);
-      cloog_translate_constraint_matrix_1 (ppl, m1);
-      cloog_matrix_free (m1);
-
-      if (source)
-	{
-	  m2 = cloog_upol_domain2matrix (source);
-	  cloog_translate_constraint_matrix_1 (ppl, m2);
-	  cloog_matrix_free (m2);
-	  source = cloog_upol_next (source);
-	}
-
-      cloog_upol_set_next
-	(last, cloog_domain_upol (cloog_translate_ppl_polyhedron (ppl)));
-      ppl_delete_Polyhedron (ppl);
-
-      last = cloog_upol_next (last);
-      target = cloog_upol_next (target);
-    }
-
-  return res;
-}
-
 /* Compares P1 to P2: returns 0 when the polyhedra don't overlap,
    returns 1 when p1 >= p2, and returns -1 when p1 < p2.  The ">"
    relation is the "contains" relation.  */
@@ -3630,4 +3562,23 @@ polyhedron cloog_new_pol (int dim, int nrows)
     res->Constraint[i] = p;
 
   return res;
+}
+
+
+/**
+ * cloog_domain_scatter function:
+ * This function add the scattering (scheduling) informations in a domain.
+ */
+CloogDomain *cloog_domain_scatter(CloogDomain *domain, CloogDomain *scatt)
+{ int scatt_dim ;
+  CloogDomain *ext, *newdom;
+  
+  scatt_dim = cloog_domain_dim(scatt) - cloog_domain_dim (domain);
+  ext = cloog_domain_extend (domain, scatt_dim, cloog_domain_dim(domain));
+  newdom = cloog_domain_intersection (ext, scatt);
+
+  cloog_domain_free(ext) ;
+  cloog_domain_free(domain);
+  
+  return newdom;
 }

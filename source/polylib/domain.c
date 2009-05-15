@@ -1808,3 +1808,43 @@ void cloog_domain_print_polyhedra (FILE *foo, CloogDomain *domain)
       polyhedron = polyhedron->next ;
     }
 }
+
+/**
+ * cloog_domain_scatter function:
+ * This function add the scattering (scheduling) informations in a domain.
+ */
+CloogDomain *cloog_domain_scatter(CloogDomain *domain, CloogScattering *scatt)
+{ int scatt_dim ;
+  CloogDomain *ext, *newdom, *newpart, *temp;
+  
+  newdom = NULL ;
+  scatt_dim = cloog_domain_dim(scatt) - cloog_domain_dim(domain) ;
+  
+  /* For each polyhedron of domain (it can be an union of polyhedra). */
+  while (domain != NULL)
+  { /* Extend the domain by adding the scattering dimensions as the new
+     * first domain dimensions.
+     */
+    ext = cloog_domain_extend(domain,scatt_dim,cloog_domain_dim(domain)) ;
+    /* Then add the scattering constraints. */
+    newpart = cloog_domain_addconstraints(scatt,ext) ;
+    cloog_domain_free(ext) ;
+
+    if (newdom != NULL)
+    { temp = newdom ;
+      newdom = cloog_domain_union(newdom,newpart) ;
+      cloog_domain_free(temp) ;
+      cloog_domain_free(newpart) ;
+    }
+    else
+    newdom = newpart ;
+    
+    /* We don't want to free the rest of the list. */
+    temp = domain ;
+    domain = cloog_domain_cut_first(temp) ;
+    cloog_domain_free(temp) ;
+  }
+  
+  return newdom;
+}
+

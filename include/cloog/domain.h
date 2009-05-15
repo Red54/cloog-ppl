@@ -133,6 +133,7 @@ int           cloog_domain_list_lazy_same(CloogDomainList *) ;
 void          cloog_domain_scalar(CloogDomain *, int, Value *) ;
 CloogDomain * cloog_domain_cut_first(CloogDomain *) ;
 CloogDomain * cloog_domain_erase_dimension(CloogDomain *, int) ;
+CloogDomain * cloog_domain_scatter(CloogDomain *, CloogDomain *);
 
 #if defined(__cplusplus)
   }

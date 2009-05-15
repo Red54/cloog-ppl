@@ -92,6 +92,7 @@ CLOOGTEST_C =                          \
 	mode                           \
 	multi-mm-1                     \
 	no_lindep                      \
+	not_equal		       \
 	orc                            \
 	rectangle                      \
 	square+triangle-1-1-2-3        \
