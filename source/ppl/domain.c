@@ -420,6 +420,8 @@ cloog_translate_oppose_constraint (CloogMatrix *matrix, int i, int cst, int ineq
   ppl_assign_Coefficient_from_mpz_t (coef, val);
   ppl_Linear_Expression_add_to_inhomogeneous (expr, coef);
   ppl_delete_Coefficient (coef);
+  value_clear (val);
+  value_clear (val1);
 
   if (ineq != 0 && ineq != 1)
     ineq = !cloog_matrix_row_is_eq_p (matrix, i);
