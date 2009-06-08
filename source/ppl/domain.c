@@ -3525,7 +3525,7 @@ debug_values (Value *p, int length)
 polyhedra_union cloog_new_upol (polyhedron p)
 {
   polyhedra_union ppl =
-    (polyhedra_union) malloc (sizeof (struct polyhedra_union));
+    (polyhedra_union) malloc (sizeof (struct polyhedra_union_s));
   ppl->_polyhedron = p;
   ppl->_next = NULL;
   return ppl;
@@ -3548,7 +3548,7 @@ Vector *Vector_Alloc (unsigned length)
 polyhedron cloog_new_pol (int dim, int nrows)
 {
   int i;
-  polyhedron res = (polyhedron) malloc (sizeof (struct polyhedron));
+  polyhedron res = (polyhedron) malloc (sizeof (struct polyhedron_s));
   int ncolumns = dim + 2;
   int n = nrows * ncolumns;
   Value *p = (Value *) malloc (n * sizeof (Value));

@@ -170,7 +170,7 @@ extern "C"
     free (vector);
   }
 
-  typedef struct polyhedron
+  typedef struct polyhedron_s
   {
     unsigned Dimension;
     unsigned NbConstraints;
@@ -187,10 +187,10 @@ extern "C"
     return p->NbConstraints;
   }
 
-  typedef struct polyhedra_union
+  typedef struct polyhedra_union_s
   {
     polyhedron _polyhedron;
-    struct polyhedra_union *_next;
+    struct polyhedra_union_s *_next;
   } *polyhedra_union;
 
   extern polyhedra_union cloog_new_upol (polyhedron);
@@ -234,7 +234,7 @@ extern "C"
 
   typedef struct cloogdomain
   {
-    struct polyhedra_union *_union;
+    struct polyhedra_union_s *_union;
     int _references;
   } CloogDomain;
 
