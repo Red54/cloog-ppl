@@ -5,8 +5,10 @@ extern "C"
   {
 #endif 
 
+enum clast_expr_type { expr_term, expr_bin, expr_red };
+
 struct clast_expr {
-    enum { expr_term, expr_bin, expr_red } type;
+    enum clast_expr_type type;
 };
 
 struct clast_term {
