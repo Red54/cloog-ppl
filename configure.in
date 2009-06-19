@@ -324,6 +324,7 @@ if test "x$with_ppl" != "x" -a "x$with_ppl" != "xno"; then
 	fi
 
 	if test "x$with_ppl" != "xyes" ; then
+	    ppl_prefix=$with_ppl
 	    AC_MSG_RESULT(installed in $ppl_prefix)
 	    CPPFLAGS="-I$ppl_prefix/include $CPPFLAGS"
 	    LDFLAGS="-L$ppl_prefix/lib $LDFLAGS"
