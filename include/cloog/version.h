@@ -40,7 +40,7 @@ extern "C"
 #define CLOOG_VERSION_MINOR 15
 
 /* The revision number of the CLooG version.  */
-#define CLOOG_VERSION_REVISION 5
+#define CLOOG_VERSION_REVISION 6
 
 /* The beta number of the CLooG version.  This is zero for official
    releases and nonzero for development snapshots.  */
