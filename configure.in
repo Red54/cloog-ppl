@@ -120,15 +120,6 @@ MP_BITS="MP"
 AC_DEFINE([LINEAR_VALUE_IS_MP], 1, [Empty comment])
 NEED_MP="no"
 
-# Allow host libstdc++ to be specified for static linking with PPL.
-AC_ARG_WITH(host-libstdcxx, [  --with-host-libstdcxx=L Use linker arguments L to link with libstdc++
-                          when linking with PPL])
-
-case $with_host_libstdcxx in
-  no|yes) AC_MSG_ERROR([-with-host-libstdcxx needs an argument]) ;;
-  *) LIBS="$LIBS $with_host_libstdcxx" ;;
-esac
-
 dnl --with-ppl=ppl-path
 AC_ARG_WITH(ppl,
 	    [AS_HELP_STRING([--with-ppl=DIR],
@@ -360,6 +351,15 @@ if test "x$with_ppl" != "x" -a "x$with_ppl" != "xno"; then
 else
 	AC_MSG_RESULT(not using PPL)
 fi
+
+# Allow host libstdc++ to be specified for static linking with PPL.
+AC_ARG_WITH(host-libstdcxx, [  --with-host-libstdcxx=L Use linker arguments L to link with libstdc++
+                          when linking with PPL])
+
+case $with_host_libstdcxx in
+  no|yes) AC_MSG_ERROR([-with-host-libstdcxx needs an argument]) ;;
+  *) LIBS="$LIBS $with_host_libstdcxx" ;;
+esac
 
 dnl /**************************************************************************
 dnl  *                            Substitutions                               *

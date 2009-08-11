@@ -916,7 +916,6 @@ with_pic
 enable_fast_install
 with_gnu_ld
 enable_libtool_lock
-with_host_libstdcxx
 with_ppl
 with_polylib_prefix
 with_polylib_exec_prefix
@@ -925,6 +924,7 @@ with_bits
 with_gmp
 with_gmp_include
 with_gmp_library
+with_host_libstdcxx
 '
       ac_precious_vars='build_alias
 host_alias
@@ -1577,8 +1577,6 @@ Optional Packages:
   --with-pic              try to use only PIC/non-PIC objects [default=use
                           both]
   --with-gnu-ld           assume the C compiler uses GNU ld [default=no]
-  --with-host-libstdcxx=L Use linker arguments L to link with libstdc++
-                          when linking with PPL
   --with-ppl=DIR          Prefix of Parma Polyhedral Library installation
   --with-polylib-prefix=DIR
                           Prefix of PolyLib installation
@@ -1590,6 +1588,8 @@ Optional Packages:
   --with-gmp=DIR          DIR where the gmp package is installed
   --with-gmp-include=DIR  DIR where gmp.h is installed
   --with-gmp-library=DIR  DIR where the gmp library is installed
+  --with-host-libstdcxx=L Use linker arguments L to link with libstdc++
+                          when linking with PPL
 
 Some influential environment variables:
   CC          C compiler command
@@ -11863,21 +11863,6 @@ _ACEOF
 
 NEED_MP="no"
 
-# Allow host libstdc++ to be specified for static linking with PPL.
-
-# Check whether --with-host-libstdcxx was given.
-if test "${with_host_libstdcxx+set}" = set; then
-  withval=$with_host_libstdcxx;
-fi
-
-
-case $with_host_libstdcxx in
-  no|yes) { { $as_echo "$as_me:$LINENO: error: -with-host-libstdcxx needs an argument" >&5
-$as_echo "$as_me: error: -with-host-libstdcxx needs an argument" >&2;}
-   { (exit 1); exit 1; }; } ;;
-  *) LIBS="$LIBS $with_host_libstdcxx" ;;
-esac
-
 
 # Check whether --with-ppl was given.
 if test "${with_ppl+set}" = set; then
@@ -12928,6 +12913,21 @@ else
 	{ $as_echo "$as_me:$LINENO: result: not using PPL" >&5
 $as_echo "not using PPL" >&6; }
 fi
+
+# Allow host libstdc++ to be specified for static linking with PPL.
+
+# Check whether --with-host-libstdcxx was given.
+if test "${with_host_libstdcxx+set}" = set; then
+  withval=$with_host_libstdcxx;
+fi
+
+
+case $with_host_libstdcxx in
+  no|yes) { { $as_echo "$as_me:$LINENO: error: -with-host-libstdcxx needs an argument" >&5
+$as_echo "$as_me: error: -with-host-libstdcxx needs an argument" >&2;}
+   { (exit 1); exit 1; }; } ;;
+  *) LIBS="$LIBS $with_host_libstdcxx" ;;
+esac
 
 
 
