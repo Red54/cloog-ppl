@@ -113,6 +113,6 @@ doc:
 	doxygen ./autoconf/Doxyfile
 
 clean-local:
-	rm $(builddir)/version.h
-	rm $(builddir)/doc/gitversion.texi
+	rm $(top_builddir)/version.h
+	rm $(top_builddir)/doc/gitversion.texi
 
