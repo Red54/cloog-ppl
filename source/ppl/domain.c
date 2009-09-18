@@ -1256,6 +1256,7 @@ cloog_domain_polyhedron_compare (CloogMatrix *m1, CloogMatrix *m2, int level, in
   p2 = cloog_translate_constraint_matrix (m2);
   if (ppl_Polyhedron_is_empty (p2))
     {
+      ppl_delete_Polyhedron (p1);
       ppl_delete_Polyhedron (p2);
       return 0;
     }
@@ -1337,6 +1338,7 @@ cloog_domain_polyhedron_compare (CloogMatrix *m1, CloogMatrix *m2, int level, in
 
   ppl_delete_Polyhedron (q4);
   ppl_new_C_Polyhedron_from_C_Polyhedron (&q3, q);
+  ppl_new_C_Polyhedron_from_C_Polyhedron (&q5, q);
   for (i = 0; i < m1->NbRows; i++)
     {
       if (value_zero_p (m1->p[i][0]))
@@ -1369,6 +1371,7 @@ cloog_domain_polyhedron_compare (CloogMatrix *m1, CloogMatrix *m2, int level, in
       else
 	continue;
 
+      ppl_delete_Polyhedron (q5);
       ppl_new_C_Polyhedron_from_C_Polyhedron (&q5, q3);
       for (j = 0; j < m2->NbRows; j++)
 	{
