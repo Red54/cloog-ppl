@@ -467,24 +467,12 @@ static int clast_equal_add(CloogMatrix *equal, CloogMatrix *matrix, int level, i
         value_modulus(modulo,numerator,denominator) ;
         value_division(division,numerator,denominator) ;
 	
-	/* There are 4 scenarios:
-	 *  di +n >= 0  -->  i + (n div d) >= 0
-	 * -di +n >= 0  --> -i + (n div d) >= 0
-	 *  di -n >= 0  -->  if (n%d == 0)  i + ((-n div d)+1) >= 0
-	 *                   else           i +  (-n div d)    >= 0
-	 * -di -n >= 0  -->  if (n%d == 0) -i + ((-n div d)-1) >= 0
-	 *                   else          -i +  (-n div d)    >= 0
-	 * In the following we distinct the scalar value setting and the
-	 * level coefficient.
-	 */
-	if (value_pos_p(numerator) || value_zero_p(modulo))
-	  value_assign (matrix->p[i][matrix->NbColumns-1], division);
-	else
-	  { if (value_pos_p(matrix->p[i][level]))
-	      value_increment (matrix->p[i][matrix->NbColumns-1], division);
-	  else
-	    value_decrement (matrix->p[i][matrix->NbColumns-1],division) ;
-	}
+	/* If MODULO is negative, decrease DIVISION so that the result of
+	   division is rounded to minus infinity.  */
+	if (value_neg_p (modulo))
+	  value_decrement (division, division);
+
+	value_assign (matrix->p[i][matrix->NbColumns-1], division);
         
 	if (value_pos_p(matrix->p[i][level]))
 	  value_set_si(matrix->p[i][level], 1) ;
