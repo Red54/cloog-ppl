@@ -1,4 +1,13 @@
-/* Generated from ./mode.cloog by CLooG 0.15 64 bits in 0.03s. */
+/* Generated from ./mode.cloog by CLooG 0.15 64 bits in 0.01s. */
+for (i=0;i<=min(M,N-1);i++) {
+  for (j=0;j<=i;j++) {
+    S1 ;
+    S2 ;
+  }
+  for (j=i+1;j<=N;j++) {
+    S2 ;
+  }
+}
 if ((M >= N) && (N >= 0)) {
   for (j=0;j<=N;j++) {
     S1(i = N) ;
@@ -14,15 +23,6 @@ if (N >= 0) {
     for (j=N+1;j<=i;j++) {
       S1 ;
     }
-  }
-}
-for (i=0;i<=min(M,N-1);i++) {
-  for (j=0;j<=i;j++) {
-    S1 ;
-    S2 ;
-  }
-  for (j=i+1;j<=N;j++) {
-    S2 ;
   }
 }
 if (N <= -1) {

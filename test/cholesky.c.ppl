@@ -1,4 +1,4 @@
-/* Generated from ./cholesky.cloog by CLooG 0.15 64 bits in 0.26s. */
+/* Generated from ./cholesky.cloog by CLooG 0.15 64 bits in 0.05s. */
 if (n >= 2) {
   S1(i = 1) ;
   S3(i = 1) ;
@@ -6,6 +6,10 @@ if (n >= 2) {
     S4(i = 1,j = c3) ;
     S6(i = 1,j = c3) ;
   }
+}
+if (n == 1) {
+  S1(i = 1) ;
+  S3(i = 1) ;
 }
 for (c1=2;c1<=n-1;c1++) {
   S1(i = c1) ;
@@ -27,8 +31,4 @@ if (n >= 2) {
     S2(i = n,j = c3) ;
   }
   S3(i = n) ;
-}
-if (n == 1) {
-  S1(i = 1) ;
-  S3(i = 1) ;
 }

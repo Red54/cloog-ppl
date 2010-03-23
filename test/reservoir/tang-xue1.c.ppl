@@ -1,4 +1,4 @@
-/* Generated from ././reservoir/tang-xue1.cloog by CLooG 0.15 64 bits in 0.13s. */
+/* Generated from ././reservoir/tang-xue1.cloog by CLooG 0.15 64 bits in 0.05s. */
 for (c2=0;c2<=9;c2++) {
   for (c4=max(c2-9,-1);c4<=min(c2+3,4);c4++) {
     for (c6=max(max(c2-c4,c2),1);c6<=min(min(c2-c4+4,c2+1),9);c6++) {

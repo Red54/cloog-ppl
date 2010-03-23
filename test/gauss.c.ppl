@@ -1,4 +1,4 @@
-/* Generated from ./gauss.cloog by CLooG 0.15 64 bits in 0.04s. */
+/* Generated from ./gauss.cloog by CLooG 0.15 64 bits in 0.02s. */
 if (M >= 2) {
   for (c2=2;c2<=M;c2++) {
     for (j=2;j<=M;j++) {

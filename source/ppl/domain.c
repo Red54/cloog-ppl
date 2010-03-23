@@ -1437,49 +1437,81 @@ cloog_domain_polyhedron_compare (CloogMatrix *m1, CloogMatrix *m2, int level, in
 
 /**
  * cloog_domain_sort function:
- * This function topologically sorts (nb_pols) polyhedra. Here (pols) is a an
- * array of pointers to polyhedra, (nb_pols) is the number of polyhedra,
- * (level) is the level to consider for partial ordering (nb_par) is the
- * parameter space dimension, (permut) if not NULL, is an array of (nb_pols)
- * integers that contains a permutation specification after call in order to
- * apply the topological sorting.
+ * This function topologically sorts (nb_doms) domains. Here (doms) is an
+ * array of pointers to CloogDomains, (nb_doms) is the number of domains,
+ * (level) is the level to consider for partial ordering, (permut) if not
+ * NULL, is an array of (nb_doms) integers that contains a permutation
+ * specification after call in order to apply the topological sorting. 
  */
 
 void
-cloog_domain_sort (CloogDomain **doms, unsigned nb_pols, unsigned level,
+cloog_domain_sort (CloogDomain **doms, unsigned nb_doms, unsigned level,
 		   unsigned nb_par, int *permut)
 {
-  int i, j;
-  int dim = cloog_domain_dim (doms[0]);
+  int i, j, k, cmp;
+  unsigned char **follows;
+  int d;
 
-  for (i = 0; i < (int) nb_pols; i++)
-    permut[i] = i + 1;
+  if (!nb_doms)
+    return;
 
-  /* Note that here we do a comparison per tuple of polyhedra.
-     PolyLib does not do this, but instead it does fewer comparisons
-     and with a complex reasoning they infer that it some comparisons
-     are not useful.  The result is that PolyLib has wrong permutations.
+  d = cloog_domain_dim (doms[0]);
 
-     FIXME: In the PolyLib backend, Cloog should use this algorithm
-     instead of PolyhedronTSort, and cloog_domain_polyhedron_compare
-     should be implemented with a simple call to PolyhedronLTQ: these
-     two functions produce identical answers.  */
-  for (i = 0; i < (int) nb_pols; i++)
-    for (j = i + 1; j < (int) nb_pols; j++)
+  follows = (unsigned char **) malloc (sizeof (unsigned char *) * nb_doms);
+  for (i = 0; i < nb_doms; ++i)
     {
-      CloogMatrix *m1 = cloog_upol_domain2matrix (cloog_domain_upol (doms[i]));
-      CloogMatrix *m2 = cloog_upol_domain2matrix (cloog_domain_upol (doms[j]));
-
-      if (cloog_domain_polyhedron_compare (m1, m2, level, nb_par, dim) == 1)
-	{
-	  int v = permut[i];
-	  permut[i] = permut[j];
-	  permut[j] = v;
-	}
-
-      cloog_matrix_free (m1);
-      cloog_matrix_free (m2);
+      follows[i] = (unsigned char *) malloc (sizeof (unsigned char) * nb_doms);
+      for (j = 0; j < nb_doms; ++j)
+	follows[i][j] = 0;
     }
+
+  for (i = 1; i < nb_doms; ++i)
+    {
+      for (j = 0; j < i; ++j)
+	{
+	  CloogMatrix *m1, *m2;
+
+	  if (follows[i][j] || follows[j][i])
+	    continue;
+
+	  m1 = cloog_upol_domain2matrix (cloog_domain_upol (doms[i]));
+	  m2 = cloog_upol_domain2matrix (cloog_domain_upol (doms[j]));
+	  cmp = cloog_domain_polyhedron_compare (m1, m2, level, nb_par, d);
+
+	  if (!cmp)
+	    continue;
+	  if (cmp > 0)
+	    {
+	      follows[i][j] = 1;
+	      for (k = 0; k < i; ++k)
+		follows[i][k] |= follows[j][k];
+	    }
+	  else
+	    {
+	      follows[j][i] = 1;
+	      for (k = 0; k < i; ++k)
+		follows[k][i] |= follows[k][j];
+	    }
+	}
+    }
+
+  for (i = 0, j = 0; i < nb_doms; j = (j + 1) % nb_doms)
+    {
+      for (k = 0; k < nb_doms; ++k)
+	if (follows[j][k])
+	  break;
+      if (k < nb_doms)
+	continue;
+      for (k = 0; k < nb_doms; ++k)
+	follows[k][j] = 0;
+      follows[j][j] = 1;
+      permut[i] = 1 + j;
+      ++i;
+    }
+
+  for (i = 0; i < nb_doms; ++i)
+    free(follows[i]);
+  free(follows);
 }
 
 /**

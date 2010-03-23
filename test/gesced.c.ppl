@@ -1,4 +1,4 @@
-/* Generated from ./gesced.cloog by CLooG 0.15 64 bits in 0.06s. */
+/* Generated from ./gesced.cloog by CLooG 0.15 64 bits in 0.02s. */
 for (c1=1;c1<=N;c1++) {
   S1(i = c1) ;
 }

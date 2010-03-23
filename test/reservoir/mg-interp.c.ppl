@@ -1,4 +1,61 @@
-/* Generated from ././reservoir/mg-interp.cloog by CLooG 0.15 64 bits in 3.36s. */
+/* Generated from ././reservoir/mg-interp.cloog by CLooG 0.15 64 bits in 1.58s. */
+if ((M >= 2) && (N == 2)) {
+  for (c2=1;c2<=O-1;c2++) {
+    for (c6=1;c6<=M;c6++) {
+      S1(i = c2,j = 1,k = c6) ;
+    }
+    for (c6=1;c6<=M-1;c6++) {
+      S6(i = c2,j = 1,k = c6) ;
+      S7(i = c2,j = 1,k = c6) ;
+    }
+    for (c6=1;c6<=M;c6++) {
+      S3(i = c2,j = 1,k = c6) ;
+    }
+    for (c6=1;c6<=M-1;c6++) {
+      S11(i = c2,j = 1,k = c6) ;
+    }
+    for (c6=1;c6<=M-1;c6++) {
+      S10(i = c2,j = 1,k = c6) ;
+    }
+  }
+}
+if ((M >= 2) && (N == 3)) {
+  for (c2=1;c2<=O-1;c2++) {
+    for (c6=1;c6<=M;c6++) {
+      S1(i = c2,j = 1,k = c6) ;
+    }
+    for (c6=1;c6<=M-1;c6++) {
+      S6(i = c2,j = 1,k = c6) ;
+      S7(i = c2,j = 1,k = c6) ;
+    }
+    for (c6=1;c6<=M;c6++) {
+      S3(i = c2,j = 1,k = c6) ;
+    }
+    for (c6=1;c6<=M-1;c6++) {
+      S1(i = c2,j = 2,k = c6) ;
+    }
+    S1(i = c2,j = 2,k = M) ;
+    for (c6=1;c6<=M-1;c6++) {
+      S6(i = c2,j = 2,k = c6) ;
+      S7(i = c2,j = 2,k = c6) ;
+    }
+    for (c6=1;c6<=M-1;c6++) {
+      S11(i = c2,j = 1,k = c6) ;
+    }
+    for (c6=1;c6<=M-1;c6++) {
+      S10(i = c2,j = 1,k = c6) ;
+    }
+    for (c6=1;c6<=M;c6++) {
+      S3(i = c2,j = 2,k = c6) ;
+    }
+    for (c6=1;c6<=M-1;c6++) {
+      S11(i = c2,j = 2,k = c6) ;
+    }
+    for (c6=1;c6<=M-1;c6++) {
+      S10(i = c2,j = 2,k = c6) ;
+    }
+  }
+}
 if ((M >= 2) && (N >= 4)) {
   for (c2=1;c2<=O-1;c2++) {
     for (c6=1;c6<=M;c6++) {
@@ -108,63 +165,6 @@ if ((M >= 2) && (N >= 4)) {
     for (c6=1;c6<=M-1;c6++) {
       j = N-1 ;
       S10(i = c2,k = c6) ;
-    }
-  }
-}
-if ((M >= 2) && (N == 3)) {
-  for (c2=1;c2<=O-1;c2++) {
-    for (c6=1;c6<=M;c6++) {
-      S1(i = c2,j = 1,k = c6) ;
-    }
-    for (c6=1;c6<=M-1;c6++) {
-      S6(i = c2,j = 1,k = c6) ;
-      S7(i = c2,j = 1,k = c6) ;
-    }
-    for (c6=1;c6<=M;c6++) {
-      S3(i = c2,j = 1,k = c6) ;
-    }
-    for (c6=1;c6<=M-1;c6++) {
-      S1(i = c2,j = 2,k = c6) ;
-    }
-    S1(i = c2,j = 2,k = M) ;
-    for (c6=1;c6<=M-1;c6++) {
-      S6(i = c2,j = 2,k = c6) ;
-      S7(i = c2,j = 2,k = c6) ;
-    }
-    for (c6=1;c6<=M-1;c6++) {
-      S11(i = c2,j = 1,k = c6) ;
-    }
-    for (c6=1;c6<=M-1;c6++) {
-      S10(i = c2,j = 1,k = c6) ;
-    }
-    for (c6=1;c6<=M;c6++) {
-      S3(i = c2,j = 2,k = c6) ;
-    }
-    for (c6=1;c6<=M-1;c6++) {
-      S11(i = c2,j = 2,k = c6) ;
-    }
-    for (c6=1;c6<=M-1;c6++) {
-      S10(i = c2,j = 2,k = c6) ;
-    }
-  }
-}
-if ((M >= 2) && (N == 2)) {
-  for (c2=1;c2<=O-1;c2++) {
-    for (c6=1;c6<=M;c6++) {
-      S1(i = c2,j = 1,k = c6) ;
-    }
-    for (c6=1;c6<=M-1;c6++) {
-      S6(i = c2,j = 1,k = c6) ;
-      S7(i = c2,j = 1,k = c6) ;
-    }
-    for (c6=1;c6<=M;c6++) {
-      S3(i = c2,j = 1,k = c6) ;
-    }
-    for (c6=1;c6<=M-1;c6++) {
-      S11(i = c2,j = 1,k = c6) ;
-    }
-    for (c6=1;c6<=M-1;c6++) {
-      S10(i = c2,j = 1,k = c6) ;
     }
   }
 }
