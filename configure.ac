@@ -338,7 +338,7 @@ if test "x$with_ppl" != "x" -a "x$with_ppl" != "xno"; then
 
 	AC_MSG_CHECKING([for version 0.10 (or later revision) of PPL])
 	AC_TRY_COMPILE([#include "ppl_c.h"],[
-	#if PPL_VERSION_MAJOR != 0 || PPL_VERSION_MINOR < 10
+	#if PPL_VERSION_MAJOR == 0 && PPL_VERSION_MINOR < 10
 	choke me
 	#endif
 	], [AC_MSG_RESULT([yes])], [AC_MSG_ERROR(Can't find correct version of PPL.) ])
